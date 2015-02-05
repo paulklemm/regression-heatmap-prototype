@@ -26,3 +26,20 @@ node_modules
 
 # Users Environment Variables
 .lock-wscript
+
+# Mac Stuff
+.DS_Store
+.sublime-project
+
+# Bower folders
+bower_components/
+
+# Data
+data/
+
+# Do not upload CSV files (datasets)
+*.csv
+
+# Temp folders
+tmp/
+uploads/
