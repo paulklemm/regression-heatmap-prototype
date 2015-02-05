@@ -1,0 +1,12 @@
+{
+  "name": "regression-cube",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "dependencies": {
+    "connect-multiparty": "^1.0.4",
+    "express": "^4.3.1"
+  }
+}
