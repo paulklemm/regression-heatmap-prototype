@@ -1,0 +1,19 @@
+<div class="popover-override" ng-show="editor.popup.show">
+  <div class="popover left">
+    <div class="arrow"></div>
+    <h3 class="popover-title">{{editor.popup.header}}</h3>
+    <div class="popover-content">
+      <p>{{editor.popup.content}}</p>
+    </div>
+  </div>
+</div>
+<div class="input-group">
+  <input id='formula-input' ng-class="{'invalid': !editor.regressionFormula.isValid()}" ng-disabled="!editor.enabled" class="form-control" type="text" ng-model='formulaInput' ng-change='editor.formulaChange()' ng-blur='editor.popup.show = false' ng-focus='editor.popup.show = true' placeholder='z ~ x + y'/>
+  <!-- <input id='formula-input' class="form-control" type="text" ng-change='editor.formulaChange()' ng-blur='editor.popup.show = false' ng-focus='editor.popup.show = true' placeholder='x + y'/> -->
+  <div class="input-group-btn">
+    <button class="btn btn-default" ng-click="editor.submitFormula()" ng-class="{'disabled': !editor.regressionFormula.isValid()}" type="submit"><i class="glyphicon glyphicon-play-circle"></i>
+    </button>
+  </div>
+</div>
+</div>
+</div>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html ng-app="cube" lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>RCube Prototype</title>
+  <script src="bower_components/jquery/dist/jquery.js"></script>
+  <script src="bower_components/d3/d3.js"></script>
+  <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+  <script src="bower_components/angular/angular.js"></script>
+  <script src="bower_components/angular-animate/angular-animate.js"></script>
+  <script src="bower_components/ng-flow/dist/ng-flow-standalone.js"></script>
+  <script src="bower_components/jquery-textcomplete/dist/jquery.textcomplete.js"></script>
+  <script src="bower_components/bootstrap/js/tooltip.js"></script>
+  <script src="bower_components/bootstrap/js/popover.js"></script>
+  <script src="assets/js/RCUBE.js"></script>
+  <script src="assets/js/OpenCPUConnection.js"></script>
+  <script src="assets/js/vis/heatmap.js"></script>
+  <script src="assets/js/vis/pulse.js"></script>
+  <script src="assets/js/Dataset.js"></script>
+  <script src="assets/js/RSession.js"></script>
+  <script src="assets/js/RegressionFormula.js"></script>
+  <script src="assets/js/opencpu-0.4.js"></script>
+  <script src="app.js"></script>
+  <script src="app/directives/fileUpload.directive.js"></script>
+  <script src="app/directives/heatmap.directive.js"></script>
+  <script src="app/directives/formulaEditor.directive.js"></script>
+  <script src="app/services/data.service.js"></script>
+  <script>
+    document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
+  </script>
+
+  <!-- Bootstrap -->
+  <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" media="screen">
+  <link href="bower_components/font-awesome/css/font-awesome.css" rel="stylesheet" media="screen">
+  <link href="assets/css/heatmap.css" rel="stylesheet" media="screen">
+
+  <style type='text/css'>
+    .animation-show-hide {
+      -webkit-transition: all linear 0.5s;
+      transition: all linear 0.5s;
+    }
+    .animation-show-hide.ng-hide {
+      opacity: 0;
+    }
+    .pulse-svg {
+      background-color: background-color: rgba(0, 0, 0, 0.0);
+      ;
+      fill-opacity: 0;
+      padding-top: 10px;
+    }
+    .pulse {
+      fill: none;
+      stroke: #398FBD;
+    }
+    /*Override bootstrap popover setting*/
+
+    .popover-override .popover {
+      display: block;
+      position: absolute;
+      left: auto;
+      right: 250px;
+      top: 5px;
+    }
+    .popover.left > .arrow {
+      top: 16px;
+    }
+    #formula-input:focus {
+      border-color: lawngreen;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px lawngreen;
+    }
+    #formula-input.invalid:focus {
+      border-color: red;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(255, 0, 0, 0.6);
+    }
+    /* Spinning Icon */
+    /* http://codepen.io/astrotim/details/IjJzL */
+
+    .inner {
+      position: relative;
+      z-index: 2;
+    }
+    #cog.visible:after {
+      content: "\f013";
+      font-family: FontAwesome;
+      font-style: normal;
+      font-weight: normal;
+      text-decoration: inherit;
+      position: absolute;
+      font-size: 800px;
+      color: rgba(250, 250, 250, 1);
+      ;
+      top: 50%;
+      left: 50%;
+      margin: -900px 0 0 -350px;
+      -webkit-animation: 15s infinite linear;
+      animation: 15s infinite linear;
+      z-index: 1;
+      -webkit-animation: spin 10s linear infinite;
+      -moz-animation: spin 10s linear infinite;
+      animation: spin 10s linear infinite;
+    }
+    @-moz-keyframes spin {
+      100% {
+        -moz-transform: rotate(360deg);
+      }
+    }
+    @-webkit-keyframes spin {
+      100% {
+        -webkit-transform: rotate(360deg);
+      }
+    }
+    @keyframes spin {
+      100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+  </script>
+</head>
+
+<body>
+
+  <div id='cog' class=''>
+    <div class='inner'>
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#">
+              <p>Regression Cube</p>
+            </a>
+          </div>
+          <div class="pull-right">
+            <form class="navbar-form" role="search">
+              <formula-editor></formula-editor>
+            </form>
+          </div>
+        </div>
+      </nav>
+      <div class=container>
+        <div class='row'>
+          <div class='col-md-4 col-md-offset-4'>
+            <file-upload></file-upload>
+          </div>
+        </div>
+        <heatmap></heatmap>
+      </div>
+
+    </div> <!-- / div.inner -->
+  </div> <!-- / div#cog -->
+</body>
+
+</html>
