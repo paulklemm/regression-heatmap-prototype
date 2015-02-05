@@ -102,6 +102,6 @@ app.get('/download/:identifier', function(req, res) {
   flow.write(req.params.identifier, res);
 });
 
-var port = 8888;
+ar port = process.env.PORT || 8888;
 console.log("Started listening on Port " + port);
 app.listen(port);
