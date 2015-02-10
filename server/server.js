@@ -47,7 +47,7 @@ app.post('/upload', multipartMiddleware, function(req, res) {
       console.log(identifier);
       flow.write(identifier, stream);
       // Clean chunks after the file is assembled
-      // flow.clean(identifier);
+      flow.clean(identifier);
 
       getHashFromFile(UPLOAD_DIR, filename, function(hash){
         console.log("Hash for file " + filename + ' is ' + hash);
@@ -58,7 +58,7 @@ app.post('/upload', multipartMiddleware, function(req, res) {
         });
         // Create response message with the new file name
         var responseMessage = {filename: hash + extension};
-        res.status(status).send(responseMessage);
+        res.status(200).send(responseMessage);
       });
     }
     if (ACCESS_CONTROLL_ALLOW_ORIGIN) {
@@ -66,7 +66,7 @@ app.post('/upload', multipartMiddleware, function(req, res) {
     }
     // Response message is empty for all events except for `done`
     if (status != 'done')
-      res.status(status).send();
+      res.status(200).send();
   });
 });
 
