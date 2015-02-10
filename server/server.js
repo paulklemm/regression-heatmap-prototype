@@ -47,7 +47,7 @@ app.post('/upload', multipartMiddleware, function(req, res) {
       console.log(identifier);
       flow.write(identifier, stream);
       // Clean chunks after the file is assembled
-      flow.clean(identifier);
+      // flow.clean(identifier);
 
       getHashFromFile(UPLOAD_DIR, filename, function(hash){
         console.log("Hash for file " + filename + ' is ' + hash);
