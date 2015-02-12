@@ -16,6 +16,47 @@ RCUBE.RegressionFormula = function(formula, validVariables) {
   this.update(formula);
 };
 
+// constructFormula(['z','x','y'], ['~', '+', '-'], 'age', 'gender', 'bmi')
+RCUBE.RegressionFormula.prototype.constructFormula = function(variables, operators, x, y, z) {
+  var result_formula = '';
+  var dependent_variable;
+  // Iterate over all variables
+  variables.forEach(function(current_variable, i){
+    // Replace placeholders with current x, y and z values
+    if (current_variable == 'x') current_variable = x;
+    if (current_variable == 'y') current_variable = y;
+    if (current_variable == 'z') current_variable = z;
+    // If it is not the last variable, append it together with next operator
+    if (i != variables.length - 1)
+      result_formula = result_formula + current_variable + operators[i];
+    else
+      result_formula = result_formula + current_variable;
+
+    if (i === 0)
+      dependent_variable = current_variable;
+  });
+  return({formula:result_formula, dependentVariable:dependent_variable});
+};
+
+RCUBE.RegressionFormula.prototype.calculateFormulas = function(){
+  var self = this;
+  var currentformula = self.toString();
+  var formulas = {};
+  self._validVariables.forEach(function(variable_dependent, k){
+    formulas[variable_dependent] = [];
+    self._validVariables.forEach(function(variable_i, i){
+      self._validVariables.forEach(function(variable_j, j){
+        // Only calculate the upper part of the matrix
+        if (i != j && j > i) {
+          formulaResult = self.constructFormula(self._variables, self._operators, variable_i, variable_j, variable_dependent);
+          formulas[variable_dependent].push(formulaResult);
+        }
+      });
+    });
+  });
+  return(formulas);
+};
+
 // Return a copy of this Object
 RCUBE.RegressionFormula.prototype.copy = function() {
   var validVariables;
