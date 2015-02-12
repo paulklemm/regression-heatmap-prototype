@@ -38,3 +38,21 @@ RCUBE.RSession.prototype.calculateRSquaredValues = function(z, formula, callback
     console.error("Error: " + req.responseText);
   });
 };
+
+// Calculate RSquared value of z'th plane
+RCUBE.RSession.prototype.calculateRSquaredValues_new = function(formulas, callback) {
+  self = this;
+  this._openCPUConnection.execute(
+    "/library/regressionCube/R",
+    'r_squared_matrix_formula',
+  {"data": self._datasetSession, "formulas": formulas},
+  function(_session){
+    _session.getConsole(function(content){console.log(content);});
+    self._rSquaredSession = _session;
+    if (typeof callback !== undefined)
+      callback(_session);
+  },
+  function(req) {
+    console.error("Error: " + req.responseText);
+  });
+};

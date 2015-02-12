@@ -3,6 +3,7 @@ RCUBE.Dataset = function(){
   this._csvData = undefined;
   this._dimensionNames = [];
   this._rSquared = {};
+  this._dimensionNamesToIndex = {};
   this._activeFormula = undefined;
 };
 
@@ -20,6 +21,29 @@ RCUBE.Dataset.prototype.setRSquared = function(dimensionName, rSquared, formula)
   if (typeof formula === 'undefined')
     formula = this._activeFormula;
   this._rSquared[formula.toString()][dimensionName] = rSquared;
+  console.log(this._rSquared);
+};
+
+RCUBE.Dataset.prototype.setRSquared_new = function(formulaResults, formula) {
+  if (typeof formula === 'undefined')
+    formula = this._activeFormula;
+  var self = this;
+  formulaResults.forEach(function(currentResult){
+    var index_x = self._dimensionNamesToIndex[currentResult.x];
+    var index_y = self._dimensionNamesToIndex[currentResult.y];
+    // var index_z = self._dimensionNamesToIndex[currentResult.z];
+
+    // Check if result array contains array for dependent variable
+    if (typeof self._rSquared[formula.toString()][currentResult.z] === 'undefined')
+      self._rSquared[formula.toString()][currentResult.z] = [];
+
+    // Check if result array contains array for independent x
+    if (typeof self._rSquared[formula.toString()][currentResult.z][index_x] === 'undefined')
+      self._rSquared[formula.toString()][currentResult.z][index_x] = [];
+
+    // Attach RSquared value to the corresponding position
+    self._rSquared[formula.toString()][currentResult.z][index_x][index_y] = currentResult.rSquared;
+  });
 };
 
 RCUBE.Dataset.prototype.getRSquared = function(){
@@ -29,13 +53,16 @@ RCUBE.Dataset.prototype.getRSquared = function(){
   return this._rSquared[this._activeFormula.toString()];
 };
 
+// This also sets the dimensionsnames array
 RCUBE.Dataset.prototype.setCsvData = function(csvData) {
   this._csvData = csvData;
   // Reset dimensionNames array to not loose angular watch
   this._dimensionNames.length = 0;
-  var _dimensionNamesReference = this._dimensionNames;
-  Object.keys(this._csvData[0]).forEach(function(name){
-    _dimensionNamesReference.push(name);
+  this._dimensionNamesToIndex = {};
+  var self = this;
+  Object.keys(this._csvData[0]).forEach(function(name, index) {
+    self._dimensionNames.push(name);
+    self._dimensionNamesToIndex[name] = index;
   });
 };
 

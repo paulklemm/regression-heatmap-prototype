@@ -43,6 +43,27 @@ angular.module('cube')
       });
     };
 
+    var calculateRSquaredSequential_new = function(dimension_formulas, formula) {
+      var dimensions = Object.keys(dimension_formulas);
+      if (dimensions.length === 0) {
+        // HACK: jQuery activating the cog visibility
+        $('#cog').removeClass('visible');
+        dataService.calculationInProgress = false;
+        return;
+      }
+      var dimensionName = dimensions[dimensions.length - 1];
+      ocpuBridge.calculateRSquared_new(dimension_formulas[dimensionName], formula).then(function(rSquared){
+        dataService.dataset.setRSquared_new(rSquared, formula);
+        delete dimension_formulas[dimensionName];
+        // console.log(dataService.dataset._rSquared);
+        // If you are not supposed to stop for this formula, continue
+        if (!dataService.stopCalculation[formula.toString()]) {
+          $rootScope.$broadcast('updateRSquared');
+          calculateRSquaredSequential_new(dimension_formulas, formula);
+        }
+      });
+    };
+
     var applyFormula = function() {
       // Set calculation flag to true
       dataService.calculationInProgress = true;
@@ -70,13 +91,17 @@ angular.module('cube')
       // Load the Recursion algorithm with a copy of the formula
       // This is needed because we want to assign proper R^2 values even
       // if there is a new one assigned in the meanwhile
-      calculateRSquaredSequential(recursionDimensions, dataService.regressionFormula.copy());
+      // HACK: Old R Interface
+      // calculateRSquaredSequential(recursionDimensions, dataService.regressionFormula.copy());
       // Code for parallel execution
       // dataService.dataset.getDimensionNames().forEach(function(dimensionName){
       // ocpuBridge.calculateRSquared(dimensionName).then(function(rSquared){
       //   dataService.dataset._rSquared[dimensionName] = rSquared;
       // });
       // });
+
+      // HACK: New R Interface using the final formulas
+      calculateRSquaredSequential_new(dataService.regressionFormula.calculateFormulas(), dataService.regressionFormula.copy());
     };
 
     dataService.loadData = function(url) {
@@ -109,6 +134,19 @@ angular.module('cube')
         var rsession = ocpuBridgeService.sessions[0];
 
         rsession.calculateRSquaredValues(zVariable, formula, function(rsquaredSession){
+          $.getJSON(rsquaredSession.loc + "R/.val/json" , function(rSquaredData){
+            resolve(rSquaredData);
+          });
+        });
+      });
+    };
+
+    ocpuBridgeService.calculateRSquared_new = function(formulas){
+      return $q(function(resolve, reject){
+        // TODO: Write distribution algorithm here!
+        var rsession = ocpuBridgeService.sessions[0];
+
+        rsession.calculateRSquaredValues_new(formulas, function(rsquaredSession){
           $.getJSON(rsquaredSession.loc + "R/.val/json" , function(rSquaredData){
             resolve(rSquaredData);
           });

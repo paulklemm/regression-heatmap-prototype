@@ -42,15 +42,19 @@ RCUBE.RegressionFormula.prototype.calculateFormulas = function(){
   var self = this;
   var currentformula = self.toString();
   var formulas = {};
-  self._validVariables.forEach(function(variable_dependent, k){
+  self._validVariables.forEach(function(variable_dependent, z){
     formulas[variable_dependent] = [];
-    self._validVariables.forEach(function(variable_i, i){
-      self._validVariables.forEach(function(variable_j, j){
+    self._validVariables.forEach(function(variable_x, x){
+      self._validVariables.forEach(function(variable_y, y){
         // Only calculate the upper part of the matrix
-        if (i != j && j > i) {
-          formulaResult = self.constructFormula(self._variables, self._operators, variable_i, variable_j, variable_dependent);
+        // if (x != y && y > x && z != x && z != y) {
+          // Attach all information necessary to the current formula to project their results back
+          formulaResult = self.constructFormula(self._variables, self._operators, variable_x, variable_y, variable_dependent);
+          formulaResult.x = variable_x;
+          formulaResult.y = variable_y;
+          formulaResult.z = variable_dependent;
           formulas[variable_dependent].push(formulaResult);
-        }
+        // }
       });
     });
   });
