@@ -1,8 +1,8 @@
 RCUBE.Heatmap = function(canvasID, rSquared, names) {
-  this._canvasID = canvasID
+  this._canvasID = canvasID;
   this._data = this.createHeatmapInput(rSquared, names);
   this._names = names;
-  this.main(canvasID, this._data, names);
+  this.main(canvasID, this._data);
 };
 
 RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
@@ -16,7 +16,6 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
     node.index = i;
     nodes.push(node);
   });
-  console.log(rSquared);
   names.forEach(function(value_i, i){
     names.forEach(function(value_j, j){
       // Check of the current entry is given through the rSquared dataset
@@ -38,9 +37,9 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
     });
   });
   return {"nodes": nodes, "links": links};
-}
+};
 
-RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData, names){
+RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData){
   var self = this;
   var names = heatmapData.names;
   var nodes = heatmapData.nodes;
@@ -67,7 +66,6 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData, names){
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   var matrix = [],
-  nodes = heatmapData.nodes,
   n = nodes.length;
 
   // Compute index per node.
@@ -100,7 +98,7 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData, names){
   };
 
   // Get default sort from select field
-  var sort = $('#order-heatmap').val()
+  var sort = $('#order-heatmap').val();
   if (sort == 'name')
     x.domain(orders.name);
   else if (sort == 'count')
