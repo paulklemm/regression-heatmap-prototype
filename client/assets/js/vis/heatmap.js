@@ -16,15 +16,25 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
     node.index = i;
     nodes.push(node);
   });
-
+  console.log(rSquared);
   names.forEach(function(value_i, i){
     names.forEach(function(value_j, j){
-      var value = rSquared[i][j];
-      var link = {};
-      link.source = i;
-      link.target = j;
-      link.value = value;
-      links.push(link);
+      // Check of the current entry is given through the rSquared dataset
+      if (rSquared[i] !== undefined && rSquared[i][j] !== undefined) {
+        var value = rSquared[i][j];
+        var link = {};
+        link.source = i;
+        link.target = j;
+        link.value = value;
+        links.push(link);
+        // Since we only calculate the upper matrix, we also add the mirror to
+        // the data structure
+        var link_mirror = {};
+        link_mirror.source = j;
+        link_mirror.target = i;
+        link_mirror.value = value;
+        links.push(link_mirror);
+      }
     });
   });
   return {"nodes": nodes, "links": links};
