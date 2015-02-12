@@ -23,27 +23,8 @@ angular.module('cube')
       return dataService.dataset.getRSquared();
     };
 
-    var calculateRSquaredSequential = function(dimensions, formula) {
-      if (dimensions.length === 0) {
-        // HACK: jQuery activating the cog visibility
-        $('#cog').removeClass('visible');
-        dataService.calculationInProgress = false;
-        return;
-      }
-      var dimensionName = dimensions[dimensions.length - 1];
-      ocpuBridge.calculateRSquared(dimensionName, formula).then(function(rSquared){
-        dataService.dataset.setRSquared(dimensionName, rSquared, formula);
-        dimensions.pop();
-        console.log(dataService.dataset._rSquared);
-        // If you are not supposed to stop for this formula, continue
-        if (!dataService.stopCalculation[formula.toString()]) {
-          $rootScope.$broadcast('updateRSquared');
-          calculateRSquaredSequential(dimensions, formula);
-        }
-      });
-    };
-
-    var calculateRSquaredSequential_new = function(dimension_formulas, formula) {
+    var calculateRSquaredSequential = function(dimension_formulas, formula) {
+      // See how many dimensions are left in the array
       var dimensions = Object.keys(dimension_formulas);
       if (dimensions.length === 0) {
         // HACK: jQuery activating the cog visibility
@@ -53,14 +34,13 @@ angular.module('cube')
         return;
       }
       var dimensionName = dimensions[dimensions.length - 1];
-      ocpuBridge.calculateRSquared_new(dimension_formulas[dimensionName], formula).then(function(rSquared){
-        dataService.dataset.setRSquared_new(rSquared, formula);
+      ocpuBridge.calculateRSquared(dimension_formulas[dimensionName], formula).then(function(rSquared){
+        dataService.dataset.setRSquared(rSquared, formula);
         delete dimension_formulas[dimensionName];
-        // console.log(dataService.dataset._rSquared);
         // If you are not supposed to stop for this formula, continue
         if (!dataService.stopCalculation[formula.toString()]) {
           $rootScope.$broadcast('updateRSquared');
-          calculateRSquaredSequential_new(dimension_formulas, formula);
+          calculateRSquaredSequential(dimension_formulas, formula);
         }
       });
     };
@@ -88,21 +68,10 @@ angular.module('cube')
       dataService.dataset.switchFormula(dataService.regressionFormula);
       // Copy the dimensions array, since the recurive algorithm will delete its contents
       var recursionDimensions = dataService.dataset.getDimensionNames().slice(0);
-      // var recursionDimensions = ['age', 'gender'];
       // Load the Recursion algorithm with a copy of the formula
       // This is needed because we want to assign proper R^2 values even
       // if there is a new one assigned in the meanwhile
-      // HACK: Old R Interface
-      // calculateRSquaredSequential(recursionDimensions, dataService.regressionFormula.copy());
-      // Code for parallel execution
-      // dataService.dataset.getDimensionNames().forEach(function(dimensionName){
-      // ocpuBridge.calculateRSquared(dimensionName).then(function(rSquared){
-      //   dataService.dataset._rSquared[dimensionName] = rSquared;
-      // });
-      // });
-
-      // HACK: New R Interface using the final formulas
-      calculateRSquaredSequential_new(dataService.regressionFormula.calculateFormulas(), dataService.regressionFormula.copy());
+      calculateRSquaredSequential(dataService.regressionFormula.calculateFormulas(), dataService.regressionFormula.copy());
     };
 
     dataService.loadData = function(url) {
@@ -129,25 +98,12 @@ angular.module('cube')
     var ocpuBridgeService = {};
     ocpuBridgeService.sessions = [];
 
-    ocpuBridgeService.calculateRSquared = function(zVariable, formula){
+    ocpuBridgeService.calculateRSquared = function(formulas){
       return $q(function(resolve, reject){
         // TODO: Write distribution algorithm here!
         var rsession = ocpuBridgeService.sessions[0];
 
-        rsession.calculateRSquaredValues(zVariable, formula, function(rsquaredSession){
-          $.getJSON(rsquaredSession.loc + "R/.val/json" , function(rSquaredData){
-            resolve(rSquaredData);
-          });
-        });
-      });
-    };
-
-    ocpuBridgeService.calculateRSquared_new = function(formulas){
-      return $q(function(resolve, reject){
-        // TODO: Write distribution algorithm here!
-        var rsession = ocpuBridgeService.sessions[0];
-
-        rsession.calculateRSquaredValues_new(formulas, function(rsquaredSession){
+        rsession.calculateRSquaredValues(formulas, function(rsquaredSession){
           $.getJSON(rsquaredSession.loc + "R/.val/json" , function(rSquaredData){
             resolve(rSquaredData);
           });

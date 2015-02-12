@@ -17,17 +17,12 @@ RCUBE.Dataset.prototype.switchFormula = function(formula) {
   }
 };
 
-RCUBE.Dataset.prototype.setRSquared = function(dimensionName, rSquared, formula) {
+RCUBE.Dataset.prototype.setRSquared = function(formulaResults, formula) {
   if (typeof formula === 'undefined')
     formula = this._activeFormula;
-  this._rSquared[formula.toString()][dimensionName] = rSquared;
-  console.log(this._rSquared);
-};
 
-RCUBE.Dataset.prototype.setRSquared_new = function(formulaResults, formula) {
-  if (typeof formula === 'undefined')
-    formula = this._activeFormula;
   var self = this;
+  // Iterate over all formula results
   formulaResults.forEach(function(currentResult){
     var index_x = self._dimensionNamesToIndex[currentResult.x];
     var index_y = self._dimensionNamesToIndex[currentResult.y];

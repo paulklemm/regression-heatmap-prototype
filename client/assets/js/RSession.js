@@ -21,33 +21,15 @@ RCUBE.RSession.prototype.loadDataset = function(csvFilePath, callback) {
   });
 };
 
-// Calculate RSquared value of z'th plane
-RCUBE.RSession.prototype.calculateRSquaredValues = function(z, formula, callback) {
-  self = this;
-  this._openCPUConnection.execute(
-    "/library/regressionCube/R",
-    'r_squared_matrix',
-  {"data": self._datasetSession, "z": z, "operators": formula._operators, "variables": formula._variables},
-  function(_session){
-    // _session.getConsole(function(content){console.log(content);});
-    self._rSquaredSession = _session;
-    if (typeof callback !== undefined)
-      callback(_session);
-  },
-  function(req) {
-    console.error("Error: " + req.responseText);
-  });
-};
-
-// Calculate RSquared value of z'th plane
-RCUBE.RSession.prototype.calculateRSquaredValues_new = function(formulas, callback) {
+// Calculate RSquared values of the given formulas
+RCUBE.RSession.prototype.calculateRSquaredValues = function(formulas, callback) {
   self = this;
   this._openCPUConnection.execute(
     "/library/regressionCube/R",
     'r_squared_matrix_formula',
   {"data": self._datasetSession, "formulas": formulas},
   function(_session){
-    _session.getConsole(function(content){console.log(content);});
+    // _session.getConsole(function(content){console.log(content);});
     self._rSquaredSession = _session;
     if (typeof callback !== undefined)
       callback(_session);
