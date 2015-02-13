@@ -30,7 +30,6 @@ angular.module('cube')
         // HACK: jQuery activating the cog visibility
         $('#cog').removeClass('visible');
         dataService.calculationInProgress = false;
-        console.log(dataService.dataset);
         return;
       }
       var dimensionName = dimensions[dimensions.length - 1];
