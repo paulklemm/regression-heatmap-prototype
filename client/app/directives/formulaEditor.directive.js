@@ -50,11 +50,6 @@ angular.module('cube')
         $scope.$watchCollection('dimensions', function(dimensions) {
           // Only attach the typeahead logic if there are dimensions available
           if (dimensions.length > 0) {
-            // Attach X and Y variables to the dimension list
-            // We copy the dimensions list to not interfere with it in other controllers
-            var typeaheadDimensions = dimensions.slice(0);
-            typeaheadDimensions.splice(0, 0, 'x', 'y', 'z');
-
             // Update Dimension String for default tooltip
             var dimensionsAsString = '';
             dimensions.forEach(function(dimension) {
@@ -63,11 +58,11 @@ angular.module('cube')
             editorController.popup.defaultContentDimensions = dimensionsAsString;
 
             // Update valid dimensions for formula check
-            editorController.regressionFormula.setValidVariables(typeaheadDimensions);
+            editorController.regressionFormula.setValidVariables(dimensions);
 
             // Update textcomplete Plugin
             $('#formula-input').textcomplete([{
-              words: typeaheadDimensions,
+              words: dimensions,
               match: /\b(\w{0,})$/,
               search: function(term, callback) {
                 callback($.map(this.words, function(word) {

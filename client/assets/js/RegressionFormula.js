@@ -117,8 +117,9 @@ RCUBE.RegressionFormula.prototype.update = function() {
   }
   if (this._valid) {
     this._variables.forEach(function(variable, index) {
-      // check if the current variable is valid
-      if (self._validVariables.indexOf(variable) == -1) {
+      // check if the current variable is valid using the
+      // valid variables as well as x, y and z
+      if (self._validVariables.indexOf(variable) == -1 && ['x', 'y', 'z'].indexOf(variable) == -1) {
         self._valid = false;
         self._errorText = "Invalid variables are specified.";
         return;
