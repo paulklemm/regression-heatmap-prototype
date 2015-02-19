@@ -25,6 +25,8 @@ angular.module('cube')
 
       // Dependent
       this.dependentOptions = [];
+      // Helper object, quickly checks if a dependent variable is added
+      this.dependentOptionsAdded = {};
       $scope.dependentSelect = this.dependentOptions[0];
 
       // Reset the Visualization when new Formulas are applied
@@ -32,6 +34,7 @@ angular.module('cube')
         $('svg.heatmap').remove();
         // Empty the dependentOption Array
         heatmapController.dependentOptions.length = 0;
+        heatmapController.dependentOptionsAdded = {};
       });
 
       $scope.$on('updateRSquared', function(){
@@ -40,10 +43,14 @@ angular.module('cube')
         // Set Heatmap to visible when we actually have rSquared values to display
         if (values.length > 0) {
           heatmapController.visible = true;
-          // Only add last new entry to the select to keep the old ones
-          var newEntry = values[values.length - 1];
-          heatmapController.dependentOptions.push({label: newEntry, value: newEntry});
-          pulse.pulse();
+          // Only add entries to the select which are not already added
+          values.forEach(function(dimension){
+            if (heatmapController.dependentOptionsAdded[dimension] !== true) {
+              heatmapController.dependentOptionsAdded[dimension] = true;
+              heatmapController.dependentOptions.push({label: dimension, value: dimension});
+              pulse.pulse();
+            }
+          });
         }
       });
 
