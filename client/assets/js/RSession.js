@@ -21,6 +21,25 @@ RCUBE.RSession.prototype.loadDataset = function(csvFilePath, callback) {
   });
 };
 
+// Calculate Correlation based feature selection values of the given formulas
+RCUBE.RSession.prototype.getCorrelationBasedFeatureSelection = function(dependent, callback) {
+  self = this;
+  this._openCPUConnection.execute(
+    "/library/regressionCube/R",
+    'correlation_based_feature_selection',
+  {"data": self._datasetSession, "dependent": dependent},
+  function(_session){
+    // _session.getConsole(function(content){console.log(content);});
+    // self._rSquaredSession = _session;
+    if (typeof callback !== undefined)
+      callback(_session);
+  },
+  function(req) {
+    console.error("Error: " + req.responseText);
+  });
+};
+
+
 // Calculate RSquared values of the given formulas
 RCUBE.RSession.prototype.calculateRSquaredValues = function(formulas, callback) {
   self = this;

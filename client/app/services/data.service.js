@@ -23,9 +23,8 @@ angular.module('cube')
       return dataService.dataset.getRSquared();
     };
 
-    var calculateRSquaredSequential = function(dimension_formulas, formula) {
+    var calculateRSquaredSequential = function(dimensions, formula) {
       // See how many dimensions are left in the array
-      var dimensions = Object.keys(dimension_formulas);
       if (dimensions.length === 0) {
         // HACK: jQuery activating the cog visibility
         $('#cog').removeClass('visible');
@@ -33,16 +32,44 @@ angular.module('cube')
         return;
       }
       var dimensionName = dimensions[dimensions.length - 1];
-      ocpuBridge.calculateRSquared(dimension_formulas[dimensionName], formula).then(function(rSquared){
-        dataService.dataset.setRSquared(rSquared, formula);
-        delete dimension_formulas[dimensionName];
-        // If you are not supposed to stop for this formula, continue
-        if (!dataService.stopCalculation[formula.toString()]) {
-          $rootScope.$broadcast('updateRSquared');
-          calculateRSquaredSequential(dimension_formulas, formula);
-        }
+      console.log("Calculate for " + dimensionName);
+      //debugger;
+      ocpuBridge.getCorrelationBasedFeatureSelection(dimensionName).then(function(best_dimensions){
+        console.log("CFS Dimensions for " + currentDimension);
+        console.log(best_dimensions);
       });
+      // ocpuBridge.calculateRSquared(dimension_formulas[dimensionName], formula).then(function(rSquared){
+      //   dataService.dataset.setRSquared(rSquared, formula);
+      //   delete dimension_formulas[dimensionName];
+      //   // If you are not supposed to stop for this formula, continue
+      //   if (!dataService.stopCalculation[formula.toString()]) {
+      //     $rootScope.$broadcast('updateRSquared');
+      //     calculateRSquaredSequential(dimension_formulas, formula);
+      //   }
+      // });
     };
+
+    // var calculateRSquaredSequential = function(dimension_formulas, formula) {
+    //   // See how many dimensions are left in the array
+    //   var dimensions = Object.keys(dimension_formulas);
+    //   if (dimensions.length === 0) {
+    //     // HACK: jQuery activating the cog visibility
+    //     $('#cog').removeClass('visible');
+    //     dataService.calculationInProgress = false;
+    //     return;
+    //   }
+    //   var dimensionName = dimensions[dimensions.length - 1];
+    //   // ocpuBridge.getCorrelationBasedFeatureSelection()
+    //   ocpuBridge.calculateRSquared(dimension_formulas[dimensionName], formula).then(function(rSquared){
+    //     dataService.dataset.setRSquared(rSquared, formula);
+    //     delete dimension_formulas[dimensionName];
+    //     // If you are not supposed to stop for this formula, continue
+    //     if (!dataService.stopCalculation[formula.toString()]) {
+    //       $rootScope.$broadcast('updateRSquared');
+    //       calculateRSquaredSequential(dimension_formulas, formula);
+    //     }
+    //   });
+    // };
 
     var applyFormula = function() {
       // Set calculation flag to true
@@ -70,7 +97,8 @@ angular.module('cube')
       // Load the Recursion algorithm with a copy of the formula
       // This is needed because we want to assign proper R^2 values even
       // if there is a new one assigned in the meanwhile
-      calculateRSquaredSequential(dataService.regressionFormula.calculateFormulas(), dataService.regressionFormula.copy());
+      // calculateRSquaredSequential(dataService.regressionFormula.calculateFormulas(), dataService.regressionFormula.copy());
+      calculateRSquaredSequential(recursionDimensions, dataService.regressionFormula.copy());
     };
 
     dataService.loadData = function(url) {
@@ -96,6 +124,17 @@ angular.module('cube')
   .factory('ocpuBridge', ['$rootScope', '$q', function($rootScope, $q){
     var ocpuBridgeService = {};
     ocpuBridgeService.sessions = [];
+
+    ocpuBridgeService.getCorrelationBasedFeatureSelection = function(dependent){
+      return $q(function(resolve, reject){
+        var rsession = ocpuBridgeService.sessions[0];
+        rsession.getCorrelationBasedFeatureSelection(dependent, function(cfsSession){
+          $.getJSON(cfsSession.loc + "R/.val/json" , function(cfs){
+            resolve(cfs);
+          });
+        });
+      });
+    };
 
     ocpuBridgeService.calculateRSquared = function(formulas){
       return $q(function(resolve, reject){
