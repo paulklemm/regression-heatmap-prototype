@@ -32,11 +32,20 @@ angular.module('cube')
         return;
       }
       var dimensionName = dimensions[dimensions.length - 1];
-      console.log("Calculate for " + dimensionName);
-      //debugger;
       ocpuBridge.getCorrelationBasedFeatureSelection(dimensionName).then(function(best_dimensions){
-        console.log("CFS Dimensions for " + currentDimension);
+        console.log("CFS Dimensions for " + dimensionName);
         console.log(best_dimensions);
+        formulas = formula.calculateFormulasDependent(dimensionName, best_dimensions);
+        // console.log(formulas);
+        ocpuBridge.calculateRSquared(formulas, formula).then(function(rSquared){
+          dataService.dataset.setRSquared(rSquared, formula);
+          dimensions.splice(dimensions.length - 1, 1);
+          // If you are not supposed to stop for this formula, continue
+          if (!dataService.stopCalculation[formula.toString()]) {
+            $rootScope.$broadcast('updateRSquared');
+            calculateRSquaredSequential(dimensions, formula);
+          }
+        });
       });
       // ocpuBridge.calculateRSquared(dimension_formulas[dimensionName], formula).then(function(rSquared){
       //   dataService.dataset.setRSquared(rSquared, formula);

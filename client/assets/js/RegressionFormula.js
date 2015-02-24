@@ -38,9 +38,27 @@ RCUBE.RegressionFormula.prototype.constructFormula = function(variables, operato
   return({formula:result_formula, dependentVariable:dependent_variable});
 };
 
+RCUBE.RegressionFormula.prototype.calculateFormulasDependent = function(variable_dependent, variables){
+  var self = this;
+  var formulas = [];
+  variables.forEach(function(variable_x, x){
+    variables.forEach(function(variable_y, y){
+      // Only calculate the upper part of the matrix
+      if (x != y && y > x && variable_x != variable_dependent && variable_y != variable_dependent) {
+        // Attach all information necessary to the current formula to project their results back
+        formulaResult = self.constructFormula(self._variables, self._operators, variable_x, variable_y, variable_dependent);
+        formulaResult.x = variable_x;
+        formulaResult.y = variable_y;
+        formulaResult.z = variable_dependent;
+        formulas.push(formulaResult);
+      }
+    });
+  });
+  return(formulas);
+};
+
 RCUBE.RegressionFormula.prototype.calculateFormulas = function(){
   var self = this;
-  var currentformula = self.toString();
   var formulas = {};
   self._validVariables.forEach(function(variable_dependent, z){
   // ['bmi', 'gender'].forEach(function(variable_dependent, z){
