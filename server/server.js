@@ -17,11 +17,11 @@ var ACCESS_CONTROLL_ALLOW_ORIGIN = false;
 app.use(express.static(__dirname + '/../client'));
 app.use(express.static(__dirname + '/../uploads'));
 
-var getHashFromFile = function(filepath, filename, callback) {
-  var completePath = filepath + filename;
+var getHashFromFile = function(filepath, callback) {
+  // var completePath = filepath + filename;
   // Read the file again and create a hash for it
   var shasum = crypto.createHash('sha256');
-  var reader = fs.ReadStream(completePath);
+  var reader = fs.ReadStream(filepath);
   reader.on('data', function(hash) {
     shasum.update(hash);
   });
@@ -45,21 +45,23 @@ app.post('/upload', multipartMiddleware, function(req, res) {
       var filepath = UPLOAD_DIR + filename;
       var stream = fs.createWriteStream(filepath);
       console.log(identifier);
-      flow.write(identifier, stream);
-      // Clean chunks after the file is assembled
-      flow.clean(identifier);
+      flow.write(identifier, stream, { onDone:function(){
+        getHashFromFile(filepath, function(hash){
+          console.log("Hash for file " + filename + ' is ' + hash);
+          var extension = path.extname(filename);
+          // Rename the file
+          fs.rename(UPLOAD_DIR + filename, UPLOAD_DIR + hash + extension, function(err) {
+            if ( err ) console.log('ERROR: ' + err);
+          });
 
-      getHashFromFile(UPLOAD_DIR, filename, function(hash){
-        console.log("Hash for file " + filename + ' is ' + hash);
-        var extension = path.extname(filename);
-        // Rename the file
-        fs.rename(UPLOAD_DIR + filename, UPLOAD_DIR + hash + extension, function(err) {
-          if ( err ) console.log('ERROR: ' + err);
+          // Create response message with the new file name
+          var responseMessage = {filename: hash + extension};
+          res.status(200).send(responseMessage);
+
+          // Clean chunks after the file is assembled
+          flow.clean(identifier);
         });
-        // Create response message with the new file name
-        var responseMessage = {filename: hash + extension};
-        res.status(200).send(responseMessage);
-      });
+      }});
     }
     if (ACCESS_CONTROLL_ALLOW_ORIGIN) {
       res.header("Access-Control-Allow-Origin", "*");

@@ -1,6 +1,7 @@
 RCUBE.Heatmap = function(canvasID, rSquared, names) {
   this._canvasID = canvasID;
   this._data = this.createHeatmapInput(rSquared, names);
+  console.log(this._data);
   this._names = names;
   this.main(canvasID, this._data);
 };
