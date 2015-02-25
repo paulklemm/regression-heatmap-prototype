@@ -34,6 +34,7 @@ angular.module('cube')
       var dimensionName = dimensions[dimensions.length - 1];
       ocpuBridge.getCorrelationBasedFeatureSelection(dimensionName).then(function(best_dimensions){
         console.log("CFS Dimensions for " + dimensionName);
+        dataService.dataset._cfsDimensionNames[dimensionName] = best_dimensions;
         console.log(best_dimensions);
         formulas = formula.calculateFormulasDependent(dimensionName, best_dimensions);
         // console.log(formulas);

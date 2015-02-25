@@ -19,7 +19,10 @@ angular.module('cube')
         $('svg.heatmap').remove();
         var names = data.dataset.getDimensionNames();
         var rSquared = data.dataset.getRSquared()[dependentVariable];
-        var myHeatmap = new RCUBE.Heatmap(".my-heatmap", rSquared, names);
+        var rSquaredNames = data.dataset.getRSquaredNames()[dependentVariable];
+        // var myHeatmap = new RCUBE.Heatmap(".my-heatmap", rSquared, names);
+        var myHeatmap = new RCUBE.Heatmap(".my-heatmap", rSquaredNames, names);
+        // var myHeatmap = new RCUBE.Heatmap(".my-heatmap", rSquared, data.dataset._cfsDimensionNames[dependentVariable]);
         heatmapController.visible = true;
       };
 

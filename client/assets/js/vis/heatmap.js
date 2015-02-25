@@ -1,9 +1,55 @@
 RCUBE.Heatmap = function(canvasID, rSquared, names) {
   this._canvasID = canvasID;
-  this._data = this.createHeatmapInput(rSquared, names);
+  // this._data = this.createHeatmapInput(rSquared, names);
+  this._data = this.createHeatmapInputNames(rSquared, names);
   console.log(this._data);
   this._names = names;
   this.main(canvasID, this._data);
+};
+
+RCUBE.Heatmap.prototype.createHeatmapInputNames = function(rSquared, names) {
+  var createNode = function(name, index) {
+    var node = {};
+    node.count = 0;
+    node.name = name;
+    node.index = index;
+    return(node);
+  };
+  var nodes = [];
+  var nodesIndex = {};
+  var links = [];
+
+  var dependentVariables = Object.keys(rSquared);
+  dependentVariables.forEach(function(dependent, dependent_index){
+    var independentVariables = Object.keys(rSquared[dependent]);
+    independentVariables.forEach(function(independent, independent_index){
+      // Check if there is a node added for the dependent and independent variable
+      if (nodesIndex[dependent] === undefined) {
+        nodes.push(createNode(dependent, nodes.length));
+        nodesIndex[dependent] = nodes.length - 1;
+      }
+      if (nodesIndex[independent] === undefined) {
+        nodes.push(createNode(independent, nodes.length));
+        nodesIndex[independent] = nodes.length - 1;
+      }
+
+      // Create new link
+      var value = rSquared[dependent][independent];
+      var link = {};
+      link.source = nodesIndex[dependent];
+      link.target = nodesIndex[independent]
+      link.value = value;
+      links.push(link);
+      // Since we only calculate the upper matrix, we also add the mirror to
+      // the data structure
+      var link_mirror = {};
+      link_mirror.source = nodesIndex[independent];
+      link_mirror.target = nodesIndex[dependent];
+      link_mirror.value = value;
+      links.push(link_mirror);
+    });
+  });
+  return {"nodes": nodes, "links": links};
 };
 
 RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
@@ -84,10 +130,30 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData){
 
   // Convert links to matrix; count character occurrences.
   heatmapData.links.forEach(function(link) {
-    matrix[link.source][link.target].z += link.value;
-    nodes[link.source].count += link.value;
+    matrix[link.source][link.target].z += parseFloat(link.value);
+    nodes[link.source].count += parseFloat(link.value);
   });
 
+  console.log(matrix);
+  // Parse matrix and if a column does not have any elements, remove them
+  // emptyDimensions = [];
+  // matrix.forEach(function(x, index_x) {
+  //   hasValues = false;
+  //   x.forEach(function(y){
+  //     if (y.z !== 0)
+  //       hasValues = true;
+  //   });
+  //   if (!hasValues)
+  //     emptyDimensions.push(index_x);
+  // });
+  // console.log("emptyDimensions");
+  // console.log(emptyDimensions);
+  // for (var i = emptyDimensions.length; i >= 0; i--)
+  //   matrix.splice(emptyDimensions[i], 1);
+  // matrix.forEach(function(x, index_x) {
+  //   for (var i = emptyDimensions.length; i >= 0; i--)
+  //     x.splice(emptyDimensions[i], 1);
+  // });
   // Precompute the orders.
   var orders = {
     name: d3.range(n).sort(function(a, b) {
