@@ -1,13 +1,11 @@
 RCUBE.Heatmap = function(canvasID, rSquared, names) {
   this._canvasID = canvasID;
-  // this._data = this.createHeatmapInput(rSquared, names);
-  this._data = this.createHeatmapInputNames(rSquared, names);
+  this._data = this.createHeatmapInput(rSquared, names);
   console.log(this._data);
-  this._names = names;
   this.main(canvasID, this._data);
 };
 
-RCUBE.Heatmap.prototype.createHeatmapInputNames = function(rSquared, names) {
+RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
   var createNode = function(name, index) {
     var node = {};
     node.count = 0;
@@ -37,7 +35,7 @@ RCUBE.Heatmap.prototype.createHeatmapInputNames = function(rSquared, names) {
       var value = rSquared[dependent][independent];
       var link = {};
       link.source = nodesIndex[dependent];
-      link.target = nodesIndex[independent]
+      link.target = nodesIndex[independent];
       link.value = value;
       links.push(link);
       // Since we only calculate the upper matrix, we also add the mirror to
@@ -49,46 +47,13 @@ RCUBE.Heatmap.prototype.createHeatmapInputNames = function(rSquared, names) {
       links.push(link_mirror);
     });
   });
-  return {"nodes": nodes, "links": links};
-};
-
-RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
-  var nodes = [];
-  var links = [];
-
-  names.forEach(function(value, i){
-    var node = {};
-    node.count = 0;
-    node.name = value;
-    node.index = i;
-    nodes.push(node);
-  });
-  names.forEach(function(value_i, i){
-    names.forEach(function(value_j, j){
-      // Check of the current entry is given through the rSquared dataset
-      if (rSquared[i] !== undefined && rSquared[i][j] !== undefined) {
-        var value = rSquared[i][j];
-        var link = {};
-        link.source = i;
-        link.target = j;
-        link.value = value;
-        links.push(link);
-        // Since we only calculate the upper matrix, we also add the mirror to
-        // the data structure
-        var link_mirror = {};
-        link_mirror.source = j;
-        link_mirror.target = i;
-        link_mirror.value = value;
-        links.push(link_mirror);
-      }
-    });
-  });
+  // Set the proper names array for reference in the mouse-over event
+  this._names = Object.keys(nodesIndex);
   return {"nodes": nodes, "links": links};
 };
 
 RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData){
   var self = this;
-  var names = heatmapData.names;
   var nodes = heatmapData.nodes;
   var margin = {
     top: 80,

@@ -4,7 +4,6 @@ RCUBE.Dataset = function(){
   this._dimensionNames = [];
   this._cfsDimensionNames = {};
   this._rSquared = {};
-  this._rSquaredNames = {};
   this._dimensionNamesToIndex = {};
   this._activeFormula = undefined;
 };
@@ -16,7 +15,6 @@ RCUBE.Dataset.prototype.switchFormula = function(formula) {
   // Create new Object for the formula if it does not exist
   if (!formulaExists) {
     this._rSquared[formulaString] = {};
-    this._rSquaredNames[formulaString] = {};
   }
 };
 
@@ -27,32 +25,17 @@ RCUBE.Dataset.prototype.setRSquared = function(formulaResults, formula) {
   var self = this;
   // Iterate over all formula results
   formulaResults.forEach(function(currentResult){
-    var index_x = self._dimensionNamesToIndex[currentResult.x];
-    var index_y = self._dimensionNamesToIndex[currentResult.y];
-    // var index_z = self._dimensionNamesToIndex[currentResult.z];
 
-    // Check if result array contains array for dependent variable
+    // Check if result object contains object for dependent variable
     if (typeof self._rSquared[formula.toString()][currentResult.z] === 'undefined')
-      self._rSquared[formula.toString()][currentResult.z] = [];
+      self._rSquared[formula.toString()][currentResult.z] = {};
 
-    // Check if result array contains array for independent x
-    if (typeof self._rSquared[formula.toString()][currentResult.z][index_x] === 'undefined')
-      self._rSquared[formula.toString()][currentResult.z][index_x] = [];
-
-    // Attach RSquared value to the corresponding position
-    self._rSquared[formula.toString()][currentResult.z][index_x][index_y] = currentResult.rSquared;
-
-    // RSquaredNames Test
-    // Check if result array contains array for dependent variable
-    if (typeof self._rSquaredNames[formula.toString()][currentResult.z] === 'undefined')
-      self._rSquaredNames[formula.toString()][currentResult.z] = {};
-
-    // Check if result array contains array for independent x
-    if (typeof self._rSquaredNames[formula.toString()][currentResult.z][currentResult.x] === 'undefined')
-      self._rSquaredNames[formula.toString()][currentResult.z][currentResult.x] = {};
+    // Check if result object contains object for independent x
+    if (typeof self._rSquared[formula.toString()][currentResult.z][currentResult.x] === 'undefined')
+      self._rSquared[formula.toString()][currentResult.z][currentResult.x] = {};
 
     // Attach RSquared value to the corresponding position
-    self._rSquaredNames[formula.toString()][currentResult.z][currentResult.x][currentResult.y] = currentResult.rSquared;
+    self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y] = currentResult.rSquared;
   });
 };
 
@@ -61,13 +44,6 @@ RCUBE.Dataset.prototype.getRSquared = function(){
     return {};
   // Get the RSquared formula of the current formula
   return this._rSquared[this._activeFormula.toString()];
-};
-
-RCUBE.Dataset.prototype.getRSquaredNames = function(){
-  if (typeof this._activeFormula === 'undefined')
-    return {};
-  // Get the RSquared formula of the current formula
-  return this._rSquaredNames[this._activeFormula.toString()];
 };
 
 // This also sets the dimensionsnames array
