@@ -32,7 +32,7 @@ angular.module('cube')
         return;
       }
       var dimensionName = dimensions[dimensions.length - 1];
-      ocpuBridge.getCorrelationBasedFeatureSelection(dimensionName).then(function(best_dimensions){
+      ocpuBridge.getCorrelationBasedFeatureSelection(dimensionName, dataService.dataset._name).then(function(best_dimensions){
         console.log("CFS Dimensions for " + dimensionName);
         dataService.dataset._cfsDimensionNames[dimensionName] = best_dimensions;
         console.log(best_dimensions);
@@ -112,7 +112,19 @@ angular.module('cube')
     };
 
     dataService.loadData = function(url) {
+      var GetFileName = function(url)
+      {
+        if (url) {
+          var m = url.toString().match(/.*\/(.+?)\./);
+          if (m && m.length > 1)
+          {
+             return m[1];
+          }
+        }
+        return "";
+      };
       dataService.dataset._url = url;
+      dataService.dataset._name = GetFileName(url);
       loadCSV(url, function(csvData){
         dataService.dataset.setCsvData(csvData);
         ocpuBridge.loadDataset(url).then(function(data){
@@ -135,10 +147,10 @@ angular.module('cube')
     var ocpuBridgeService = {};
     ocpuBridgeService.sessions = [];
 
-    ocpuBridgeService.getCorrelationBasedFeatureSelection = function(dependent){
+    ocpuBridgeService.getCorrelationBasedFeatureSelection = function(dependent, dataId){
       return $q(function(resolve, reject){
         var rsession = ocpuBridgeService.sessions[0];
-        rsession.getCorrelationBasedFeatureSelection(dependent, function(cfsSession){
+        rsession.getCorrelationBasedFeatureSelection(dependent, dataId, function(cfsSession){
           $.getJSON(cfsSession.loc + "R/.val/json" , function(cfs){
             resolve(cfs);
           });

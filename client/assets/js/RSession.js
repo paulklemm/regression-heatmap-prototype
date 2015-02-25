@@ -22,12 +22,12 @@ RCUBE.RSession.prototype.loadDataset = function(csvFilePath, callback) {
 };
 
 // Calculate Correlation based feature selection values of the given formulas
-RCUBE.RSession.prototype.getCorrelationBasedFeatureSelection = function(dependent, callback) {
+RCUBE.RSession.prototype.getCorrelationBasedFeatureSelection = function(dependent, dataId, callback) {
   self = this;
   this._openCPUConnection.execute(
     "/library/regressionCube/R",
-    'correlation_based_feature_selection',
-  {"data": self._datasetSession, "dependent": dependent},
+    'correlation_based_feature_selection_cached',
+  {"data": self._datasetSession, "dependent": dependent, "data_id": dataId},
   function(_session){
     // _session.getConsole(function(content){console.log(content);});
     // self._rSquaredSession = _session;
