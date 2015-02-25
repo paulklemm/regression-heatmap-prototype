@@ -56,10 +56,10 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData){
   var self = this;
   var nodes = heatmapData.nodes;
   var margin = {
-    top: 80,
+    top: 200,
     right: 0,
     bottom: 10,
-    left: 100
+    left: 200
   },
   width = 720,
   height = 720;
@@ -73,7 +73,7 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData){
   .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom)
   .classed("heatmap", true)
-  .style("margin-left", +margin.left + "px")
+  // .style("margin-left", +margin.left + "px")
   .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
