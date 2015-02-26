@@ -2,10 +2,10 @@
   "servers": [
     {
       "name": "Localhost",
-      "url": "http://141.44.23.5:5001/ocpu"
+      "url": "http://141.44.23.5:5002/ocpu"
     }
   ],
-  "dataSetName": "7ad6922540bc22a7aa16e3a3b0be47de34858d179454afd1bffcce8ccdcd50f2.csv",
-  "dataSetName_": "b16c7e5bd5dd7680e8fba0fe5af0f89d302fe2d4fe73f3d7f4c6ab65dc9adcf5.csv",
-  "debugMode": true
+  "dataSetName_": "7ad6922540bc22a7aa16e3a3b0be47de34858d179454afd1bffcce8ccdcd50f2.csv",
+  "dataSetName": "b16c7e5bd5dd7680e8fba0fe5af0f89d302fe2d4fe73f3d7f4c6ab65dc9adcf5.csv",
+  "debugMode": false
 }
