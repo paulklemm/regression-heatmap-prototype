@@ -39,6 +39,23 @@ RCUBE.RSession.prototype.getCorrelationBasedFeatureSelection = function(dependen
   });
 };
 
+RCUBE.RSession.prototype.cacheRSquared = function(formula, dataId, rSquared, callback) {
+  self = this;
+  this._openCPUConnection.execute(
+    "/library/regressionCube/R",
+    'cache_r_squared_matrix',
+  {"r_squared": rSquared, "formula": formula, "data_id": dataId},
+  function(_session){
+    // _session.getConsole(function(content){console.log(content);});
+    self._rSquaredSession = _session;
+    if (typeof callback !== undefined)
+      callback(_session);
+  },
+  function(req) {
+    console.error("Error: " + req.responseText);
+  });
+};
+
 
 // Calculate RSquared values of the given formulas
 RCUBE.RSession.prototype.calculateRSquaredValues = function(formulas, dataId, callback) {
