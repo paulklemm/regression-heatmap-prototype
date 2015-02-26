@@ -41,12 +41,12 @@ RCUBE.RSession.prototype.getCorrelationBasedFeatureSelection = function(dependen
 
 
 // Calculate RSquared values of the given formulas
-RCUBE.RSession.prototype.calculateRSquaredValues = function(formulas, callback) {
+RCUBE.RSession.prototype.calculateRSquaredValues = function(formulas, dataId, callback) {
   self = this;
   this._openCPUConnection.execute(
     "/library/regressionCube/R",
     'r_squared_matrix_formula',
-  {"data": self._datasetSession, "formulas": formulas},
+  {"data": self._datasetSession, "formulas": formulas, "data_id": dataId},
   function(_session){
     // _session.getConsole(function(content){console.log(content);});
     self._rSquaredSession = _session;

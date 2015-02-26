@@ -32,13 +32,21 @@ angular.module('cube')
         return;
       }
       var dimensionName = dimensions[dimensions.length - 1];
+      var startGetCorrelationFeatures = new Date();
       ocpuBridge.getCorrelationBasedFeatureSelection(dimensionName, dataService.dataset._name).then(function(best_dimensions){
+
         console.log("CFS Dimensions for " + dimensionName);
+        var stopGetCorrelationFeatures = new Date();
+        console.log((stopGetCorrelationFeatures - startGetCorrelationFeatures) / 1000);
+
         dataService.dataset._cfsDimensionNames[dimensionName] = best_dimensions;
         console.log(best_dimensions);
         formulas = formula.calculateFormulasDependent(dimensionName, best_dimensions);
         // console.log(formulas);
-        ocpuBridge.calculateRSquared(formulas, formula).then(function(rSquared){
+        var startRSquared = new Date();
+        ocpuBridge.calculateRSquared(formulas, dataService.dataset._name).then(function(rSquared){
+          var stopRSquared = new Date();
+          console.log((stopRSquared - startRSquared) / 1000);
           dataService.dataset.setRSquared(rSquared, formula);
           dimensions.splice(dimensions.length - 1, 1);
           // If you are not supposed to stop for this formula, continue
@@ -158,12 +166,12 @@ angular.module('cube')
       });
     };
 
-    ocpuBridgeService.calculateRSquared = function(formulas){
+    ocpuBridgeService.calculateRSquared = function(formulas, dataId){
       return $q(function(resolve, reject){
         // TODO: Write distribution algorithm here!
         var rsession = ocpuBridgeService.sessions[0];
 
-        rsession.calculateRSquaredValues(formulas, function(rsquaredSession){
+        rsession.calculateRSquaredValues(formulas, dataId, function(rsquaredSession){
           $.getJSON(rsquaredSession.loc + "R/.val/json" , function(rSquaredData){
             resolve(rSquaredData);
           });
