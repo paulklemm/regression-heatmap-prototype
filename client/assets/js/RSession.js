@@ -24,14 +24,12 @@ RCUBE.RSession.prototype.loadDataset = function(csvFilePath, callback) {
 // Calculate Correlation based feature selection values of the given formulas
 RCUBE.RSession.prototype.getCorrelationBasedFeatureSelection = function(dependent, dataId, callback) {
   self = this;
-  console.log("Run CFS");
   this._openCPUConnection.execute(
     "/library/regressionCube/R",
     'correlation_based_feature_selection_cached',
   {"data": self._datasetSession, "dependent": dependent, "data_id": dataId},
   function(_session){
-    console.log("Return CFS");
-    _session.getConsole(function(content){console.log(content);});
+    // _session.getConsole(function(content){console.log(content);});
     if (typeof callback !== undefined)
       callback(_session);
   },
@@ -42,14 +40,12 @@ RCUBE.RSession.prototype.getCorrelationBasedFeatureSelection = function(dependen
 
 RCUBE.RSession.prototype.cacheRSquared = function(formula, dataId, rSquared, callback) {
   self = this;
-  console.log("Run R Squared Cache");
   this._openCPUConnection.execute(
     "/library/regressionCube/R",
     'cache_r_squared_matrix',
   {"r_squared": rSquared, "formula": formula, "data_id": dataId},
   function(_session){
-    console.log("Return R Squared Cache");
-    _session.getConsole(function(content){console.log(content);});
+    // _session.getConsole(function(content){console.log(content);});
     self._rSquaredSession = _session;
     if (typeof callback !== undefined)
       callback(_session);
@@ -63,14 +59,12 @@ RCUBE.RSession.prototype.cacheRSquared = function(formula, dataId, rSquared, cal
 // Calculate RSquared values of the given formulas
 RCUBE.RSession.prototype.calculateRSquaredValues = function(formulas, dataId, callback) {
   self = this;
-  console.log("Run R Squared");
   this._openCPUConnection.execute(
     "/library/regressionCube/R",
     'r_squared_matrix_formula',
   {"data": self._datasetSession, "formulas": formulas, "data_id": dataId},
   function(_session){
-    console.log("Return R Squared");
-    _session.getConsole(function(content){console.log(content);});
+    // _session.getConsole(function(content){console.log(content);});
     self._rSquaredSession = _session;
     if (typeof callback !== undefined)
       callback(_session);
