@@ -29,9 +29,9 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
         nodes.push(createNode(independent, nodes.length));
         nodesIndex[independent] = nodes.length - 1;
       }
+      var value = rSquared[dependent][independent];
 
       // Create new link
-      var value = rSquared[dependent][independent];
       var link = {};
       link.source = nodesIndex[dependent];
       link.target = nodesIndex[independent];
@@ -62,6 +62,8 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData){
   },
   width = 720,
   height = 720;
+
+  console.log(heatmapData);
 
   var x = d3.scale.ordinal().rangeBands([0, width]),
   // z = d3.scale.linear().domain([0, 4]).clamp(true),
@@ -97,6 +99,14 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData){
     matrix[link.source][link.target].z += parseFloat(link.value);
     nodes[link.source].count += parseFloat(link.value);
   });
+
+  // Remove all matrix data above the diagonal
+  // for (var i = matrix.length - 1; i >= 0; i--) {
+  //   for (var j = matrix.length - 1; j >= 0; j--) {
+  //     if (j >= i)
+  //       matrix[i].splice(j, 1);
+  //   }
+  // }
 
   // Parse matrix and if a column does not have any elements, remove them
   // emptyDimensions = [];
@@ -146,7 +156,8 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData){
   .attr("transform", function(d, i) {
     return "translate(0," + x(i) + ")";
   })
-  .each(row);
+  .each(row_);
+  console.log(matrix);
 
   row.append("line")
   .attr("x2", width);
@@ -176,15 +187,16 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData){
   .attr("x", 6)
   .attr("y", x.rangeBand() / 2)
   .attr("dy", ".32em")
+  .attr("transform", "rotate(45, 10, 50)")
   .classed("mono", true)
   .attr("text-anchor", "start")
   .text(function(d, i) {
     return nodes[i].name;
   });
 
-  function row(row) {
+  function row_(_row) {
     var cell = d3.select(this).selectAll(".cell")
-    .data(row.filter(function(d) {
+    .data(_row.filter(function(d) {
       return d.z;
     }))
     .enter().append("rect")
