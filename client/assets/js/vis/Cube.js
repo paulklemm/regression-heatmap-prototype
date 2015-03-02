@@ -1,236 +1,242 @@
-RCUBE.Cube = function(canvasID, rSquared, names) {
+RCUBE.Cube = function(canvasID, data, dimensions) {
   this._canvasID = canvasID;
-  this.main(canvasID, this._data);
+  this.main(canvasID, data, dimensions);
 };
 
-RCUBE.Cube.prototype.main = function (canvasID, data){
+RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
+  var width = $('#' + canvasID).width();
+  var height = $('#' + canvasID).width();
   var container, stats;
-	var camera, scene, renderer, particles, geometry, i, h, color, size;
-	var shaderMaterial, materials = [];
-	var mouseX = 0, mouseY = 0;
-	var controls, attributes;
-	var colors = [];
-	var guiController;
-	var DEBUG = false;
-	// var transferfunction = new Transferfunction2D('blue', 'red');
-	// GUI
-	var renderMode = "ShaderMaterial";
-	// /GUI
-	var windowHalfX = window.innerWidth / 2;
-	var windowHalfY = window.innerHeight / 2;
-	var slicingPlane;
-	var slicingPlanePosition = 0;
-	var matrixData3D;
-	var matrixData2D;
-	// Load data at the start!
-	// d3.json('data/matrix3D.json', function(_matrixData3D) {
-	d3.json('data/cube_back_pain_last_3_month.json', function(_matrixData3D) {
-		d3.json('data/matrix2D.json', function(_matrixData2D) {
-      matrixData3D = _matrixData3D;
-			matrixData2D = _matrixData2D;
+  var camera, scene, renderer, particles, geometry, i, h, color, size;
+  var shaderMaterial, materials = [];
+  var mouseX = 0, mouseY = 0;
+  var controls, attributes;
+  var colors = [];
+  var guiController;
+  var DEBUG = false;
+  // var transferfunction = new Transferfunction2D('blue', 'red');
+  // GUI
+  var renderMode = "ShaderMaterial";
+  // /GUI
+  var windowHalfX = width / 2;
+  var windowHalfY = height / 2;
+  var slicingPlane;
+  var slicingPlanePosition = 0;
+  var matrixData2D;
 
-		if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-		var view = this;
+  if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+  var view = this;
 
-		function addDatGui(){
-			var gui = new dat.GUI();
-			slicingPlanePosition 	= gui.add(this, "slicingPlanePosition", -200, 200);
-			slicingPlanePosition.onChange(function(value) {
-				slicingPlane.vertices[0].z = value;
-				slicingPlane.vertices[1].z = value;
-				slicingPlane.vertices[2].z = value;
-				slicingPlane.vertices[3].z = value;
-				slicingPlane.verticesNeedUpdate = true;
-			});
-			renderModeGUI = gui.add(this, "renderMode", ['ShaderMaterial', 'PointCloudMaterial']);
-			renderModeGUI.onChange( function(value) {
-				scene.remove( particles );
-				if (value == 'ShaderMaterial')
-					particles = new THREE.PointCloud( geometry, shaderMaterial );
-				else
-					particles = new THREE.PointCloud( geometry, materials );
-				scene.add(particles);
-			});
-		}
+  function addDatGui(){
+    var gui = new dat.GUI();
+    slicingPlanePosition   = gui.add(this, "slicingPlanePosition", -200, 200);
+    slicingPlanePosition.onChange(function(value) {
+      slicingPlane.vertices[0].z = value;
+      slicingPlane.vertices[1].z = value;
+      slicingPlane.vertices[2].z = value;
+      slicingPlane.vertices[3].z = value;
+      slicingPlane.verticesNeedUpdate = true;
+    });
+    renderModeGUI = gui.add(this, "renderMode", ['ShaderMaterial', 'PointCloudMaterial']);
+    renderModeGUI.onChange( function(value) {
+      scene.remove( particles );
+      if (value == 'ShaderMaterial')
+        particles = new THREE.PointCloud( geometry, shaderMaterial );
+      else
+        particles = new THREE.PointCloud( geometry, materials );
+      scene.add(particles);
+    });
+  }
 
-		init();
-		animate();
+  init(data, dimensions);
+  animate();
 
-		function init() {
-			// DOM
-			container = document.createElement( 'div' );
+  function init(data, dimensions) {
+    console.log(dimensions);
+    // DOM
+    container = document.createElement( 'div' );
 
-			document.getElementById(canvasID).appendChild(container);
-			// camera
-			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 3000 );
-			camera.position.z = 600;
+    document.getElementById(canvasID).appendChild(container);
+    // camera
+    camera = new THREE.PerspectiveCamera( 75, width / height, 1, 3000 );
+    camera.position.z = 600;
 
-			// Scene
-			scene = new THREE.Scene();
-			// scene.fog = new THREE.FogExp2( 0x000000, 0.0007 );
+    // Scene
+    scene = new THREE.Scene();
 
-			// attributes
-			attributes = {
-				alpha: { type: 'f', value: [] },
-			};
+    // attributes
+    attributes = {
+      alpha: { type: 'f', value: [] },
+    };
 
-			// uniforms
-			uniforms = {
-				color: { type: "c", value: new THREE.Color( 0xff0000 ) },
-			};
+    // uniforms
+    uniforms = {
+      color: { type: "c", value: new THREE.Color( 0xff0000 ) },
+    };
 
-			shaderMaterial = new THREE.ShaderMaterial( {
+    shaderMaterial = new THREE.ShaderMaterial( {
 
-				uniforms:       uniforms,
-				vertexColors:   THREE.VertexColors,
-				attributes:     attributes,
-				vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-				fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-				// Depth Test: https://github.com/mrdoob/three.js/issues/1928
-				depthTest:false,
-				transparent: true
+      uniforms:       uniforms,
+      vertexColors:   THREE.VertexColors,
+      attributes:     attributes,
+      vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+      fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+      // Depth Test: https://github.com/mrdoob/three.js/issues/1928
+      depthTest:false,
+      transparent: true
 
-			});
+    });
 
-			// Geometry
-			geometry = new THREE.Geometry();
-			if (DEBUG)
-				var num_z = num_y = num_x = 20;
-			else
-				var num_z = num_y = num_x = matrixData3D.length;
+    // Geometry
+    geometry = new THREE.Geometry();
 
-			var transferfunction = d3.scale.linear()
-				.domain([0, 1])
-				.range(['blue', 'red']);
+    var transferfunction = d3.scale.linear()
+      .domain([0, 1])
+      .range(['#fff7fb', '#023858']);
 
-			for ( var z = 0; z < num_z; z++) {
-				for ( var y = 0; y < num_y; y++) {
-					for ( var x = 0; x < num_x; x++) {
+    // Iterate over all dimensions and check for values
+    dimensions.forEach(function(dimension_z, z) {
+      dimensions.forEach(function(dimension_y, y) {
+        dimensions.forEach(function(dimension_x, x) {
+          if (typeof data[dimension_z] != 'undefined' &&
+            typeof data[dimension_z][dimension_y] != 'undefined' &&
+            typeof data[dimension_z][dimension_y][dimension_x] != 'undefined') {
+
             var vertex = new THREE.Vector3();
-						vertex.x = x*3 - ((num_x * 3) / 2);
-						vertex.y = y*3 - ((num_y * 3) / 2);
-						vertex.z = z*3 - ((num_z * 3) / 2);
-						geometry.vertices.push( vertex );
+            vertex.x = x*3 - ((dimensions.length * 3) / 2);
+            vertex.y = y*3 - ((dimensions.length * 3) / 2);
+            vertex.z = z*3 - ((dimensions.length * 3) / 2);
+            geometry.vertices.push( vertex );
 
-						var color = new THREE.Color(transferfunction(matrixData2D[x][y]));
-						geometry.colors.push(color);
-						attributes.alpha.value.push(matrixData3D[x][y][z]);
-					}
-				}
-			}
+            // Since the we only store information above the matrix diagonal,
+            // we have to mirror the vertex in order to create a cube
+            var vertexMirror = new THREE.Vector3();
+            vertexMirror.x = y*3 - ((dimensions.length * 3) / 2);
+            vertexMirror.y = x*3 - ((dimensions.length * 3) / 2);
+            vertexMirror.z = z*3 - ((dimensions.length * 3) / 2);
+            geometry.vertices.push( vertexMirror );
 
-			color = [1,1,1];
-			size  = 6;
+            var color = new THREE.Color(transferfunction(data[dimension_z][dimension_y][dimension_x]));
+            // Two times because we also add the mirror element
+            geometry.colors.push(color);
+            geometry.colors.push(color);
+            // attributes.alpha.value.push(1);
+            // attributes.alpha.value.push(1);
+            attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
+            attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
+          }
+        });
+      });
+    });
 
-			materials = new THREE.PointCloudMaterial( {
-				size: size,
-				vertexColors: THREE.VertexColors
-			});
+    color = [1,1,1];
+    size  = 6;
 
-			particles = new THREE.PointCloud( geometry, shaderMaterial );
-			// particles = new THREE.Mesh( geometry, shaderMaterial );
-			scene.add( particles );
+    materials = new THREE.PointCloudMaterial( {
+      size: size,
+      vertexColors: THREE.VertexColors
+    });
 
-			// [Geometry] Add Slicing Plane
-			planeSize = (num_x * 3) + 100;
-			slicingPlane = new THREE.PlaneGeometry(planeSize, planeSize);
-			// var slicingPlaneMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
-			var slicingPlaneMaterial = new THREE.MeshBasicMaterial( {color: 0xB0B0B0, opacity: 0.5, side: THREE.DoubleSide} );
-			var plane = new THREE.Mesh( slicingPlane, slicingPlaneMaterial );
-			scene.add( plane );
+    particles = new THREE.PointCloud( geometry, shaderMaterial );
+    // particles = new THREE.Mesh( geometry, shaderMaterial );
+    scene.add( particles );
 
-			// Renderer
-			renderer = new THREE.WebGLRenderer();
-			// renderer.setSize( window.innerWidth, window.innerHeight );
-      renderer.setSize(200, 200);
-			// renderer.setClearColor(0xF0F0F0, 1)
-			renderer.setClearColor(0xFFFFFF, 1)
-			container.appendChild( renderer.domElement );
+    // [Geometry] Add Slicing Plane
+    planeSize = (dimensions.length * 3) + 100;
+    slicingPlane = new THREE.PlaneGeometry(planeSize, planeSize);
+    var slicingPlaneMaterial = new THREE.MeshBasicMaterial( {color: 0xB0B0B0, opacity: 0.5, side: THREE.DoubleSide} );
+    var plane = new THREE.Mesh( slicingPlane, slicingPlaneMaterial );
+    scene.add( plane );
 
-			// Controls
-			controls = new THREE.TrackballControls( camera, renderer.domElement );
-			controls.rotateSpeed = 1.0;
-			controls.zoomSpeed = 1.2;
-			controls.panSpeed = 0.8;
-			controls.noZoom = false;
-			controls.noPan = false;
-			controls.staticMoving = true;
-			controls.dynamicDampingFactor = 0.3;
-			controls.keys = [ 65, 83, 68 ];
-			controls.addEventListener( 'change', render );
+    // Renderer
+    renderer = new THREE.WebGLRenderer();
+    // renderer.setSize( width, height );
+    renderer.setSize(width, height);
+    renderer.setClearColor(0xFFFFFF, 1);
+    container.appendChild( renderer.domElement );
 
-			// Stats
-			stats = new Stats();
-			stats.domElement.style.position = 'absolute';
-			stats.domElement.style.top = '0px';
-			container.appendChild( stats.domElement );
+    // Controls
+    controls = new THREE.TrackballControls( camera, renderer.domElement );
+    controls.rotateSpeed = 1.0;
+    controls.zoomSpeed = 1.2;
+    controls.panSpeed = 0.8;
+    controls.noZoom = false;
+    controls.noPan = false;
+    controls.staticMoving = true;
+    controls.dynamicDampingFactor = 0.3;
+    controls.keys = [ 65, 83, 68 ];
+    controls.addEventListener( 'change', render );
 
-			document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-			document.addEventListener( 'touchstart', onDocumentTouchStart, false );
-			document.addEventListener( 'touchmove', onDocumentTouchMove, false );
-			window.addEventListener( 'resize', onWindowResize, false );
+    // Stats
+    stats = new Stats();
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.top = '0px';
+    container.appendChild( stats.domElement );
 
-			// Initialize GUI
-			// addDatGui();
-		}
+    document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+    document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+    document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+    window.addEventListener( 'resize', onWindowResize, false );
 
-		function onWindowResize() {
+    // Initialize GUI
+    // addDatGui();
+  }
 
-			windowHalfX = window.innerWidth / 2;
-			windowHalfY = window.innerHeight / 2;
+  function onWindowResize() {
 
-			camera.aspect = window.innerWidth / window.innerHeight;
-			camera.updateProjectionMatrix();
+    windowHalfX = width / 2;
+    windowHalfY = height / 2;
 
-			renderer.setSize( window.innerWidth, window.innerHeight );
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
 
-		}
+    renderer.setSize( width, height );
 
-		function onDocumentMouseMove( event ) {
+  }
 
-			mouseX = event.clientX - windowHalfX;
-			mouseY = event.clientY - windowHalfY;
+  function onDocumentMouseMove( event ) {
 
-		}
+    mouseX = event.clientX - windowHalfX;
+    mouseY = event.clientY - windowHalfY;
 
-		function onDocumentTouchStart( event ) {
+  }
 
-			if ( event.touches.length === 1 ) {
+  function onDocumentTouchStart( event ) {
 
-				event.preventDefault();
+    if ( event.touches.length === 1 ) {
 
-				mouseX = event.touches[ 0 ].pageX - windowHalfX;
-				mouseY = event.touches[ 0 ].pageY - windowHalfY;
+      event.preventDefault();
 
-			}
+      mouseX = event.touches[ 0 ].pageX - windowHalfX;
+      mouseY = event.touches[ 0 ].pageY - windowHalfY;
 
-		}
+    }
 
-		function onDocumentTouchMove( event ) {
+  }
 
-			if ( event.touches.length === 1 ) {
+  function onDocumentTouchMove( event ) {
 
-				event.preventDefault();
+    if ( event.touches.length === 1 ) {
 
-				mouseX = event.touches[ 0 ].pageX - windowHalfX;
-				mouseY = event.touches[ 0 ].pageY - windowHalfY;
+      event.preventDefault();
 
-			}
+      mouseX = event.touches[ 0 ].pageX - windowHalfX;
+      mouseY = event.touches[ 0 ].pageY - windowHalfY;
 
-		}
+    }
 
-		function animate() {
-			controls.update();
-			requestAnimationFrame( animate );
+  }
 
-			render();
-			stats.update();
+  function animate() {
+    controls.update();
+    requestAnimationFrame( animate );
 
-		}
+    render();
+    stats.update();
 
-		function render() {
-			renderer.render( scene, camera );
-		}
-	}); // Closing D3.fromJSON call
-}); // Closing D3.fromJSON call
+  }
+
+  function render() {
+    renderer.render( scene, camera );
+  }
 };

@@ -139,7 +139,8 @@
       mat4 newViewMatrix = modelViewMatrix;
       mat4 newProjectionMatrix = projectionMatrix;
       vec4 mvPosition = newViewMatrix * vec4( position, 1.0 );
-      gl_PointSize = 3700.0 / length( mvPosition.xyz );
+      // gl_PointSize = 3700.0 / length( mvPosition.xyz );
+      gl_PointSize = 1500.0 / length( mvPosition.xyz );
       gl_Position = newProjectionMatrix * mvPosition;
     }
 
@@ -183,7 +184,10 @@
         <!-- Threejs Test -->
         <div class='row'>
           <div class='col-md-4 col-md-offset-4'>
-            <div id="threeTest" style=''></div>
+            <div id="threeTest"></div>
+          </div>
+          <div class='col-md-4 col-md-offset-4'>
+            <div id="test"></div>
           </div>
           </div>
       </div>

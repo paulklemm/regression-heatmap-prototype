@@ -1,7 +1,6 @@
 RCUBE.Heatmap = function(canvasID, rSquared, names) {
   this._canvasID = canvasID;
   this._data = this.createHeatmapInput(rSquared, names);
-  console.log(this._data);
   this.main(canvasID, this._data);
 };
 
@@ -99,7 +98,6 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData){
     nodes[link.source].count += parseFloat(link.value);
   });
 
-  console.log(matrix);
   // Parse matrix and if a column does not have any elements, remove them
   // emptyDimensions = [];
   // matrix.forEach(function(x, index_x) {

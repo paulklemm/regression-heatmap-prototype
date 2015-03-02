@@ -8,6 +8,23 @@ RCUBE.Dataset = function(){
   this._activeFormula = undefined;
 };
 
+// This is a helper function, not sure how it will be of use later on
+RCUBE.Dataset.prototype.getNumberOfRSquaredValues = function() {
+  var cntr = 0;
+  var rSquared = this.getRSquared();
+  dimensions = Object.keys(rSquared);
+  dimensions.forEach(function(dimension_z, z){
+    dimensions_y_keys = Object.keys(rSquared[dimension_z]);
+    dimensions_y_keys.forEach(function(dimension_y, y){
+      dimensions_x_keys = Object.keys(rSquared[dimension_z][dimension_y]);
+      dimensions_x_keys.forEach(function(dimension_x, z){
+        cntr += 1;
+      });
+    });
+  });
+  return cntr;
+};
+
 RCUBE.Dataset.prototype.switchFormula = function(formula) {
   var formulaString = formula.toString();
   var formulaExists = Object.keys(this._rSquared).indexOf(formulaString) != -1;

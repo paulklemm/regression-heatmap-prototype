@@ -102,6 +102,10 @@ angular.module('cube')
           $('#cog').removeClass('visible');
           dataService.calculationInProgress = false;
           dataService.dataset.setRSquaredGlobal(rSquared, dataService.regressionFormula);
+          // Debug Cube
+          console.log(dataService.dataset);
+          console.log(dataService.dataset.getRSquared());
+          var cubeTest = new RCUBE.Cube('threeTest', dataService.dataset.getRSquared(), dataService.dataset._dimensionNames.reverse());
           $rootScope.$broadcast('updateRSquared');
         }
       });
