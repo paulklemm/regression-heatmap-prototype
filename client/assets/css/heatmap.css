@@ -1,7 +1,10 @@
 .heatmap .background {
-  fill: #eee;
+  /*fill: #eee;*/
+  fill: rgba(0,0,0,0);
 }
 .heatmap line {
+  /*stroke: rgba(0,0,0,0);*/
+  /*stroke: #000;*/
   stroke: #fff;
 }
 .heatmap text.active {

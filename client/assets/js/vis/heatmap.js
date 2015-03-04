@@ -4,6 +4,16 @@ RCUBE.Heatmap = function(canvasID, rSquared, names) {
   this.main(canvasID, this._data);
 };
 
+// Create hashmap of sorted names for faster access
+RCUBE.Heatmap.prototype.getSortedNames = function(names){
+  sortedNames = {};
+  names = names.sort();
+  names.forEach(function(name, index){
+    sortedNames[name] = index;
+  });
+  return sortedNames;
+};
+
 RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
   var createNode = function(name, index) {
     var node = {};
@@ -16,13 +26,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
   var nodesIndex = {};
   var links = [];
 
-  sortedNames = {};
-  names = names.sort();
-  names.forEach(function(name, index){
-    sortedNames[name] = index;
-  });
-  console.log(sortedNames);
-
+  var sortedNames = this.getSortedNames(names);
 
   var dependentVariables = Object.keys(rSquared);
   dependentVariables.forEach(function(dependent, dependent_index){
@@ -39,6 +43,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
       }
       var value = rSquared[dependent][independent];
 
+      // Create a lower matrix diagonal
       if (sortedNames[dependent] > sortedNames[independent]) {
         // Create new link
         var link = {};
@@ -48,21 +53,14 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
         links.push(link);
       }
       else {
+        // Since we only calculate the upper matrix, we also add the mirror to
+        // the data structure
         var link_mirror = {};
         link_mirror.source = nodesIndex[independent];
         link_mirror.target = nodesIndex[dependent];
         link_mirror.value = value;
         links.push(link_mirror);
       }
-
-      console.log(dependent + "(" + nodesIndex[dependent] + ") -> " + independent + "(" + nodesIndex[independent] + "): " + value[0]);
-      // Since we only calculate the upper matrix, we also add the mirror to
-      // the data structure
-      // var link_mirror = {};
-      // link_mirror.source = nodesIndex[independent];
-      // link_mirror.target = nodesIndex[dependent];
-      // link_mirror.value = value;
-      // links.push(link_mirror);
     });
   });
   // Set the proper names array for reference in the mouse-over event
@@ -71,17 +69,19 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
   return {"nodes": nodes, "links": links};
 };
 
-RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData){
+RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
   var self = this;
   var nodes = heatmapData.nodes;
   var margin = {
-    top: 200,
+    top: 10,
     right: 0,
-    bottom: 10,
+    bottom: 200,
     left: 200
   },
   width = 720,
   height = 720;
+
+  var sortedNames = this.getSortedNames(self._names);
 
   console.log(heatmapData);
 
@@ -180,7 +180,13 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData){
   console.log(matrix);
 
   row.append("line")
-  .attr("x2", width);
+  // .attr("x2", width);
+  // Only draw the line as far as the current cell requires
+  .attr("x2", function(d, i) {
+    var nodeName = nodes[d[i].x].name;
+    var index = sortedNames[nodeName];
+    return index * x.rangeBand();
+    });
 
   row.append("text")
   .attr("x", -6)
@@ -201,20 +207,44 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData){
   });
 
   column.append("line")
-  .attr("x1", -width);
+  // .attr("x1", -width);
+  .attr("x1", function(d, i) {
+    var nodeName = nodes[d[i].x].name;
+    var index = sortedNames[nodeName];
+    // return -50;
+    return 0 - (index * x.rangeBand());
+    })
+  .attr("x2", -width);
+  // .attr("x2", function(d, i) {
+  //   var nodeName = nodes[d[i].x].name;
+  //   var index = sortedNames[nodeName];
+  //   return 0 - ((self._names.length - 1 - index) * x.rangeBand());
+  //   });
 
   column.append("text")
-  .attr("x", 6)
-  .attr("y", x.rangeBand() / 2)
+  .attr("x", height + 10)
+  // .attr("x", 0)
+  // .attr("y", x.rangeBand() / 2)
+  .attr("y", (x.rangeBand() / 2) - x.rangeBand())
   .attr("dy", ".32em")
-  .attr("transform", "rotate(45, 10, 50)")
+  .attr("transform", "rotate(180, 0, 0)")
+  // .attr("transform", "rotate(45, 10, 50)")
   .classed("mono", true)
   .attr("text-anchor", "start")
   .text(function(d, i) {
     return nodes[i].name;
   });
 
+  // Debug
+  debug_x = x;
+
   function row_(_row) {
+    // Iterate over all row entries and remove the ones above
+    // the matrix diagonal to only have the lower matrix represented
+    // for (var i = _row.length - 1; i >= 0; i--) {
+    //   if (_row[i].x >= _row[i].y)
+    //     _row.splice(i, 1);
+    // }
     var cell = d3.select(this).selectAll(".cell")
     .data(_row.filter(function(d) {
       return d.z;
@@ -224,8 +254,8 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData){
     .attr("x", function(d) {
       return x(d.x);
     })
-    .attr("width", x.rangeBand())
-    .attr("height", x.rangeBand())
+    .attr("width", x.rangeBand()-1)
+    .attr("height", x.rangeBand()-1)
     .style("fill-opacity", function(d) {
       return z(d.z);
     })
