@@ -6,6 +6,8 @@ RCUBE.Cube = function(canvasID, data, dimensions) {
 RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
   var width = $('#' + canvasID).width();
   var height = $('#' + canvasID).width();
+  // var width=500;
+  // var height=500;
   var container, stats;
   var camera, scene, renderer, particles, geometry, i, h, color, size;
   var shaderMaterial, materials = [];
@@ -148,10 +150,11 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     scene.add( plane );
 
     // Renderer
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({ alpha:true });
     // renderer.setSize( width, height );
     renderer.setSize(width, height);
-    renderer.setClearColor(0xFFFFFF, 1);
+    // renderer.setClearColor(0xFFFFFF, 0);
+    renderer.setClearColor(0x000000, 0);
     container.appendChild( renderer.domElement );
 
     // Controls
