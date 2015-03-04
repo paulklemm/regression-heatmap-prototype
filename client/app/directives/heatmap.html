@@ -3,10 +3,9 @@
     <div class='form-inline'>
       <div class='form-group'>
         <label class='control-label' for='dependent-heatmap'>Dependent Variable</label>
-          <select id='depentent-heatmap' class='form-control' ng-change='heatmap.changeDependent()' ng-model="dependentSelect" ng-options="opt as opt.label for opt in heatmap.dependentOptions">
-          </select>
-          <span id='heatmap-pulse-container'></span>
-      <!-- <div class='form-group'> -->
+        <select id='depentent-heatmap' class='form-control' ng-change='heatmap.changeDependent()' ng-model="dependentSelect" ng-options="opt as opt.label for opt in heatmap.dependentOptions">
+        </select>
+        <span id='heatmap-pulse-container'></span>
         <label for='order-heatmap'>Order Heatmap</label>
         <select id="order-heatmap" class='form-control'>
           <option value="name">by Name</option>

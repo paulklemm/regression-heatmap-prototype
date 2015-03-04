@@ -1,9 +1,12 @@
 RCUBE.Cube = function(canvasID, data, dimensions) {
   this._canvasID = canvasID;
+  // Displays the FPS Stats view if true
+  this._showFPS = false;
   this.main(canvasID, data, dimensions);
 };
 
 RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
+  var self = this;
   var width = $('#' + canvasID).width();
   var height = $('#' + canvasID).width();
   // var width=500;
@@ -60,7 +63,8 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     document.getElementById(canvasID).appendChild(container);
     // camera
     camera = new THREE.PerspectiveCamera( 75, width / height, 1, 3000 );
-    camera.position.z = 600;
+    // TODO: Automatically calculate z distance
+    camera.position.z = 900;
 
     // Scene
     scene = new THREE.Scene();
@@ -151,29 +155,30 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
 
     // Renderer
     renderer = new THREE.WebGLRenderer({ alpha:true });
-    // renderer.setSize( width, height );
     renderer.setSize(width, height);
-    // renderer.setClearColor(0xFFFFFF, 0);
+    // renderer.setClearColor(0xFFFFFF, 1);
     renderer.setClearColor(0x000000, 0);
     container.appendChild( renderer.domElement );
 
     // Controls
     controls = new THREE.TrackballControls( camera, renderer.domElement );
-    controls.rotateSpeed = 1.0;
-    controls.zoomSpeed = 1.2;
-    controls.panSpeed = 0.8;
-    controls.noZoom = false;
-    controls.noPan = false;
-    controls.staticMoving = true;
-    controls.dynamicDampingFactor = 0.3;
-    controls.keys = [ 65, 83, 68 ];
+    controls.rotateSpeed = 0.5;
+    // controls.zoomSpeed = 1.2;
+    // controls.panSpeed = 0.8;
+    // controls.noZoom = false;
+    controls.noPan = true;
+    // controls.staticMoving = true;
+    // controls.dynamicDampingFactor = 0.3;
+    // controls.keys = [ 65, 83, 68 ];
     controls.addEventListener( 'change', render );
 
     // Stats
-    stats = new Stats();
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.top = '0px';
-    container.appendChild( stats.domElement );
+    if (self._showFPS) {
+      stats = new Stats();
+      stats.domElement.style.position = 'absolute';
+      stats.domElement.style.top = '0px';
+      container.appendChild( stats.domElement );
+    }
 
     document.addEventListener( 'mousemove', onDocumentMouseMove, false );
     document.addEventListener( 'touchstart', onDocumentTouchStart, false );
@@ -197,7 +202,6 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
   }
 
   function onDocumentMouseMove( event ) {
-
     mouseX = event.clientX - windowHalfX;
     mouseY = event.clientY - windowHalfY;
 
@@ -234,7 +238,8 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     requestAnimationFrame( animate );
 
     render();
-    stats.update();
+    if (self._showFPS)
+      stats.update();
 
   }
 

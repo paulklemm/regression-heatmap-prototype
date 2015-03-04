@@ -1,5 +1,6 @@
 RCUBE.Heatmap = function(canvasID, rSquared, names) {
   this._canvasID = canvasID;
+  this._lowerMatrix = true;
   this._data = this.createHeatmapInput(rSquared, names);
   this.main(canvasID, this._data);
 };
@@ -15,6 +16,7 @@ RCUBE.Heatmap.prototype.getSortedNames = function(names){
 };
 
 RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
+  self = this;
   var createNode = function(name, index) {
     var node = {};
     node.count = 0;
@@ -43,16 +45,33 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
       }
       var value = rSquared[dependent][independent];
 
-      // Create a lower matrix diagonal
-      if (sortedNames[dependent] > sortedNames[independent]) {
+      if (self._lowerMatrix) {
+        // Create a lower matrix diagonal
+        if (sortedNames[dependent] > sortedNames[independent]) {
+          // Create new link
+          var link = {};
+          link.source = nodesIndex[dependent];
+          link.target = nodesIndex[independent];
+          link.value = value;
+          links.push(link);
+        }
+        else {
+          // Since we only calculate the upper matrix, we also add the mirror to
+          // the data structure
+          var link_mirror = {};
+          link_mirror.source = nodesIndex[independent];
+          link_mirror.target = nodesIndex[dependent];
+          link_mirror.value = value;
+          links.push(link_mirror);
+        }
+      }
+      else {
         // Create new link
         var link = {};
         link.source = nodesIndex[dependent];
         link.target = nodesIndex[independent];
         link.value = value;
         links.push(link);
-      }
-      else {
         // Since we only calculate the upper matrix, we also add the mirror to
         // the data structure
         var link_mirror = {};
@@ -179,14 +198,19 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
   .each(row_);
   console.log(matrix);
 
-  row.append("line")
-  // .attr("x2", width);
-  // Only draw the line as far as the current cell requires
-  .attr("x2", function(d, i) {
-    var nodeName = nodes[d[i].x].name;
-    var index = sortedNames[nodeName];
-    return index * x.rangeBand();
-    });
+  if (self._lowerMatrix) {
+    row.append("line")
+    // Only draw the line as far as the current cell requires
+    .attr("x2", function(d, i) {
+      var nodeName = nodes[d[i].x].name;
+      var index = sortedNames[nodeName];
+      return index * x.rangeBand();
+      });
+  }
+  else {
+    row.append("line")
+    .attr("x2", width);
+  }
 
   row.append("text")
   .attr("x", -6)
@@ -206,20 +230,19 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
     return "translate(" + x(i) + ")rotate(-90)";
   });
 
-  column.append("line")
-  // .attr("x1", -width);
-  .attr("x1", function(d, i) {
-    var nodeName = nodes[d[i].x].name;
-    var index = sortedNames[nodeName];
-    // return -50;
-    return 0 - (index * x.rangeBand());
-    })
-  .attr("x2", -width);
-  // .attr("x2", function(d, i) {
-  //   var nodeName = nodes[d[i].x].name;
-  //   var index = sortedNames[nodeName];
-  //   return 0 - ((self._names.length - 1 - index) * x.rangeBand());
-  //   });
+  if (self._lowerMatrix) {
+    column.append("line")
+    .attr("x1", function(d, i) {
+      var nodeName = nodes[d[i].x].name;
+      var index = sortedNames[nodeName];
+      return 0 - (index * x.rangeBand());
+      })
+    .attr("x2", -width);
+  }
+  else {
+    column.append("line")
+    .attr("x1", -width);
+  }
 
   column.append("text")
   .attr("x", height + 10)

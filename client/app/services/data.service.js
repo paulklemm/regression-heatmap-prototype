@@ -102,8 +102,12 @@ angular.module('cube')
           $('#cog').removeClass('visible');
           dataService.calculationInProgress = false;
           dataService.dataset.setRSquaredGlobal(rSquared, dataService.regressionFormula);
-          // Debug Cube
-          var cubeTest = new RCUBE.Cube('cube', dataService.dataset.getRSquared(), dataService.dataset._dimensionNames.reverse());
+          // HACK: For some reason, when initialized inside of a Angular controlled
+          // Div, the THREE.js Trackball Controls dont work as expected
+          // Launching the cube delayed works fine
+          setTimeout(function(){
+            var cube = new RCUBE.Cube('cube', dataService.dataset.getRSquared(), dataService.dataset._dimensionNames.reverse());
+          }, 1200);
           $rootScope.$broadcast('updateRSquared');
         }
       });
