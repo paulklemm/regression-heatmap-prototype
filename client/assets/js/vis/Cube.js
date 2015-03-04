@@ -52,7 +52,6 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
   animate();
 
   function init(data, dimensions) {
-    console.log(dimensions);
     // DOM
     container = document.createElement( 'div' );
 

@@ -16,6 +16,14 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
   var nodesIndex = {};
   var links = [];
 
+  sortedNames = {};
+  names = names.sort();
+  names.forEach(function(name, index){
+    sortedNames[name] = index;
+  });
+  console.log(sortedNames);
+
+
   var dependentVariables = Object.keys(rSquared);
   dependentVariables.forEach(function(dependent, dependent_index){
     var independentVariables = Object.keys(rSquared[dependent]);
@@ -31,23 +39,35 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
       }
       var value = rSquared[dependent][independent];
 
-      // Create new link
-      var link = {};
-      link.source = nodesIndex[dependent];
-      link.target = nodesIndex[independent];
-      link.value = value;
-      links.push(link);
+      if (sortedNames[dependent] > sortedNames[independent]) {
+        // Create new link
+        var link = {};
+        link.source = nodesIndex[dependent];
+        link.target = nodesIndex[independent];
+        link.value = value;
+        links.push(link);
+      }
+      else {
+        var link_mirror = {};
+        link_mirror.source = nodesIndex[independent];
+        link_mirror.target = nodesIndex[dependent];
+        link_mirror.value = value;
+        links.push(link_mirror);
+      }
+
+      console.log(dependent + "(" + nodesIndex[dependent] + ") -> " + independent + "(" + nodesIndex[independent] + "): " + value[0]);
       // Since we only calculate the upper matrix, we also add the mirror to
       // the data structure
-      var link_mirror = {};
-      link_mirror.source = nodesIndex[independent];
-      link_mirror.target = nodesIndex[dependent];
-      link_mirror.value = value;
-      links.push(link_mirror);
+      // var link_mirror = {};
+      // link_mirror.source = nodesIndex[independent];
+      // link_mirror.target = nodesIndex[dependent];
+      // link_mirror.value = value;
+      // links.push(link_mirror);
     });
   });
   // Set the proper names array for reference in the mouse-over event
   this._names = Object.keys(nodesIndex);
+  console.log(nodesIndex);
   return {"nodes": nodes, "links": links};
 };
 
