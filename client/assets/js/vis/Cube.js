@@ -1,5 +1,6 @@
 RCUBE.Cube = function(canvasID, data, dimensions) {
-  // dimensions = dimensions.sort();
+  // Since the Heatmap visualization is also sorted by name, we do the same thing here!
+  dimensions = dimensions.sort();
   this._canvasID = canvasID;
   // Displays the FPS Stats view if true
   this._showFPS = false;
@@ -118,7 +119,8 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
 
     debug_data = data;
     // Iterate over all dimensions and check for values
-    dimensions.forEach(function(dimension_z, z) {
+    // dimensions.forEach(function(dimension_z, z) {
+    ["bmi", "age"].forEach(function(dimension_z, z) {
     // ['Mammography_Left_BI_RADS'].forEach(function(dimension_z, z) {
       dimensions.forEach(function(dimension_y, y) {
         dimensions.forEach(function(dimension_x, x) {
@@ -126,29 +128,45 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
             typeof data[dimension_z][dimension_y] != 'undefined' &&
             typeof data[dimension_z][dimension_y][dimension_x] != 'undefined') {
 
-            // console.log("Add " + dimension_z + "," + dimension_y + "," + dimension_x + ": " + data[dimension_z][dimension_y][dimension_x]);
+            console.log("Add " + dimension_x + "," + dimension_y + "," + dimension_z + ": " + data[dimension_z][dimension_y][dimension_x]);
+            console.log(x + ", " + y + ", " + z);
 
             var vertex = new THREE.Vector3();
-            vertex.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-            vertex.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
             vertex.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+            if (x < y) {
+              vertex.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertex.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+            }
+            else {
+              vertex.x = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertex.y = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+            }
             geometry.vertices.push( vertex );
 
-            // Since the we only store information above the matrix diagonal,
-            // we have to mirror the vertex in order to create a cube
+            // var vertex = new THREE.Vector3();
+            // vertex.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+            // vertex.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+            // vertex.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+            // geometry.vertices.push( vertex );
+            //
+            // // Since the we only store information above the matrix diagonal,
+            // // we have to mirror the vertex in order to create a cube
             // var vertexMirror = new THREE.Vector3();
-            // vertexMirror.x = y*3 - ((dimensions.length * 3) / 2);
-            // vertexMirror.y = x*3 - ((dimensions.length * 3) / 2);
-            // vertexMirror.z = z*3 - ((dimensions.length * 3) / 2);
+            // vertexMirror.x = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+            // vertexMirror.y = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+            // vertexMirror.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
             // geometry.vertices.push( vertexMirror );
 
-            var color = new THREE.Color(transferfunction(data[dimension_z][dimension_y][dimension_x]));
+            // var color = new THREE.Color(transferfunction(data[dimension_z][dimension_y][dimension_x]));
+            var color = new THREE.Color("#1f77b4");
             // Two times because we also add the mirror element
             geometry.colors.push(color);
             // geometry.colors.push(color);
             // attributes.alpha.value.push(1);
-            // attributes.alpha.value.push(1);
             attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
+            // attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
+            // attributes.alpha.value.push(1);
+            // attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
             // attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
           }
         });
@@ -163,8 +181,8 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
       vertexColors: THREE.VertexColors
     });
 
-    // particles = new THREE.PointCloud( geometry, shaderMaterial );
-    particles = new THREE.PointCloud( geometry, materials );
+    particles = new THREE.PointCloud( geometry, shaderMaterial );
+    // particles = new THREE.PointCloud( geometry, materials );
     particles.rotateY(initRotation);
     debug_particles = particles;
     // particles = new THREE.Mesh( geometry, shaderMaterial );

@@ -1,6 +1,7 @@
 angular.module('cube')
   .factory('data', ['$rootScope', 'ocpuBridge', function($rootScope, ocpuBridge){
     var dataService = {};
+    debug_dataService = this;
     dataService.dataset = new RCUBE.Dataset();
     dataService.defaultRegressionFormula = new RCUBE.RegressionFormula('z ~ x + y');
     dataService.regressionFormula = new RCUBE.RegressionFormula();
@@ -86,7 +87,7 @@ angular.module('cube')
         // The returned features are sorted alphabetically, but this screws up our
         // visualizations when we consider the original sorting provided by the csv
         // file, so we have to sort it again using this exact sorting
-        best_dimensions = sortArrayByReference(dataService.dataset._dimensionNames, best_dimensions);
+        best_dimensions = sortArrayByReference(dataService.dataset._dimensionNames.slice(), best_dimensions);
 
         console.log("CFS Dimensions for " + dimensionName);
 
@@ -150,7 +151,8 @@ angular.module('cube')
           // Div, the THREE.js Trackball Controls dont work as expected
           // Launching the cube delayed works fine
           setTimeout(function(){
-            var cube = new RCUBE.Cube('cube', dataService.dataset.getRSquared(), dataService.dataset._dimensionNames.slice().reverse());
+            // var cube = new RCUBE.Cube('cube', dataService.dataset.getRSquared(), dataService.dataset._dimensionNames.slice().reverse());
+            var cube = new RCUBE.Cube('cube', dataService.dataset.getRSquared(), dataService.dataset._dimensionNames.slice());
             debug_cube = cube;
           }, 1200);
           $rootScope.$broadcast('updateRSquared');
