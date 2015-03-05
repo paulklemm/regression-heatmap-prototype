@@ -115,11 +115,11 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
 
             // Since the we only store information above the matrix diagonal,
             // we have to mirror the vertex in order to create a cube
-            var vertexMirror = new THREE.Vector3();
-            vertexMirror.x = y*3 - ((dimensions.length * 3) / 2);
-            vertexMirror.y = x*3 - ((dimensions.length * 3) / 2);
-            vertexMirror.z = z*3 - ((dimensions.length * 3) / 2);
-            geometry.vertices.push( vertexMirror );
+            // var vertexMirror = new THREE.Vector3();
+            // vertexMirror.x = y*3 - ((dimensions.length * 3) / 2);
+            // vertexMirror.y = x*3 - ((dimensions.length * 3) / 2);
+            // vertexMirror.z = z*3 - ((dimensions.length * 3) / 2);
+            // geometry.vertices.push( vertexMirror );
 
             var color = new THREE.Color(transferfunction(data[dimension_z][dimension_y][dimension_x]));
             // Two times because we also add the mirror element
@@ -151,6 +151,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     slicingPlane = new THREE.PlaneGeometry(planeSize, planeSize);
     var slicingPlaneMaterial = new THREE.MeshBasicMaterial( {color: 0xB0B0B0, opacity: 0.5, side: THREE.DoubleSide} );
     var plane = new THREE.Mesh( slicingPlane, slicingPlaneMaterial );
+    debug_plane = plane;
     scene.add( plane );
 
     // Renderer
