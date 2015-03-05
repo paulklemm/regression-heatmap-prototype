@@ -23,6 +23,46 @@ angular.module('cube')
       return dataService.dataset.getRSquared();
     };
 
+    // Helper function which sorts an array using a reference array
+    // @param reference: Reference array toSort
+    // @param toSort: Array which will be sorted using the reference array
+    // @return: sorted array
+    var sortArrayByReference = function(reference, toSort) {
+      // Create position hashmap for fast access
+      dimensionIndex = {};
+      reference.forEach(function(dimension, index){
+        dimensionIndex[dimension] = index;
+      });
+      // Sort the dimensions
+      sorted = [];
+      toSort.forEach(function(dimension) {
+        // Just add it if it is the first element
+        if (sorted.length === 0)
+          sorted.push(dimension);
+        else {
+          newDimensionIndex = dimensionIndex[dimension];
+          var inserted = false;
+          for (var i = 0; i < sorted.length; i++) {
+            // dont do anything if we already inserted the value (for some reason break; does not work as inteded)
+            if (!inserted) {
+              indexOfCurrentArrayDimension = dimensionIndex[sorted[i]];
+              if (indexOfCurrentArrayDimension > newDimensionIndex) {
+                // Insert it right before the current array dimension and leave for loop
+                sorted.splice(i, 0, dimension);
+                inserted = true;
+              }
+              // If we are at the end of the array, push the new element
+              if (i === sorted.length - 1) {
+                sorted.push(dimension);
+                inserted = true;
+              }
+            }
+          }
+        }
+      });
+      return sorted;
+    };
+
     // Called when a calculation for a formula is complete!
     // It saves copies of the Javascript objects to the R servers
     // for fast loading on switch!
@@ -43,6 +83,10 @@ angular.module('cube')
       }
       var dimensionName = dimensions[dimensions.length - 1];
       ocpuBridge.getCorrelationBasedFeatureSelection(dimensionName, dataService.dataset._name).then(function(best_dimensions){
+        // The returned features are sorted alphabetically, but this screws up our
+        // visualizations when we consider the original sorting provided by the csv
+        // file, so we have to sort it again using this exact sorting
+        best_dimensions = sortArrayByReference(dataService.dataset._dimensionNames, best_dimensions);
 
         console.log("CFS Dimensions for " + dimensionName);
 
@@ -106,7 +150,8 @@ angular.module('cube')
           // Div, the THREE.js Trackball Controls dont work as expected
           // Launching the cube delayed works fine
           setTimeout(function(){
-            var cube = new RCUBE.Cube('cube', dataService.dataset.getRSquared(), dataService.dataset._dimensionNames.reverse());
+            var cube = new RCUBE.Cube('cube', dataService.dataset.getRSquared(), dataService.dataset._dimensionNames.slice().reverse());
+            debug_cube = cube;
           }, 1200);
           $rootScope.$broadcast('updateRSquared');
         }
