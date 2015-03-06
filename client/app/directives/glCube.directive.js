@@ -5,8 +5,21 @@ angular.module('cube')
     templateUrl: 'app/directives/gl-cube.html',
     controller: function($scope){
       var cubeController = this;
-      console.log("Initialzed GL Cube Directive");
       this.visible = true;
+      this.theeCube = undefined;
+
+      $scope.$on('loadingComplete', function(){
+        console.log("Loading is Complete");
+        this.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset._dimensionNames.slice().reverse());
+        debug_cube = this.threeCube;
+      });
+
+      $scope.$on('visibleSliceChanged', function(event, data){
+        console.log("Slice Changed");
+        console.log(data.dimension);
+        if (typeof this.threeCube !== 'undefined')
+          this.threeCube.setPlaneToDimension(data.dimension);
+      });
     },
     controllerAs: 'glCube'
   };

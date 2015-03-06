@@ -1,5 +1,5 @@
 angular.module('cube')
-.directive('heatmap', ['data', function(data){
+.directive('heatmap', ['$rootScope', 'data', function($rootScope, data){
   return {
     restrict: 'E',
     templateUrl: 'app/directives/heatmap.html',
@@ -57,6 +57,7 @@ angular.module('cube')
       this.changeDependent = function(){
         this.currentDimension = $scope.dependentSelect.label;
         createHeatmap($scope.dependentSelect.label);
+        $rootScope.$broadcast('visibleSliceChanged', { 'dimension':this.currentDimension });
       };
     },
   controllerAs: 'heatmap'
