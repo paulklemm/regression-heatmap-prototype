@@ -80,11 +80,19 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     // camera
     camera = new THREE.PerspectiveCamera( 75, width / height, 1, 6000 );
     // TODO: Automatically calculate z distance
-    camera.position.z = 900;
+    camera.position.z = 10;
     debug_camera = camera;
 
     // Scene
     scene = new THREE.Scene();
+    debug_scene = scene;
+
+    // Get correct initial Camera Position
+    rotation = 0.1;
+    camera.position.x = Math.sin(rotation) * 500;
+    camera.position.z = Math.cos(rotation) * 500;
+    camera.up = new THREE.Vector3(0,0,1);
+    camera.lookAt( scene.position );
 
     // attributes
     attributes = {
@@ -120,7 +128,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     debug_data = data;
     // Iterate over all dimensions and check for values
     // dimensions.forEach(function(dimension_z, z) {
-    ["bmi", "age"].forEach(function(dimension_z, z) {
+    ["smoking", "age"].forEach(function(dimension_z, z) {
     // ['Mammography_Left_BI_RADS'].forEach(function(dimension_z, z) {
       dimensions.forEach(function(dimension_y, y) {
         dimensions.forEach(function(dimension_x, x) {
@@ -128,8 +136,8 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
             typeof data[dimension_z][dimension_y] != 'undefined' &&
             typeof data[dimension_z][dimension_y][dimension_x] != 'undefined') {
 
-            console.log("Add " + dimension_x + "," + dimension_y + "," + dimension_z + ": " + data[dimension_z][dimension_y][dimension_x]);
-            console.log(x + ", " + y + ", " + z);
+            // console.log("Add " + dimension_x + "," + dimension_y + "," + dimension_z + ": " + data[dimension_z][dimension_y][dimension_x]);
+            // console.log(x + ", " + y + ", " + z);
 
             var vertex = new THREE.Vector3();
             vertex.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
@@ -183,7 +191,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
 
     particles = new THREE.PointCloud( geometry, shaderMaterial );
     // particles = new THREE.PointCloud( geometry, materials );
-    particles.rotateY(initRotation);
+    // particles.rotateY(initRotation);
     debug_particles = particles;
     // particles = new THREE.Mesh( geometry, shaderMaterial );
     scene.add( particles );
@@ -195,8 +203,8 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     var plane = new THREE.Mesh( slicingPlane, slicingPlaneMaterial );
     self._plane = plane;
     debug_plane = plane;
-    plane.rotateY(initRotation);
-    // scene.add( plane );
+    // plane.rotateY(initRotation);
+    scene.add( plane );
 
     // Renderer
     renderer = new THREE.WebGLRenderer({ alpha:true });
@@ -231,6 +239,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     document.addEventListener( 'touchmove', onDocumentTouchMove, false );
     window.addEventListener( 'resize', onWindowResize, false );
 
+    rotation = 0;
     // Initialize GUI
     // addDatGui();
   }
@@ -280,6 +289,12 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
   }
 
   function animate() {
+    // console.log(rotation);
+    // rotation += 0.05;
+    // camera.position.x = 0;
+    // camera.position.y = Math.sin(rotation) * 500;
+    // camera.position.z = Math.cos(rotation) * 500;
+    // camera.lookAt( scene.position ); // the origin
     controls.update();
     requestAnimationFrame( animate );
 
