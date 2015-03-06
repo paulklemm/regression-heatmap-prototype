@@ -152,7 +152,7 @@ angular.module('cube')
           // Launching the cube delayed works fine
           setTimeout(function(){
             // var cube = new RCUBE.Cube('cube', dataService.dataset.getRSquared(), dataService.dataset._dimensionNames.slice().reverse());
-            var cube = new RCUBE.Cube('cube', dataService.dataset.getRSquared(), dataService.dataset._dimensionNames.slice());
+            var cube = new RCUBE.Cube('cube', dataService.dataset.getRSquared(), dataService.dataset._dimensionNames.slice().reverse());
             debug_cube = cube;
           }, 1200);
           $rootScope.$broadcast('updateRSquared');

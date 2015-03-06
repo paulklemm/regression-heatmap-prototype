@@ -1,27 +1,39 @@
 RCUBE.Cube = function(canvasID, data, dimensions) {
   // Since the Heatmap visualization is also sorted by name, we do the same thing here!
+  this._originalDimensionOrder = dimensions.slice();
   dimensions = dimensions.sort();
   this._canvasID = canvasID;
   // Displays the FPS Stats view if true
   this._showFPS = false;
   this._dimensions = dimensions;
   this._plane = undefined;
+  this._currentPlaneDimension = undefined;
   this._sliceDistance = 10;
-  this.main(canvasID, data, dimensions);
+  this._glScene = undefined;
+  this._glSliceGeometry = undefined;
+  this.main(canvasID, data, dimensions, this._originalDimensionOrder);
   debug_dimensions = dimensions;
 };
 
 RCUBE.Cube.prototype.setPlaneToDimension = function(dimensionName) {
   // Get the necessary variables
   var sliceDistance = this._sliceDistance;
-  var dimensionNumber = this._dimensions.indexOf(dimensionName);
+  var dimensionNumber = this._originalDimensionOrder.indexOf(dimensionName);
   var planePositionOfFirstDimension = 0 - ((this._dimensions.length * sliceDistance) / 2);
   // Calculate z position of the plane
   var planeZ = planePositionOfFirstDimension + dimensionNumber * sliceDistance;
   this._plane.position.setZ(planeZ);
+
+  // Remove the last Geometry added
+  if (typeof this._currentPlaneDimension !== "undefined")
+    this._glScene.remove( this._glSliceGeometry[this._currentPlaneDimension] );
+  // Set the current plane
+  this._glScene.add(this._glSliceGeometry[dimensionName]);
+  // And update the global variable
+  this._currentPlaneDimension = dimensionName;
 };
 
-RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
+RCUBE.Cube.prototype.main = function (canvasID, data, dimensions, zDimensionsOrder){
   var self = this;
   var width = $('#' + canvasID).width();
   var height = $('#' + canvasID).width();
@@ -35,7 +47,6 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
   var colors = [];
   var guiController;
   var DEBUG = false;
-  // var transferfunction = new Transferfunction2D('blue', 'red');
   // GUI
   var renderMode = "ShaderMaterial";
   // /GUI
@@ -85,6 +96,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
 
     // Scene
     scene = new THREE.Scene();
+    self._glScene = scene;
     debug_scene = scene;
 
     // Get correct initial Camera Position
@@ -120,16 +132,43 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     // Geometry
     geometry = new THREE.Geometry();
 
-
     var transferfunction = d3.scale.linear()
       .domain([0, 1])
       .range(['#fff7fb', '#023858']);
 
+    var sliceGeometry = {};
+    self._glSliceGeometry = sliceGeometry;
+
     debug_data = data;
+
+    var color = new THREE.Color("#1f77b4");
+    var colorSlice = new THREE.Color("#ff7f0e");
+
     // Iterate over all dimensions and check for values
     // dimensions.forEach(function(dimension_z, z) {
-    ["smoking", "age"].forEach(function(dimension_z, z) {
+    zDimensionsOrder.forEach(function(dimension_z, z) {
+    // ["smoking", "age"].forEach(function(dimension_z, z) {
     // ['Mammography_Left_BI_RADS'].forEach(function(dimension_z, z) {
+      currentSliceGeometry = new THREE.Geometry();
+      attributesSlice = {
+        alpha: { type: 'f', value: [] },
+      };
+      // uniforms
+      uniformsSlice = {
+        color: { type: "c", value: new THREE.Color( 0xff0000 ) },
+      };
+
+      sliceShaderMaterial = new THREE.ShaderMaterial( {
+
+        uniforms:       uniformsSlice,
+        vertexColors:   THREE.VertexColors,
+        attributes:     attributesSlice,
+        vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+        fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+        // Depth Test: https://github.com/mrdoob/three.js/issues/1928
+        depthTest:false,
+        transparent: true
+      });
       dimensions.forEach(function(dimension_y, y) {
         dimensions.forEach(function(dimension_x, x) {
           if (typeof data[dimension_z] != 'undefined' &&
@@ -139,36 +178,29 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
             // console.log("Add " + dimension_x + "," + dimension_y + "," + dimension_z + ": " + data[dimension_z][dimension_y][dimension_x]);
             // console.log(x + ", " + y + ", " + z);
 
-            var vertex = new THREE.Vector3();
-            vertex.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+            var vertexCube = new THREE.Vector3();
+            var vertexSlice = new THREE.Vector3();
+            vertexCube.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+            vertexSlice.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
             if (x < y) {
-              vertex.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-              vertex.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexCube.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexCube.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexSlice.x = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexSlice.y = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
             }
             else {
-              vertex.x = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-              vertex.y = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexCube.x = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexCube.y = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexSlice.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexSlice.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
             }
-            geometry.vertices.push( vertex );
-
-            // var vertex = new THREE.Vector3();
-            // vertex.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-            // vertex.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-            // vertex.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-            // geometry.vertices.push( vertex );
-            //
-            // // Since the we only store information above the matrix diagonal,
-            // // we have to mirror the vertex in order to create a cube
-            // var vertexMirror = new THREE.Vector3();
-            // vertexMirror.x = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-            // vertexMirror.y = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-            // vertexMirror.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-            // geometry.vertices.push( vertexMirror );
+            geometry.vertices.push( vertexCube );
+            currentSliceGeometry.vertices.push( vertexSlice );
 
             // var color = new THREE.Color(transferfunction(data[dimension_z][dimension_y][dimension_x]));
-            var color = new THREE.Color("#1f77b4");
             // Two times because we also add the mirror element
             geometry.colors.push(color);
+            currentSliceGeometry.colors.push(colorSlice);
             // geometry.colors.push(color);
             // attributes.alpha.value.push(1);
             attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
@@ -176,9 +208,16 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
             // attributes.alpha.value.push(1);
             // attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
             // attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
+            // attributes
+
+
+            attributesSlice.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
           }
         });
       });
+      var sliceParticles = new THREE.PointCloud( currentSliceGeometry, sliceShaderMaterial );
+      sliceGeometry[dimension_z] = sliceParticles;
+      // scene.add(sliceParticles);
     });
 
     color = [1,1,1];
@@ -199,7 +238,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     // [Geometry] Add Slicing Plane
     planeSize = (dimensions.length * self._sliceDistance) + 100;
     slicingPlane = new THREE.PlaneGeometry(planeSize, planeSize);
-    var slicingPlaneMaterial = new THREE.MeshBasicMaterial( {color: 0xB0B0B0, opacity: 0.5, side: THREE.DoubleSide} );
+    var slicingPlaneMaterial = new THREE.MeshBasicMaterial( {color: 0xB0B0B0, opacity: 0.8, side: THREE.DoubleSide} );
     var plane = new THREE.Mesh( slicingPlane, slicingPlaneMaterial );
     self._plane = plane;
     debug_plane = plane;
