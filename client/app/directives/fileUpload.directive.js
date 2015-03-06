@@ -4,6 +4,7 @@ angular.module('cube')
     restrict: 'E',
     templateUrl: 'app/directives/file-upload.html',
     controller: function($scope){
+      console.log("Initialized File Upload Directive");
       var thisController = this;
       if ($rootScope.debugMode)
         this.visible = false;
