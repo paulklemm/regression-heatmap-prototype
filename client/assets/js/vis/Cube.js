@@ -1,7 +1,5 @@
 RCUBE.Cube = function(canvasID, data, dimensions) {
   // Since the Heatmap visualization is also sorted by name, we do the same thing here!
-  this._originalDimensionOrder = dimensions.slice();
-  dimensions = dimensions.sort();
   this._canvasID = canvasID;
   // Displays the FPS Stats view if true
   this._showFPS = false;
@@ -11,14 +9,14 @@ RCUBE.Cube = function(canvasID, data, dimensions) {
   this._sliceDistance = 10;
   this._glScene = undefined;
   this._glSliceGeometry = undefined;
-  this.main(canvasID, data, dimensions, this._originalDimensionOrder);
+  this.main(canvasID, data, dimensions);
   debug_dimensions = dimensions;
 };
 
 RCUBE.Cube.prototype.setPlaneToDimension = function(dimensionName) {
   // Get the necessary variables
   var sliceDistance = this._sliceDistance;
-  var dimensionNumber = this._originalDimensionOrder.indexOf(dimensionName);
+  var dimensionNumber = this._dimensions.indexOf(dimensionName);
   var planePositionOfFirstDimension = 0 - ((this._dimensions.length * sliceDistance) / 2);
   // Calculate z position of the plane
   var planeZ = planePositionOfFirstDimension + dimensionNumber * sliceDistance;
@@ -33,7 +31,7 @@ RCUBE.Cube.prototype.setPlaneToDimension = function(dimensionName) {
   this._currentPlaneDimension = dimensionName;
 };
 
-RCUBE.Cube.prototype.main = function (canvasID, data, dimensions, zDimensionsOrder){
+RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
   var self = this;
   var width = $('#' + canvasID).width();
   var height = $('#' + canvasID).width();
@@ -55,6 +53,8 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions, zDimensionsOrd
   var slicingPlane;
   var slicingPlanePosition = 0;
   var matrixData2D;
+
+  var dimensionsSorted = dimensions.slice().sort();
 
   if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
   var view = this;
@@ -146,10 +146,10 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions, zDimensionsOrd
 
     // Iterate over all dimensions and check for values
     // dimensions.forEach(function(dimension_z, z) {
-    zDimensionsOrder.forEach(function(dimension_z, z) {
+    dimensions.forEach(function(dimension_z, z) {
     // ["smoking", "age"].forEach(function(dimension_z, z) {
     // ['Mammography_Left_BI_RADS'].forEach(function(dimension_z, z) {
-      currentSliceGeometry = new THREE.Geometry();
+      geometrySlice = new THREE.Geometry();
       attributesSlice = {
         alpha: { type: 'f', value: [] },
       };
@@ -169,8 +169,8 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions, zDimensionsOrd
         depthTest:false,
         transparent: true
       });
-      dimensions.forEach(function(dimension_y, y) {
-        dimensions.forEach(function(dimension_x, x) {
+      dimensionsSorted.forEach(function(dimension_y, y) {
+        dimensionsSorted.forEach(function(dimension_x, x) {
           if (typeof data[dimension_z] != 'undefined' &&
             typeof data[dimension_z][dimension_y] != 'undefined' &&
             typeof data[dimension_z][dimension_y][dimension_x] != 'undefined') {
@@ -195,12 +195,12 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions, zDimensionsOrd
               vertexSlice.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
             }
             geometry.vertices.push( vertexCube );
-            currentSliceGeometry.vertices.push( vertexSlice );
+            geometrySlice.vertices.push( vertexSlice );
 
             // var color = new THREE.Color(transferfunction(data[dimension_z][dimension_y][dimension_x]));
             // Two times because we also add the mirror element
             geometry.colors.push(color);
-            currentSliceGeometry.colors.push(colorSlice);
+            geometrySlice.colors.push(colorSlice);
             // geometry.colors.push(color);
             // attributes.alpha.value.push(1);
             attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
@@ -208,14 +208,13 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions, zDimensionsOrd
             // attributes.alpha.value.push(1);
             // attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
             // attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
-            // attributes
 
 
             attributesSlice.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
           }
         });
       });
-      var sliceParticles = new THREE.PointCloud( currentSliceGeometry, sliceShaderMaterial );
+      var sliceParticles = new THREE.PointCloud( geometrySlice, sliceShaderMaterial );
       sliceGeometry[dimension_z] = sliceParticles;
       // scene.add(sliceParticles);
     });
