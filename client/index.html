@@ -161,6 +161,25 @@
 
   </script>
 
+  <script type="x-shader/x-vertex" id="vertexshaderCurrentSlice">
+
+    attribute float alpha;
+    varying float vAlpha;
+    // Coloring: https://stackoverflow.com/questions/25740054/three-js-passing-vertex-colors-to-fragment-shader
+    varying vec3 vColor;
+
+    void main() {
+      vColor = color;
+      vAlpha = alpha;
+      mat4 newViewMatrix = modelViewMatrix;
+      mat4 newProjectionMatrix = projectionMatrix;
+      vec4 mvPosition = newViewMatrix * vec4( position, 1.0 );
+      gl_PointSize = 7000.0 / length( mvPosition.xyz );
+      gl_Position = newProjectionMatrix * mvPosition;
+    }
+
+  </script>
+
   <script type="x-shader/x-fragment" id="fragmentshader">
 
     varying float vAlpha;

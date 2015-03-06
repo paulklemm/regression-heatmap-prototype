@@ -163,7 +163,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
         uniforms:       uniformsSlice,
         vertexColors:   THREE.VertexColors,
         attributes:     attributesSlice,
-        vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+        vertexShader:   document.getElementById( 'vertexshaderCurrentSlice' ).textContent,
         fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
         // Depth Test: https://github.com/mrdoob/three.js/issues/1928
         depthTest:false,
@@ -219,7 +219,6 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
       // scene.add(sliceParticles);
     });
 
-    color = [1,1,1];
     size  = 6;
 
     materials = new THREE.PointCloudMaterial( {
