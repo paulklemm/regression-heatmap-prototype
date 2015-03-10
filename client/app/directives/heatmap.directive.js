@@ -28,8 +28,7 @@ angular.module('cube')
       heatmapCtrl.dependentOptions = [];
       // Helper object, quickly checks if a dependent variable is added
       heatmapCtrl.dependentOptionsAdded = {};
-      // $scope.dependentSelect = heatmapCtrl.dependentOptions[0];
-      $scope.dependentSelect = {};
+      // $scope.dependentSelect = {};
 
       // Reset the Visualization when new Formulas are applied
       $scope.$on('newFormulaApplied', function(){
@@ -44,11 +43,10 @@ angular.module('cube')
         var dimension = args.dimension;
         console.log("Update Plane to " + dimension);
         // Update the select UI element
-        // This is a small hack to initialize the select when it was not used
-        // before changing the plane using the cube via the mouse input
-        $scope.dependentSelect = heatmapCtrl.dependentOptions[0];
-        $scope.dependentSelect.value = dimension;
-        $scope.dependentSelect.label = dimension;
+        // Get the index of the currently selected dimension
+        var dependentOptionsIndex = heatmapCtrl.dependentOptionsAdded[dimension];
+        // Set it to the select model
+        $scope.dependentSelect = heatmapCtrl.dependentOptions[dependentOptionsIndex];
         $scope.$apply();
         // Update the heatmap
         heatmapCtrl.changeZ(dimension);
@@ -62,8 +60,10 @@ angular.module('cube')
           heatmapCtrl.visible = true;
           // Only add entries to the select which are not already added
           values.forEach(function(dimension){
-            if (heatmapCtrl.dependentOptionsAdded[dimension] !== true) {
-              heatmapCtrl.dependentOptionsAdded[dimension] = true;
+            // Instead of just "true" values, add the index, to create a hash map,
+            // which can be used later on, e.g. when updating the z-dimension from the outside
+            if (typeof heatmapCtrl.dependentOptionsAdded[dimension] === 'undefined') {
+              heatmapCtrl.dependentOptionsAdded[dimension] = heatmapCtrl.dependentOptions.length;
               heatmapCtrl.dependentOptions.push({label: dimension, value: dimension});
               pulse.pulse();
             }
