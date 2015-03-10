@@ -5,6 +5,7 @@ angular.module('cube')
     templateUrl: 'app/directives/heatmap.html',
     controller: function($scope){
       var heatmapCtrl = this;
+      heatmapCtrl.orderVisible = false;
       heatmapCtrl.dependent = undefined;
       // Attach Pulse
       var pulse = new RCUBE.Pulse('#heatmap-pulse-container');

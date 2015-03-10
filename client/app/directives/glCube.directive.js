@@ -9,15 +9,19 @@ angular.module('cube')
       this.threeCube = undefined;
 
       $scope.$on('glCube::movePlaneDown', function(){
-        var newDimension = this.threeCube.movePlaneDown();
-        if (newDimension !== null)
-          $scope.$broadcast('glCube::updatePlane', { 'dimension': newDimension });
+        if (typeof this.threeCube !== 'undefined') {
+          var newDimension = this.threeCube.movePlaneDown();
+          if (newDimension !== null)
+            $scope.$broadcast('glCube::updatePlane', { 'dimension': newDimension });
+        }
       });
 
       $scope.$on('glCube::movePlaneUp', function(){
-        var newDimension = this.threeCube.movePlaneUp();
-        if (newDimension !== null)
-          $scope.$broadcast('glCube::updatePlane', { 'dimension': newDimension });
+        if (typeof this.threeCube !== 'undefined') {
+          var newDimension = this.threeCube.movePlaneUp();
+          if (newDimension !== null)
+            $scope.$broadcast('glCube::updatePlane', { 'dimension': newDimension });
+        }
       });
 
       $scope.$on('loadingComplete', function(){
