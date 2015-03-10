@@ -5,7 +5,7 @@ angular.module('cube')
     templateUrl: 'app/directives/heatmap.html',
     controller: function($scope){
       var heatmapCtrl = this;
-      this.dependent = undefined;
+      heatmapCtrl.dependent = undefined;
       // Attach Pulse
       var pulse = new RCUBE.Pulse('#heatmap-pulse-container');
 
@@ -24,10 +24,10 @@ angular.module('cube')
       };
 
       // Dependent
-      this.dependentOptions = [];
+      heatmapCtrl.dependentOptions = [];
       // Helper object, quickly checks if a dependent variable is added
-      this.dependentOptionsAdded = {};
-      $scope.dependentSelect = this.dependentOptions[0];
+      heatmapCtrl.dependentOptionsAdded = {};
+      $scope.dependentSelect = heatmapCtrl.dependentOptions[0];
 
       // Reset the Visualization when new Formulas are applied
       $scope.$on('newFormulaApplied', function(){
@@ -38,10 +38,15 @@ angular.module('cube')
       });
 
       $scope.$on('glCube::updatePlane', function(event, args) {
+        // Get the selected dimension
         var dimension = args.dimension;
         console.log("Update Plane to " + dimension);
-        heatmapCtrl.currentDimension = dimension;
-        createHeatmap(dimension);
+        // Update the select UI element
+        $scope.dependentSelect.value = dimension;
+        $scope.dependentSelect.label = dimension;
+        $scope.$apply();
+        // Update the heatmap
+        heatmapCtrl.changeZ(dimension);
       });
 
       $scope.$on('updateRSquared', function(){
@@ -61,9 +66,13 @@ angular.module('cube')
         }
       });
 
-      this.changeDependent = function(){
-        this.currentDimension = $scope.dependentSelect.label;
-        createHeatmap($scope.dependentSelect.label);
+      heatmapCtrl.changeZ = function(dimension) {
+        heatmapCtrl.currentDimension = dimension;
+        createHeatmap(dimension);
+      };
+
+      heatmapCtrl.selectChange = function(){
+        heatmapCtrl.changeZ($scope.dependentSelect.label);
         $rootScope.$broadcast('heatmap::visibleSliceChanged', { 'dimension':this.currentDimension });
       };
     },
