@@ -6,7 +6,17 @@ angular.module('cube')
     controller: function($scope){
       var cubeController = this;
       this.visible = true;
-      this.theeCube = undefined;
+      this.threeCube = undefined;
+
+      $scope.$on('glCube::movePlaneDown', function(){
+        console.log("GlCube::MovePlaneDown");
+        this.threeCube.movePlaneDown();
+      });
+
+      $scope.$on('glCube::movePlaneUp', function(){
+        console.log("GlCube::MovePlaneUp");
+        this.threeCube.movePlaneUp();
+      });
 
       $scope.$on('loadingComplete', function(){
         this.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset._dimensionNames.slice().reverse());

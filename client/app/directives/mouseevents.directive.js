@@ -32,7 +32,7 @@ angular.module('cube')
   .directive('handleSliceMouseEvents', function() {
     return {
       link: function($scope, element) {
-        var stepSize = 30;
+        var stepSize = 5;
         $scope.altPressed = false;
         $scope.initYPosition = 0;
         $scope.$on('mouseevents::mousemove', function(event, mouseMoveEvent) {
@@ -45,11 +45,13 @@ angular.module('cube')
             // broadcast the plane change events
             var distanceToInit = mouseMoveEvent.clientY - $scope.initYPosition;
             if (Math.abs(distanceToInit) > stepSize) {
-              // if the distance is positive, move slice up, otherwise move it down
+              // if the distance is positive, move slice down, otherwise move it up
               if (distanceToInit > 0)
-                console.log("Change Slice up");
+                // console.log("Change Slice down");
+                $scope.$broadcast('glCube::movePlaneDown');
               else
-                console.log("Change Slice down");
+                // console.log("Change Slice up");
+                $scope.$broadcast('glCube::movePlaneUp');
               // Reset the init Y Position
               $scope.initYPosition = mouseMoveEvent.clientY;
             }

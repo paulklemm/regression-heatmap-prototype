@@ -13,6 +13,22 @@ RCUBE.Cube = function(canvasID, data, dimensions) {
   debug_dimensions = dimensions;
 };
 
+RCUBE.Cube.prototype.movePlaneUp = function() {
+  // Get the index of the current dimension
+  var currentIndex = this._dimensions.indexOf(this._currentPlaneDimension);
+  // Move the plane up if it isn't already at the last element
+  if (currentIndex != this._dimensions.length - 1)
+    this.setPlaneToDimension(this._dimensions[currentIndex + 1]);
+};
+
+RCUBE.Cube.prototype.movePlaneDown = function() {
+  // Get the index of the current dimension
+  var currentIndex = this._dimensions.indexOf(this._currentPlaneDimension);
+  // Move the plane up if it isn't already at the last element
+  if (currentIndex !== 0)
+    this.setPlaneToDimension(this._dimensions[currentIndex - 1]);
+};
+
 RCUBE.Cube.prototype.setPlaneToDimension = function(dimensionName) {
   // Get the necessary variables
   var sliceDistance = this._sliceDistance;
