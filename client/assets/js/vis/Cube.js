@@ -14,10 +14,14 @@ RCUBE.Cube = function(canvasID, data, dimensions) {
 };
 
 RCUBE.Cube.prototype.movePlaneUp = function() {
+  // If the current plane is not defined, set it to the first dimension
+  if (typeof this._currentPlaneDimension === 'undefined')
+    this._currentPlaneDimension = this._dimensions[0];
+
   // Get the index of the current dimension
   var currentIndex = this._dimensions.indexOf(this._currentPlaneDimension);
   // Move the plane up if it isn't already at the last element
-  if (currentIndex != this._dimensions.length - 1) {
+  if (currentIndex != -1 && currentIndex != this._dimensions.length - 1) {
     this.setPlaneToDimension(this._dimensions[currentIndex + 1]);
     // Return the new dimension
     return this._dimensions[currentIndex + 1];
@@ -30,7 +34,7 @@ RCUBE.Cube.prototype.movePlaneDown = function() {
   // Get the index of the current dimension
   var currentIndex = this._dimensions.indexOf(this._currentPlaneDimension);
   // Move the plane up if it isn't already at the last element
-  if (currentIndex !== 0) {
+  if (currentIndex != -1 && currentIndex !== 0) {
     this.setPlaneToDimension(this._dimensions[currentIndex - 1]);
     // Return the new dimension
     return this._dimensions[currentIndex - 1];
@@ -46,6 +50,7 @@ RCUBE.Cube.prototype.setPlaneToDimension = function(dimensionName) {
   var planePositionOfFirstDimension = 0 - ((this._dimensions.length * sliceDistance) / 2);
   // Calculate z position of the plane
   var planeZ = planePositionOfFirstDimension + dimensionNumber * sliceDistance;
+  this._plane.visible = true;
   this._plane.position.setZ(planeZ);
 
   // Remove the last Geometry added
@@ -115,8 +120,6 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     document.getElementById(canvasID).appendChild(container);
     // camera
     camera = new THREE.PerspectiveCamera( 75, width / height, 1, 6000 );
-    // TODO: Automatically calculate z distance
-    camera.position.z = 10;
     debug_camera = camera;
 
     // Scene
@@ -125,9 +128,10 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     debug_scene = scene;
 
     // Get correct initial Camera Position
+    // TODO: Automatically calculate z distance
     rotation = 0.1;
     camera.position.x = Math.sin(rotation) * 500;
-    camera.position.z = Math.cos(rotation) * 500;
+    camera.position.z = Math.cos(rotation) * 500 + 2000;
     camera.up = new THREE.Vector3(0,0,1);
     camera.lookAt( scene.position );
 
@@ -264,6 +268,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     var slicingPlaneMaterial = new THREE.MeshBasicMaterial( {color: 0xB0B0B0, opacity: 0.8, side: THREE.DoubleSide} );
     var plane = new THREE.Mesh( slicingPlane, slicingPlaneMaterial );
     self._plane = plane;
+    plane.visible = false;
     debug_plane = plane;
     // plane.rotateY(initRotation);
     scene.add( plane );

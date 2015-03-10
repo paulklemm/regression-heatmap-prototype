@@ -28,7 +28,8 @@ angular.module('cube')
       heatmapCtrl.dependentOptions = [];
       // Helper object, quickly checks if a dependent variable is added
       heatmapCtrl.dependentOptionsAdded = {};
-      $scope.dependentSelect = heatmapCtrl.dependentOptions[0];
+      // $scope.dependentSelect = heatmapCtrl.dependentOptions[0];
+      $scope.dependentSelect = {};
 
       // Reset the Visualization when new Formulas are applied
       $scope.$on('newFormulaApplied', function(){
@@ -43,6 +44,9 @@ angular.module('cube')
         var dimension = args.dimension;
         console.log("Update Plane to " + dimension);
         // Update the select UI element
+        // This is a small hack to initialize the select when it was not used
+        // before changing the plane using the cube via the mouse input
+        $scope.dependentSelect = heatmapCtrl.dependentOptions[0];
         $scope.dependentSelect.value = dimension;
         $scope.dependentSelect.label = dimension;
         $scope.$apply();
