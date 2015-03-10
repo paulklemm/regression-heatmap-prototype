@@ -66,9 +66,6 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
   var container, stats;
   var camera, scene, renderer, particles, geometry, i, h, color, size;
   var shaderMaterial, materials = [];
-  var mouseX = 0, mouseY = 0;
-  var mouseXDown = 0, mouseYDown = 0;
-  var mouseDown = false;
   var controls, attributes;
   var colors = [];
   var guiController;
@@ -299,11 +296,6 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
       container.appendChild( stats.domElement );
     }
 
-    // document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-    // document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-    // document.addEventListener( 'mouseup', onDocumentMouseUp, false );
-    // document.addEventListener( 'touchstart', onDocumentTouchStart, false );
-    // document.addEventListener( 'touchmove', onDocumentTouchMove, false );
     window.addEventListener( 'resize', onWindowResize, false );
 
     rotation = 0;
@@ -320,58 +312,6 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     camera.updateProjectionMatrix();
 
     renderer.setSize( width, height );
-
-  }
-
-  function onDocumentMouseDown( event ) {
-    mouseXDown = event.clientX - windowHalfX;
-    mouseYDown = event.clientY - windowHalfY;
-    mouseDown = true;
-    console.log("Mouse Down event at position " + mouseXDown + ", " + mouseYDown);
-  }
-
-  function onDocumentMouseUp( event ) {
-    mouseDown = false;
-    console.log("Mouse Up event");
-  }
-
-  function onDocumentMouseMove( event ) {
-    console.log("Mouse Move event");
-    if (mouseDown) {
-      mouseX = event.clientX - windowHalfX;
-      mouseY = event.clientY - windowHalfY;
-      // Check if the SHIFT Key is pressed
-      if (event.shiftKey === true) {
-        if (Math.abs(mouseYDown - mouseY) > 5) {
-          console.log("Switch Plane");
-        }
-      }
-    }
-  }
-
-  function onDocumentTouchStart( event ) {
-
-    if ( event.touches.length === 1 ) {
-
-      event.preventDefault();
-
-      mouseX = event.touches[ 0 ].pageX - windowHalfX;
-      mouseY = event.touches[ 0 ].pageY - windowHalfY;
-
-    }
-
-  }
-
-  function onDocumentTouchMove( event ) {
-
-    if ( event.touches.length === 1 ) {
-
-      event.preventDefault();
-
-      mouseX = event.touches[ 0 ].pageX - windowHalfX;
-      mouseY = event.touches[ 0 ].pageY - windowHalfY;
-
-    }
 
   }
 
