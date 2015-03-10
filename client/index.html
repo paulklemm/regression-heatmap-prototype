@@ -31,6 +31,7 @@
   <script src="app/directives/heatmap.directive.js"></script>
   <script src="app/directives/glCube.directive.js"></script>
   <script src="app/directives/formulaEditor.directive.js"></script>
+  <script src="app/directives/mouseevents.directive.js"></script>
   <script src="app/services/data.service.js"></script>
   <script>
     // document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
@@ -137,7 +138,7 @@
     }
   </style>
 </head>
-<body>
+<body handle-mouse-events mousedown>
 
 <!--  TODO: Export the Shaders to an external file -->
   <script type="x-shader/x-vertex" id="vertexshader">
