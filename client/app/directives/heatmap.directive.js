@@ -4,12 +4,12 @@ angular.module('cube')
     restrict: 'E',
     templateUrl: 'app/directives/heatmap.html',
     controller: function($scope){
-      var heatmapController = this;
+      var heatmapCtrl = this;
       this.dependent = undefined;
       // Attach Pulse
       var pulse = new RCUBE.Pulse('#heatmap-pulse-container');
 
-      heatmapController.visible = false;
+      heatmapCtrl.visible = false;
       // http://jimhoskins.com/2012/12/17/angularjs-and-apply.html
       // https://variadic.me/posts/2013-10-15-share-state-between-controllers-in-angularjs.html
       // https://stackoverflow.com/questions/15380140/service-variable-not-updating-in-controller
@@ -20,7 +20,7 @@ angular.module('cube')
         var names = data.dataset.getDimensionNames();
         var rSquared = data.dataset.getRSquared()[dependentVariable];
         var myHeatmap = new RCUBE.Heatmap(".my-heatmap", rSquared, names);
-        heatmapController.visible = true;
+        heatmapCtrl.visible = true;
       };
 
       // Dependent
@@ -33,8 +33,15 @@ angular.module('cube')
       $scope.$on('newFormulaApplied', function(){
         $('svg.heatmap').remove();
         // Empty the dependentOption Array
-        heatmapController.dependentOptions.length = 0;
-        heatmapController.dependentOptionsAdded = {};
+        heatmapCtrl.dependentOptions.length = 0;
+        heatmapCtrl.dependentOptionsAdded = {};
+      });
+
+      $scope.$on('glCube::updatePlane', function(event, args) {
+        var dimension = args.dimension;
+        console.log("Update Plane to " + dimension);
+        heatmapCtrl.currentDimension = dimension;
+        createHeatmap(dimension);
       });
 
       $scope.$on('updateRSquared', function(){
@@ -42,12 +49,12 @@ angular.module('cube')
         var values = Object.keys(rSquaredValues);
         // Set Heatmap to visible when we actually have rSquared values to display
         if (values.length > 0) {
-          heatmapController.visible = true;
+          heatmapCtrl.visible = true;
           // Only add entries to the select which are not already added
           values.forEach(function(dimension){
-            if (heatmapController.dependentOptionsAdded[dimension] !== true) {
-              heatmapController.dependentOptionsAdded[dimension] = true;
-              heatmapController.dependentOptions.push({label: dimension, value: dimension});
+            if (heatmapCtrl.dependentOptionsAdded[dimension] !== true) {
+              heatmapCtrl.dependentOptionsAdded[dimension] = true;
+              heatmapCtrl.dependentOptions.push({label: dimension, value: dimension});
               pulse.pulse();
             }
           });
@@ -57,9 +64,9 @@ angular.module('cube')
       this.changeDependent = function(){
         this.currentDimension = $scope.dependentSelect.label;
         createHeatmap($scope.dependentSelect.label);
-        $rootScope.$broadcast('visibleSliceChanged', { 'dimension':this.currentDimension });
+        $rootScope.$broadcast('heatmap::visibleSliceChanged', { 'dimension':this.currentDimension });
       };
     },
-  controllerAs: 'heatmap'
+  controllerAs: 'heatmapCtrl'
 };
 }]);

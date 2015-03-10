@@ -84,7 +84,6 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
   });
   // Set the proper names array for reference in the mouse-over event
   this._names = Object.keys(nodesIndex);
-  console.log(nodesIndex);
   return {"nodes": nodes, "links": links};
 };
 
@@ -101,8 +100,6 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
   height = 720;
 
   var sortedNames = this.getSortedNames(self._names);
-
-  console.log(heatmapData);
 
   var x = d3.scale.ordinal().rangeBands([0, width]),
   // z = d3.scale.linear().domain([0, 4]).clamp(true),
@@ -196,7 +193,6 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
     return "translate(0," + x(i) + ")";
   })
   .each(row_);
-  console.log(matrix);
 
   if (self._lowerMatrix) {
     row.append("line")

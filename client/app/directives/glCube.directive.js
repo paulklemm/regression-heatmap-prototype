@@ -9,13 +9,15 @@ angular.module('cube')
       this.threeCube = undefined;
 
       $scope.$on('glCube::movePlaneDown', function(){
-        console.log("GlCube::MovePlaneDown");
-        this.threeCube.movePlaneDown();
+        var newDimension = this.threeCube.movePlaneDown();
+        if (newDimension !== null)
+          $scope.$broadcast('glCube::updatePlane', { 'dimension': newDimension });
       });
 
       $scope.$on('glCube::movePlaneUp', function(){
-        console.log("GlCube::MovePlaneUp");
-        this.threeCube.movePlaneUp();
+        var newDimension = this.threeCube.movePlaneUp();
+        if (newDimension !== null)
+          $scope.$broadcast('glCube::updatePlane', { 'dimension': newDimension });
       });
 
       $scope.$on('loadingComplete', function(){
@@ -23,7 +25,7 @@ angular.module('cube')
         debug_cube = this.threeCube;
       });
 
-      $scope.$on('visibleSliceChanged', function(event, data){
+      $scope.$on('heatmap::visibleSliceChanged', function(event, data){
         if (typeof this.threeCube !== 'undefined')
           this.threeCube.setPlaneToDimension(data.dimension);
       });
