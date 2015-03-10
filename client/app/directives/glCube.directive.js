@@ -18,6 +18,6 @@ angular.module('cube')
           this.threeCube.setPlaneToDimension(data.dimension);
       });
     },
-    controllerAs: 'glCube'
+    controllerAs: 'glCubeCtrl'
   };
 }]);

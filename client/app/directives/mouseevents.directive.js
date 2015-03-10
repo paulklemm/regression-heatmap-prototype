@@ -32,17 +32,33 @@ angular.module('cube')
   .directive('handleSliceMouseEvents', function() {
     return {
       link: function($scope, element) {
-        $scope.mousedown = false;
-        $scope.$on('mouseevents::mousedown', function(event, mouseDownEvent) {
-          $scope.mousedown = true;
-        });
-        $scope.$on('mouseevents::mousemove', function(event, mouseDownEvent) {
-          if ($scope.mousedown) {
-            console.log("Mousedown");
+        var stepSize = 30;
+        $scope.altPressed = false;
+        $scope.initYPosition = 0;
+        $scope.$on('mouseevents::mousemove', function(event, mouseMoveEvent) {
+          // If the alt key is not pressed, set the flag accordingly
+          if (!mouseMoveEvent.altKey)
+            $scope.altPressed = false;
+          // Alt key is now pressed and also was before
+          if ($scope.altPressed && mouseMoveEvent.altKey) {
+            // If the distance in the Y coordinates excedes the necessary number,
+            // broadcast the plane change events
+            var distanceToInit = mouseMoveEvent.clientY - $scope.initYPosition;
+            if (Math.abs(distanceToInit) > stepSize) {
+              // if the distance is positive, move slice up, otherwise move it down
+              if (distanceToInit > 0)
+                console.log("Change Slice up");
+              else
+                console.log("Change Slice down");
+              // Reset the init Y Position
+              $scope.initYPosition = mouseMoveEvent.clientY;
+            }
           }
-        });
-        $scope.$on('mouseevents::mouseup', function(event, mouseDownEvent) {
-          $scope.mousedown = false;
+          // Alt key is now pressed, but wasn't on the last mouse move event
+          if (!($scope.altPressed) && mouseMoveEvent.altKey) {
+            $scope.altPressed = true;
+            $scope.initYPosition = mouseMoveEvent.clientY;
+          }
         });
       }
     };
