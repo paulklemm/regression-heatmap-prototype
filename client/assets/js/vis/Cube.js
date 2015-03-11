@@ -69,7 +69,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
   // var initRotation = Math.PI + 0.5;
   var initRotation = 0;
   var container, stats;
-  var camera, scene, renderer, particles, geometry, i, h, color, size;
+  var camera, scene, renderer, particles, geometryPlane, i, h, color, size;
   var shaderMaterial, materials = [];
   var controls, attributes;
   var colors = [];
@@ -103,9 +103,9 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     renderModeGUI.onChange( function(value) {
       scene.remove( particles );
       if (value == 'ShaderMaterial')
-        particles = new THREE.PointCloud( geometry, shaderMaterial );
+        particles = new THREE.PointCloud( geometryPlane, shaderMaterial );
       else
-        particles = new THREE.PointCloud( geometry, materials );
+        particles = new THREE.PointCloud( geometryPlane, materials );
       scene.add(particles);
     });
   }
@@ -159,7 +159,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     });
 
     // Geometry
-    geometry = new THREE.Geometry();
+    geometryPlane = new THREE.Geometry();
 
     var transferfunction = d3.scale.linear()
       .domain([0, 1])
@@ -178,7 +178,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     dimensions.forEach(function(dimension_z, z) {
     // ["smoking", "age"].forEach(function(dimension_z, z) {
     // ['Mammography_Left_BI_RADS'].forEach(function(dimension_z, z) {
-      geometrySlice = new THREE.Geometry();
+      geometryPlaneSelection = new THREE.Geometry();
       attributesSlice = {
         alpha: { type: 'f', value: [] },
       };
@@ -207,43 +207,35 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
             // console.log("Add " + dimension_x + "," + dimension_y + "," + dimension_z + ": " + data[dimension_z][dimension_y][dimension_x]);
             // console.log(x + ", " + y + ", " + z);
 
-            var vertexCube = new THREE.Vector3();
-            var vertexSlice = new THREE.Vector3();
-            vertexCube.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-            vertexSlice.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+            var vertexPlane = new THREE.Vector3();
+            var vertexPlaneSelection = new THREE.Vector3();
+            vertexPlane.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+            vertexPlaneSelection.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
             if (x < y) {
-              vertexCube.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-              vertexCube.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-              vertexSlice.x = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-              vertexSlice.y = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexPlane.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexPlane.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexPlaneSelection.x = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexPlaneSelection.y = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
             }
             else {
-              vertexCube.x = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-              vertexCube.y = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-              vertexSlice.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-              vertexSlice.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexPlane.x = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexPlane.y = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexPlaneSelection.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexPlaneSelection.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
             }
-            geometry.vertices.push( vertexCube );
-            geometrySlice.vertices.push( vertexSlice );
+            geometryPlane.vertices.push( vertexPlane );
+            geometryPlaneSelection.vertices.push( vertexPlaneSelection );
 
             // var color = new THREE.Color(transferfunction(data[dimension_z][dimension_y][dimension_x]));
             // Two times because we also add the mirror element
-            geometry.colors.push(color);
-            geometrySlice.colors.push(colorSlice);
-            // geometry.colors.push(color);
-            // attributes.alpha.value.push(1);
+            geometryPlane.colors.push(color);
+            geometryPlaneSelection.colors.push(colorSlice);
             attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
-            // attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
-            // attributes.alpha.value.push(1);
-            // attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
-            // attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
-
-
             attributesSlice.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
           }
         });
       });
-      var sliceParticles = new THREE.PointCloud( geometrySlice, sliceShaderMaterial );
+      var sliceParticles = new THREE.PointCloud( geometryPlaneSelection, sliceShaderMaterial );
       sliceGeometry[dimension_z] = sliceParticles;
       // scene.add(sliceParticles);
     });
@@ -255,11 +247,11 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
       vertexColors: THREE.VertexColors
     });
 
-    particles = new THREE.PointCloud( geometry, shaderMaterial );
-    // particles = new THREE.PointCloud( geometry, materials );
+    particles = new THREE.PointCloud( geometryPlane, shaderMaterial );
+    // particles = new THREE.PointCloud( geometryPlane, materials );
     // particles.rotateY(initRotation);
     debug_particles = particles;
-    // particles = new THREE.Mesh( geometry, shaderMaterial );
+    // particles = new THREE.Mesh( geometryPlane, shaderMaterial );
     scene.add( particles );
 
     // [Geometry] Add Slicing Plane

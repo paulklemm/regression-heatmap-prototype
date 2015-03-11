@@ -24,7 +24,7 @@ angular.module('cube')
         }
       });
 
-      $scope.$on('loadingComplete', function(){
+      $scope.$on('data::loadingComplete', function(){
         this.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset._dimensionNames.slice().reverse());
         debug_cube = this.threeCube;
       });

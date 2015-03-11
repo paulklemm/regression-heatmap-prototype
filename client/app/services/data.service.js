@@ -153,7 +153,7 @@ angular.module('cube')
           setTimeout(function(){
             // var cube = new RCUBE.Cube('cube', dataService.dataset.getRSquared(), dataService.dataset._dimensionNames.slice().reverse());
             // TODO: Move this to the Cube Directive
-            $rootScope.$broadcast('loadingComplete');
+            $rootScope.$broadcast('data::loadingComplete');
           }, 1200);
           $rootScope.$broadcast('updateRSquared');
         }
