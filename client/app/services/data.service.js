@@ -100,7 +100,7 @@ angular.module('cube')
           dimensions.splice(dimensions.length - 1, 1);
           // If you are not supposed to stop for this formula, continue
           if (!dataService.stopCalculation[formula.toString()]) {
-            $rootScope.$broadcast('updateRSquared');
+            $rootScope.$broadcast('data::updateRSquared');
             calculateRSquaredSequential(dimensions, formula);
           }
         });
@@ -151,11 +151,12 @@ angular.module('cube')
           // Div, the THREE.js Trackball Controls dont work as expected
           // Launching the cube delayed works fine
           setTimeout(function(){
-            // var cube = new RCUBE.Cube('cube', dataService.dataset.getRSquared(), dataService.dataset._dimensionNames.slice().reverse());
-            // TODO: Move this to the Cube Directive
             $rootScope.$broadcast('data::loadingComplete');
+            // TODO: Remove this debug function!
+            setTimeout(function(){ $rootScope.$broadcast('data::updateRSquared'); }, 2000);
           }, 1200);
-          $rootScope.$broadcast('updateRSquared');
+          // $rootScope.$broadcast('data::updateRSquared');
+          $rootScope.$broadcast('data::updateRSquared');
         }
       });
 

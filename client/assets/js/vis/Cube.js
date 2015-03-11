@@ -9,8 +9,27 @@ RCUBE.Cube = function(canvasID, data, dimensions) {
   this._sliceDistance = 10;
   this._glScene = undefined;
   this._glSliceGeometry = undefined;
+  this._dimensionsAlreadyAdded = {};
   this.main(canvasID, data, dimensions);
   debug_dimensions = dimensions;
+};
+
+RCUBE.Cube.prototype.update = function(data) {
+  var self = this;
+  // identify the dimensions, which need updates
+  var dimensions = Object.keys(data);
+  var dimensionsToProcess = [];
+  console.log("Update Dimensions");
+  console.log(dimensions);
+  dimensions.forEach(function(currentDimension){
+    if (self._dimensionsAlreadyAdded[currentDimension] !== true) {
+      dimensionsToProcess.push(currentDimension);
+    }
+  });
+  console.log("Dimensions to Add");
+  console.log(dimensionsToProcess);
+
+
 };
 
 RCUBE.Cube.prototype.movePlaneUp = function() {

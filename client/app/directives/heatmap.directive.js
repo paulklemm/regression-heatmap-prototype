@@ -52,7 +52,7 @@ angular.module('cube')
         heatmapCtrl.changeZ(dimension);
       });
 
-      $scope.$on('updateRSquared', function(){
+      $scope.$on('data::updateRSquared', function(){
         var rSquaredValues = data.getRSquaredValues();
         var values = Object.keys(rSquaredValues);
         // Set Heatmap to visible when we actually have rSquared values to display
