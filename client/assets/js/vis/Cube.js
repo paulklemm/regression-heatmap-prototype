@@ -71,7 +71,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
   var container, stats;
   var camera, scene, renderer, particles, geometryPlane, i, h, color, size;
   var shaderMaterial, materials = [];
-  var controls, attributes;
+  var controls, attributesPlane;
   var colors = [];
   var guiController;
   var DEBUG = false;
@@ -135,8 +135,8 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     camera.up = new THREE.Vector3(0,0,1);
     camera.lookAt( scene.position );
 
-    // attributes
-    attributes = {
+    // attributesPlane
+    attributesPlane = {
       alpha: { type: 'f', value: [] },
     };
 
@@ -149,7 +149,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
 
       uniforms:       uniforms,
       vertexColors:   THREE.VertexColors,
-      attributes:     attributes,
+      attributes:     attributesPlane,
       vertexShader:   document.getElementById( 'vertexshader' ).textContent,
       fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
       // Depth Test: https://github.com/mrdoob/three.js/issues/1928
@@ -170,8 +170,8 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
 
     debug_data = data;
 
-    var color = new THREE.Color("#1f77b4");
-    var colorSlice = new THREE.Color("#ff7f0e");
+    var colorPlane = new THREE.Color("#1f77b4");
+    var colorPlaneSelection = new THREE.Color("#ff7f0e");
 
     // Iterate over all dimensions and check for values
     // dimensions.forEach(function(dimension_z, z) {
@@ -179,7 +179,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     // ["smoking", "age"].forEach(function(dimension_z, z) {
     // ['Mammography_Left_BI_RADS'].forEach(function(dimension_z, z) {
       geometryPlaneSelection = new THREE.Geometry();
-      attributesSlice = {
+      attributesPlaneSelection = {
         alpha: { type: 'f', value: [] },
       };
       // uniforms
@@ -191,7 +191,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
 
         uniforms:       uniformsSlice,
         vertexColors:   THREE.VertexColors,
-        attributes:     attributesSlice,
+        attributes:     attributesPlaneSelection,
         vertexShader:   document.getElementById( 'vertexshaderCurrentSlice' ).textContent,
         fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
         // Depth Test: https://github.com/mrdoob/three.js/issues/1928
@@ -226,18 +226,17 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
             geometryPlane.vertices.push( vertexPlane );
             geometryPlaneSelection.vertices.push( vertexPlaneSelection );
 
-            // var color = new THREE.Color(transferfunction(data[dimension_z][dimension_y][dimension_x]));
+            // var colorPlane = new THREE.Color(transferfunction(data[dimension_z][dimension_y][dimension_x]));
             // Two times because we also add the mirror element
-            geometryPlane.colors.push(color);
-            geometryPlaneSelection.colors.push(colorSlice);
-            attributes.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
-            attributesSlice.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
+            geometryPlane.colors.push(colorPlane);
+            geometryPlaneSelection.colors.push(colorPlaneSelection);
+            attributesPlane.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
+            attributesPlaneSelection.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
           }
         });
       });
       var sliceParticles = new THREE.PointCloud( geometryPlaneSelection, sliceShaderMaterial );
       sliceGeometry[dimension_z] = sliceParticles;
-      // scene.add(sliceParticles);
     });
 
     size  = 6;
@@ -248,10 +247,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     });
 
     particles = new THREE.PointCloud( geometryPlane, shaderMaterial );
-    // particles = new THREE.PointCloud( geometryPlane, materials );
-    // particles.rotateY(initRotation);
     debug_particles = particles;
-    // particles = new THREE.Mesh( geometryPlane, shaderMaterial );
     scene.add( particles );
 
     // [Geometry] Add Slicing Plane
@@ -260,6 +256,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     var slicingPlaneMaterial = new THREE.MeshBasicMaterial( {color: 0xB0B0B0, opacity: 0.8, side: THREE.DoubleSide} );
     var plane = new THREE.Mesh( slicingPlane, slicingPlaneMaterial );
     self._plane = plane;
+    // Plane gets visible as soon as a plane is selected
     plane.visible = false;
     debug_plane = plane;
     // plane.rotateY(initRotation);
