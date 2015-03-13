@@ -22,8 +22,6 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
   if (typeof dimensions == 'undefined')
     dimensions = self._dimensions.slice();
 
-  console.log("Cube Update Dimensions");
-  console.log(dimensions);
   var dimensionsSorted = dimensions.slice().sort();
 
   // identify the dimensions, which need updates
@@ -36,8 +34,6 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
       dimensionsToProcess.push(currentDimension);
     }
   });
-  // console.log("Dimensions to Add");
-  // console.log(dimensionsToProcess);
 
   attributesPlane = {
     alpha: { type: 'f', value: [] },
