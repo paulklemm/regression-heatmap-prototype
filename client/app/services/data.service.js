@@ -147,15 +147,6 @@ angular.module('cube')
           $('#cog').removeClass('visible');
           dataService.calculationInProgress = false;
           dataService.dataset.setRSquaredGlobal(rSquared, dataService.regressionFormula);
-          // HACK: For some reason, when initialized inside of a Angular controlled
-          // Div, the THREE.js Trackball Controls dont work as expected
-          // Launching the cube delayed works fine
-          setTimeout(function(){
-            $rootScope.$broadcast('data::loadingComplete');
-            // TODO: Remove this debug function!
-            // setTimeout(function(){ $rootScope.$broadcast('data::updateRSquared'); }, 2000);
-          }, 1200);
-          // $rootScope.$broadcast('data::updateRSquared');
           $rootScope.$broadcast('data::updateRSquared');
         }
       });
