@@ -300,12 +300,10 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
     // Update the tooltip position and value
     d3.select("#tooltip-heatmap")
     .style("left", (d3.event.layerX + 10) + "px")
-    // .style("left", (d3.event.pageX + 10) + "px")
     .style("top", (d3.event.layerY - 10) + "px")
-    // .style("top", (d3.event.pageY - 10) + "px")
     .select("#value")
     // .text("X: " + self._names[p.x] + "Y: " + self._names[p.y] + "\nValue: " + p.z);
-    .text("X: " + rows[0][p.x].textContent + "Y: " + rows[0][p.y].textContent + "\nValue: " + p.z);
+    .html("X: " + rows[0][p.x].textContent + "<br />Y: " + rows[0][p.y].textContent + "<br />R²: " + (Math.round(p.z * 1000) / 1000));
     //Show the tooltip
     d3.select("#tooltip-heatmap").classed("hidden", false);
   }
