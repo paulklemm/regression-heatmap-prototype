@@ -32,7 +32,7 @@ angular.module('cube')
       };
 
       $scope.uploader.flowFileProgress = function($file){
-        thisController.progressbar.percent = $file.progress() * 100;
+        thisController.progressbar.percent = Math.round($file.progress() * 100) * 100;
       };
 
       $scope.uploader.flowFileSuccess = function ($flow, $file, $message) {

@@ -41,7 +41,6 @@ angular.module('cube')
           }, 10);
         }
         else {
-          console.log("Cube: Update R Squared called");
           var rSquaredValues = data.getRSquaredValues();
           var values = Object.keys(rSquaredValues);
           // glCubeCtrl.updateCube(rSquaredValues, data.dataset.getDimensionNames().slice().reverse());
@@ -50,10 +49,7 @@ angular.module('cube')
       });
 
       glCubeCtrl.updateCube = function(data, dimensions) {
-        console.log("glCubeCtrl.UpdateCube called");
-        console.log(glCubeCtrl);
         if (glCubeCtrl.threeCube !== null) {
-          console.log("Updating Three Cube");
           glCubeCtrl.threeCube.update(data, dimensions);
         }
       };

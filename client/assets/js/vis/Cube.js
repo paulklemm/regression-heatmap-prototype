@@ -8,7 +8,9 @@ RCUBE.Cube = function(canvasID, data, dimensions) {
   this._plane = undefined;
   this._currentPlaneDimension = null;
   this._currentPlaneDimensionGeometry = null;
-  this._sliceDistance = 10;
+  this._sliceDistanceZ = 30;
+  this._sliceDistanceX = 10;
+  this._sliceDistanceY = 10;
   this._glScene = undefined;
   this._glSliceGeometry = undefined;
   this._glCubeGeometry = null;
@@ -117,19 +119,19 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
 
             var vertexPlane = new THREE.Vector3();
             var vertexPlaneSelection = new THREE.Vector3();
-            vertexPlane.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-            vertexPlaneSelection.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+            vertexPlane.z = z * self._sliceDistanceZ - ((dimensions.length * self._sliceDistanceZ) / 2);
+            vertexPlaneSelection.z = z * self._sliceDistanceZ - ((dimensions.length * self._sliceDistanceZ) / 2);
             if (x < y) {
-              vertexPlane.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-              vertexPlane.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-              vertexPlaneSelection.x = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-              vertexPlaneSelection.y = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexPlane.x = x * self._sliceDistanceX - ((dimensions.length * self._sliceDistanceX) / 2);
+              vertexPlane.y = y * self._sliceDistanceY - ((dimensions.length * self._sliceDistanceY) / 2);
+              vertexPlaneSelection.x = y * self._sliceDistanceX - ((dimensions.length * self._sliceDistanceX) / 2);
+              vertexPlaneSelection.y = x * self._sliceDistanceY - ((dimensions.length * self._sliceDistanceY) / 2);
             }
             else {
-              vertexPlane.x = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-              vertexPlane.y = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-              vertexPlaneSelection.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-              vertexPlaneSelection.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
+              vertexPlane.x = y * self._sliceDistanceX - ((dimensions.length * self._sliceDistanceX) / 2);
+              vertexPlane.y = x * self._sliceDistanceY - ((dimensions.length * self._sliceDistanceY) / 2);
+              vertexPlaneSelection.x = x * self._sliceDistanceX - ((dimensions.length * self._sliceDistanceX) / 2);
+              vertexPlaneSelection.y = y * self._sliceDistanceY - ((dimensions.length * self._sliceDistanceY) / 2);
             }
             geometryPlane.vertices.push( vertexPlane );
             geometryPlaneSelection.vertices.push( vertexPlaneSelection );
@@ -199,7 +201,7 @@ RCUBE.Cube.prototype.movePlaneDown = function() {
 
 RCUBE.Cube.prototype.setPlaneToDimension = function(dimensionName) {
   // Get the necessary variables
-  var sliceDistance = this._sliceDistance;
+  var sliceDistance = this._sliceDistanceZ;
   var dimensionNumber = this._dimensions.indexOf(dimensionName);
   var planePositionOfFirstDimension = 0 - ((this._dimensions.length * sliceDistance) / 2);
   // Calculate z position of the plane
@@ -254,7 +256,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
 
     document.getElementById(canvasID).appendChild(container);
     // camera
-    camera = new THREE.PerspectiveCamera( 75, width / height, 1, 6000 );
+    camera = new THREE.PerspectiveCamera( 75, width / height, 1, 100000 );
     // Scene
     scene = new THREE.Scene();
     self._glScene = scene;
@@ -386,8 +388,10 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
 
 
     // [Geometry] Add Slicing Plane
-    planeSize = (dimensions.length * self._sliceDistance) + 100;
-    slicingPlane = new THREE.PlaneGeometry(planeSize, planeSize);
+    // planeSize = (dimensions.length * self._sliceDistance) + 100;
+    planeSizeX = (dimensions.length * self._sliceDistanceX) + 100;
+    planeSizeY = (dimensions.length * self._sliceDistanceY) + 100;
+    slicingPlane = new THREE.PlaneGeometry(planeSizeX, planeSizeY);
     var slicingPlaneMaterial = new THREE.MeshBasicMaterial( {color: 0xB0B0B0, opacity: 0.8, side: THREE.DoubleSide} );
     var plane = new THREE.Mesh( slicingPlane, slicingPlaneMaterial );
     self._plane = plane;
