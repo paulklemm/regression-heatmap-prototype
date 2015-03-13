@@ -26,7 +26,7 @@ angular.module('cube')
 
       // TODO: Move this logic to the updateRSquared listener
       $scope.$on('data::loadingComplete', function(){
-        // glCubeCtrl.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset._dimensionNames.slice().reverse());
+        // glCubeCtrl.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset.getDimensionNames().slice().reverse());
         // debug_cube = glCubeCtrl.threeCube;
       });
 
@@ -39,12 +39,13 @@ angular.module('cube')
 
       $scope.$on('data::updateRSquared', function(){
         if(glCubeCtrl.threeCube === null)
-          glCubeCtrl.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset._dimensionNames.slice().reverse());
+          glCubeCtrl.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset.getDimensionNames().slice().reverse());
         else {
           console.log("Cube: Update R Squared called");
           var rSquaredValues = data.getRSquaredValues();
           var values = Object.keys(rSquaredValues);
-          glCubeCtrl.updateCube(rSquaredValues, data.dataset._dimensionNames.slice().reverse());
+          // glCubeCtrl.updateCube(rSquaredValues, data.dataset.getDimensionNames().slice().reverse());
+          glCubeCtrl.updateCube(rSquaredValues);
         }
       });
 

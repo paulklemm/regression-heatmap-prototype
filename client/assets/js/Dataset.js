@@ -81,6 +81,8 @@ RCUBE.Dataset.prototype.setCsvData = function(csvData) {
   });
 };
 
+// Return Copy of the dimension names array
 RCUBE.Dataset.prototype.getDimensionNames = function(){
+  // return this._dimensionNames.slice();
   return this._dimensionNames;
 };

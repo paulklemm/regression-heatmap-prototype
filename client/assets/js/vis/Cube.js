@@ -6,6 +6,7 @@ RCUBE.Cube = function(canvasID, data, dimensions) {
   this._dimensions = dimensions;
   this._plane = undefined;
   this._currentPlaneDimension = undefined;
+
   this._sliceDistance = 10;
   this._glScene = undefined;
   this._glSliceGeometry = undefined;
@@ -17,21 +18,26 @@ RCUBE.Cube = function(canvasID, data, dimensions) {
 };
 
 RCUBE.Cube.prototype.update = function(data, dimensions) {
+  var self = this;
+  if (typeof dimensions == 'undefined')
+    dimensions = self._dimensions.slice();
+
+  console.log("Cube Update Dimensions");
+  console.log(dimensions);
   var dimensionsSorted = dimensions.slice().sort();
 
-  var self = this;
   // identify the dimensions, which need updates
   var rSquaredDimensions = Object.keys(data);
   var dimensionsToProcess = [];
-  console.log("Update Dimensions");
-  console.log(rSquaredDimensions);
+  // console.log("Update Dimensions");
+  // console.log(rSquaredDimensions);
   rSquaredDimensions.forEach(function(currentDimension){
     if (self._dimensionsAlreadyAdded[currentDimension] !== true) {
       dimensionsToProcess.push(currentDimension);
     }
   });
-  console.log("Dimensions to Add");
-  console.log(dimensionsToProcess);
+  // console.log("Dimensions to Add");
+  // console.log(dimensionsToProcess);
 
   attributesPlane = {
     alpha: { type: 'f', value: [] },
@@ -83,7 +89,7 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
     // if (self._dimensionsAlreadyAdded[dimension_z] !== true && typeof data[dimension_z] != 'undefined') {
     if (typeof data[dimension_z] != 'undefined') {
       self._dimensionsAlreadyAdded[dimension_z] = true;
-      console.log("ATTACHING DIMENSION" + dimension_z);
+      // console.log("ATTACHING DIMENSION " + dimension_z);
     // ["smoking", "age"].forEach(function(dimension_z, z) {
     // ['Mammography_Left_BI_RADS'].forEach(function(dimension_z, z) {
       geometryPlaneSelection = new THREE.Geometry();
