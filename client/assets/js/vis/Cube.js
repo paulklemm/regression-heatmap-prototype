@@ -7,7 +7,6 @@ RCUBE.Cube = function(canvasID, data, dimensions) {
   this._plane = undefined;
   this._currentPlaneDimension = null;
   this._currentPlaneDimensionGeometry = null;
-
   this._sliceDistance = 10;
   this._glScene = undefined;
   this._glSliceGeometry = undefined;

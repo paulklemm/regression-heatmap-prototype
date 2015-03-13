@@ -38,8 +38,14 @@ angular.module('cube')
       });
 
       $scope.$on('data::updateRSquared', function(){
-        if(glCubeCtrl.threeCube === null)
-          glCubeCtrl.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset.getDimensionNames().slice().reverse());
+        if(glCubeCtrl.threeCube === null) {
+          // HACK: For some reason, when initialized inside of a Angular controlled
+          // Div, the THREE.js Trackball Controls dont work as expected
+          // Launching the cube delayed works fine
+          setTimeout(function(){
+            glCubeCtrl.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset.getDimensionNames().slice().reverse());
+          }, 10);
+        }
         else {
           console.log("Cube: Update R Squared called");
           var rSquaredValues = data.getRSquaredValues();
