@@ -5,7 +5,8 @@ RCUBE.Cube = function(canvasID, data, dimensions) {
   this._showFPS = false;
   this._dimensions = dimensions;
   this._plane = undefined;
-  this._currentPlaneDimension = undefined;
+  this._currentPlaneDimension = null;
+  this._currentPlaneDimensionGeometry = null;
 
   this._sliceDistance = 10;
   this._glScene = undefined;
@@ -176,7 +177,7 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
 
 RCUBE.Cube.prototype.movePlaneUp = function() {
   // If the current plane is not defined, set it to the first dimension
-  if (typeof this._currentPlaneDimension === 'undefined')
+  if (this._currentPlaneDimension === null)
     this._currentPlaneDimension = this._dimensions[0];
 
   // Get the index of the current dimension
@@ -215,12 +216,15 @@ RCUBE.Cube.prototype.setPlaneToDimension = function(dimensionName) {
   this._plane.position.setZ(planeZ);
 
   // Remove the last Geometry added
-  if (typeof this._currentPlaneDimension !== "undefined")
-    this._glScene.remove( this._glSliceGeometry[this._currentPlaneDimension] );
+  // if (typeof this._currentPlaneDimension !== "undefined")
+  if (this._currentPlaneDimensionGeometry !== null)
+    // this._glScene.remove( this._glSliceGeometry[this._currentPlaneDimension] );
+    this._glScene.remove( this._currentPlaneDimensionGeometry );
   // Set the current plane
   this._glScene.add(this._glSliceGeometry[dimensionName]);
   // And update the global variable
   this._currentPlaneDimension = dimensionName;
+  this._currentPlaneDimensionGeometry = this._glSliceGeometry[dimensionName];
 };
 
 RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
