@@ -47,6 +47,7 @@
     /* THREEJS CUBE */
     .my-heatmap {
       position:relative;
+      min-height:600px;
     }
     #cube {
       width:500px;
@@ -101,6 +102,7 @@
       position: relative;
       z-index: 2;
     }
+
     #cog.visible:after {
       content: "\f013";
       font-family: FontAwesome;
@@ -200,7 +202,7 @@
         <div class="container-fluid">
           <div class="navbar-header">
             <a class="navbar-brand" href="#">
-              <p>Regression Cube</p>
+              <p>Regression Cube <i class="fa fa-cog fa-spin hidden"></i></p>
             </a>
           </div>
           <div class="pull-right">

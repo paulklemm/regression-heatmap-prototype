@@ -76,6 +76,7 @@ angular.module('cube')
       if (dimensions.length === 0) {
         // HACK: jQuery activating the cog visibility
         $('#cog').removeClass('visible');
+        $('.fa.fa-cog.fa-spin').addClass('hidden');
         dataService.calculationInProgress = false;
         // Cache the complete result of the calculation!
         cacheFormulaResult(formula);
@@ -111,6 +112,7 @@ angular.module('cube')
       dataService.calculationInProgress = true;
       // HACK: jQuery activating the cog visibility
       $('#cog').addClass('visible');
+      $('.fa.fa-cog.fa-spin').removeClass('hidden');
       // Use either default formula or new one if there was one provided
       // If the formula is not valid, fall back to the default one
       if (!dataService.regressionFormula.isValid()) {
@@ -140,6 +142,7 @@ angular.module('cube')
         else { // RSquared was found on the server
           // HACK: jQuery activating the cog visibility
           $('#cog').removeClass('visible');
+          $('.fa.fa-cog.fa-spin').addClass('hidden');
           dataService.calculationInProgress = false;
           dataService.dataset.setRSquaredGlobal(rSquared, dataService.regressionFormula);
           $rootScope.$broadcast('data::updateRSquared');
