@@ -24,13 +24,7 @@ angular.module('cube')
         }
       });
 
-      // TODO: Move this logic to the updateRSquared listener
-      $scope.$on('data::loadingComplete', function(){
-        // glCubeCtrl.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset.getDimensionNames().slice().reverse());
-        // debug_cube = glCubeCtrl.threeCube;
-      });
-
-      $scope.$on('newFormulaApplied', function(){
+      $scope.$on('data::newFormulaApplied', function(){
         if (glCubeCtrl.threeCube !== null) {
           $('gl-cube canvas').remove();
           glCubeCtrl.threeCube = null;

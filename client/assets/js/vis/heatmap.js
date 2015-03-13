@@ -254,9 +254,6 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
     return nodes[i].name;
   });
 
-  // Debug
-  debug_x = x;
-
   function row_(_row) {
     // Iterate over all row entries and remove the ones above
     // the matrix diagonal to only have the lower matrix represented

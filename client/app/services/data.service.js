@@ -1,7 +1,6 @@
 angular.module('cube')
   .factory('data', ['$rootScope', 'ocpuBridge', function($rootScope, ocpuBridge){
     var dataService = {};
-    debug_dataService = this;
     dataService.dataset = new RCUBE.Dataset();
     dataService.defaultRegressionFormula = new RCUBE.RegressionFormula('z ~ x + y');
     dataService.regressionFormula = new RCUBE.RegressionFormula();
@@ -118,19 +117,15 @@ angular.module('cube')
         dataService.regressionFormula.setFormula(dataService.defaultRegressionFormula.toString());
         dataService.regressionFormula.setValidVariables(dataService.dataset.getDimensionNames().slice(0));
       }
-
-      console.log("Calculating R^2 with formula:");
       console.log(dataService.regressionFormula);
-
       // Initialize the stop flag for this formula
       // var formulaWasAlreadyLoadedBefore = Object.keys(dataService.stopCalculation).indexOf(dataService.regressionFormula.toString()) == -1;
       dataService.stopCalculation[dataService.regressionFormula.toString()] = false;
       // Broadcast event for other components to react
-      $rootScope.$broadcast("newFormulaApplied");
+      $rootScope.$broadcast("data::newFormulaApplied");
       dataService.dataset.switchFormula(dataService.regressionFormula);
       // Attempt to load the data from the server if it was calculated before
-      console.log(dataService.regressionFormula.toString());
-      console.log(dataService.dataset._name);
+      console.log("Hashed dataset name: " + dataService.dataset._name);
       ocpuBridge.cacheRSquared(dataService.regressionFormula.toString(), dataService.dataset._name).then(function(rSquared){
         // The cache returns an array [false] when there is no file on the r server with that name
         if (rSquared[0] === false) {// Calculate the r Squared values

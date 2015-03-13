@@ -1,3 +1,4 @@
+(function() {
 RCUBE.Cube = function(canvasID, data, dimensions) {
   // Since the Heatmap visualization is also sorted by name, we do the same thing here!
   this._canvasID = canvasID;
@@ -14,7 +15,6 @@ RCUBE.Cube = function(canvasID, data, dimensions) {
   this._glCubeParticles = null;
   this._dimensionsAlreadyAdded = {};
   this.main(canvasID, data, dimensions);
-  debug_dimensions = dimensions;
 };
 
 RCUBE.Cube.prototype.update = function(data, dimensions) {
@@ -70,8 +70,6 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
 
   var sliceGeometry = {};
   self._glSliceGeometry = sliceGeometry;
-
-  debug_data = data;
 
   var colorPlane = new THREE.Color("#1f77b4");
   var colorPlaneSelection = new THREE.Color("#ff7f0e");
@@ -158,7 +156,6 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
   });
 
   particles = new THREE.PointCloud( geometryPlane, shaderMaterial );
-  debug_particles = particles;
 
   self._glCubeGeometry = geometryPlane;
   if (self._glCubeParticles !== null)
@@ -258,12 +255,9 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     document.getElementById(canvasID).appendChild(container);
     // camera
     camera = new THREE.PerspectiveCamera( 75, width / height, 1, 6000 );
-    debug_camera = camera;
-
     // Scene
     scene = new THREE.Scene();
     self._glScene = scene;
-    debug_scene = scene;
 
     // Get correct initial Camera Position
     // TODO: Automatically calculate z distance
@@ -399,7 +393,6 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     self._plane = plane;
     // Plane gets visible as soon as a plane is selected
     plane.visible = false;
-    debug_plane = plane;
     // plane.rotateY(initRotation);
     scene.add( plane );
 
@@ -469,3 +462,4 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     renderer.render( scene, camera );
   }
 };
+})();

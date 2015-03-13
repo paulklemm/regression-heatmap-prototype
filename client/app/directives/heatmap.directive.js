@@ -31,7 +31,7 @@ angular.module('cube')
       // $scope.dependentSelect = {};
 
       // Reset the Visualization when new Formulas are applied
-      $scope.$on('newFormulaApplied', function(){
+      $scope.$on('data::newFormulaApplied', function(){
         $('svg.heatmap').remove();
         // Empty the dependentOption Array
         heatmapCtrl.dependentOptions.length = 0;
