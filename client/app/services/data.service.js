@@ -153,7 +153,7 @@ angular.module('cube')
           setTimeout(function(){
             $rootScope.$broadcast('data::loadingComplete');
             // TODO: Remove this debug function!
-            setTimeout(function(){ $rootScope.$broadcast('data::updateRSquared'); }, 2000);
+            // setTimeout(function(){ $rootScope.$broadcast('data::updateRSquared'); }, 2000);
           }, 1200);
           // $rootScope.$broadcast('data::updateRSquared');
           $rootScope.$broadcast('data::updateRSquared');

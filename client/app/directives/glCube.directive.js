@@ -9,16 +9,16 @@ angular.module('cube')
       this.threeCube = null;
 
       $scope.$on('glCube::movePlaneDown', function(){
-        if (this.threeCube !== null) {
-          var newDimension = this.threeCube.movePlaneDown();
+        if (glCubeCtrl.threeCube !== null) {
+          var newDimension = glCubeCtrl.threeCube.movePlaneDown();
           if (newDimension !== null)
             $scope.$broadcast('glCube::updatePlane', { 'dimension': newDimension });
         }
       });
 
       $scope.$on('glCube::movePlaneUp', function(){
-        if (this.threeCube !== null) {
-          var newDimension = this.threeCube.movePlaneUp();
+        if (glCubeCtrl.threeCube !== null) {
+          var newDimension = glCubeCtrl.threeCube.movePlaneUp();
           if (newDimension !== null)
             $scope.$broadcast('glCube::updatePlane', { 'dimension': newDimension });
         }
@@ -26,29 +26,40 @@ angular.module('cube')
 
       // TODO: Move this logic to the updateRSquared listener
       $scope.$on('data::loadingComplete', function(){
-        glCubeCtrl.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset._dimensionNames.slice().reverse());
-        debug_cube = glCubeCtrl.threeCube;
+        // glCubeCtrl.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset._dimensionNames.slice().reverse());
+        // debug_cube = glCubeCtrl.threeCube;
+      });
+
+      $scope.$on('newFormulaApplied', function(){
+        if (glCubeCtrl.threeCube !== null) {
+          $('gl-cube canvas').remove();
+          glCubeCtrl.threeCube = null;
+        }
       });
 
       $scope.$on('data::updateRSquared', function(){
-        console.log("Cube: Update R Squared called");
-        var rSquaredValues = data.getRSquaredValues();
-        var values = Object.keys(rSquaredValues);
-        glCubeCtrl.updateCube(rSquaredValues);
+        if(glCubeCtrl.threeCube === null)
+          glCubeCtrl.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset._dimensionNames.slice().reverse());
+        else {
+          console.log("Cube: Update R Squared called");
+          var rSquaredValues = data.getRSquaredValues();
+          var values = Object.keys(rSquaredValues);
+          glCubeCtrl.updateCube(rSquaredValues, data.dataset._dimensionNames.slice().reverse());
+        }
       });
 
-      glCubeCtrl.updateCube = function(data) {
+      glCubeCtrl.updateCube = function(data, dimensions) {
         console.log("glCubeCtrl.UpdateCube called");
         console.log(glCubeCtrl);
         if (glCubeCtrl.threeCube !== null) {
           console.log("Updating Three Cube");
-          glCubeCtrl.threeCube.update(data);
+          glCubeCtrl.threeCube.update(data, dimensions);
         }
       };
 
       $scope.$on('heatmap::visibleSliceChanged', function(event, data){
-        if (this.threeCube !== null)
-          this.threeCube.setPlaneToDimension(data.dimension);
+        if (glCubeCtrl.threeCube !== null)
+          glCubeCtrl.threeCube.setPlaneToDimension(data.dimension);
       });
     },
     controllerAs: 'glCubeCtrl'
