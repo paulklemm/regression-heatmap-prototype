@@ -45,6 +45,9 @@ RCUBE.RegressionFormula.prototype.getDependentVariable = function() {
 RCUBE.RegressionFormula.prototype.calculateFormulasDependent = function(variable_dependent, variables){
   var self = this;
   var formulas = [];
+  // If variables is empty, return empty object
+  if (Object.keys(variables).length === 0)
+    return {};
   variables.forEach(function(variable_x, x){
     variables.forEach(function(variable_y, y){
       // Only calculate the upper part of the matrix
