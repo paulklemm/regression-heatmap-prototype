@@ -82,25 +82,52 @@ angular.module('cube')
         cacheFormulaResult(formula);
         return;
       }
+      var calculateBestDimensions = true;
       currentZDimension = dimensions[dimensions.length - 1];
       var dimensionName = null;
       if (formula.getDependentVariable() == 'z')
         dimensionName = currentZDimension;
-      else
+      else {
         dimensionName = formula.getDependentVariable();
+        calculateBestDimensions = false;
+      }
       // HACK: Get the correct dependent Variable
       console.log("Dependent Variable: " + formula.getDependentVariable());
 
-      ocpuBridge.getCorrelationBasedFeatureSelection(dimensionName, dataService.dataset._name).then(function(best_dimensions){
-        // The returned features are sorted alphabetically, but this screws up our
-        // visualizations when we consider the original sorting provided by the csv
-        // file, so we have to sort it again using this exact sorting
-        best_dimensions = sortArrayByReference(dataService.dataset._dimensionNames.slice(), best_dimensions);
+      if (calculateBestDimensions || typeof dataService.best_dimensions === 'undefined') {
+        ocpuBridge.getCorrelationBasedFeatureSelection(dimensionName, dataService.dataset._name).then(function(best_dimensions){
+          // The returned features are sorted alphabetically, but this screws up our
+          // visualizations when we consider the original sorting provided by the csv
+          // file, so we have to sort it again using this exact sorting
+          best_dimensions = sortArrayByReference(dataService.dataset._dimensionNames.slice(), best_dimensions);
+          // Save the best dimensions locally if we have a fixed dependent dimension
+          dataService.best_dimensions = best_dimensions;
+          console.log("CFS Dimensions for " + currentZDimension);
+          console.log(best_dimensions);
 
+          dataService.dataset._cfsDimensionNames[currentZDimension] = best_dimensions;
+          formulas = formula.calculateFormulasDependent(currentZDimension, best_dimensions);
+          // Load the R Squared values through the R backend
+          ocpuBridge.calculateRSquared(formulas, dataService.dataset._name).then(function(rSquared){
+            dataService.dataset.setRSquared(rSquared, formula);
+            dimensions.splice(dimensions.length - 1, 1);
+            // If you are not supposed to stop for this formula, continue
+            if (!dataService.stopCalculation[formula.toString()]) {
+              $rootScope.$broadcast('data::updateRSquared');
+              calculateRSquaredSequential(dimensions, formula);
+            }
+          });
+        });
+      }
+      // We can skip the calculation of the best dimensions, because the Dependent
+      // Variable stays the same and we already calculated the dimensions for it
+      // TODO: remove redundancy
+      else {
+        var best_dimensions = dataService.best_dimensions;
+        console.log("Skipped dimension calculation");
         console.log("CFS Dimensions for " + currentZDimension);
-
-        dataService.dataset._cfsDimensionNames[currentZDimension] = best_dimensions;
         console.log(best_dimensions);
+        dataService.dataset._cfsDimensionNames[currentZDimension] = best_dimensions;
         formulas = formula.calculateFormulasDependent(currentZDimension, best_dimensions);
         // Load the R Squared values through the R backend
         ocpuBridge.calculateRSquared(formulas, dataService.dataset._name).then(function(rSquared){
@@ -112,7 +139,7 @@ angular.module('cube')
             calculateRSquaredSequential(dimensions, formula);
           }
         });
-      });
+      }
     };
 
     var applyFormula = function() {
