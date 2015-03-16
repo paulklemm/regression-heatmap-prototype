@@ -61,11 +61,48 @@ RCUBE.Dataset.prototype.setRSquared = function(formulaResults, formula) {
   });
 };
 
-RCUBE.Dataset.prototype.getRSquared = function(){
+RCUBE.Dataset.prototype.getRSquared = function(comparisonFormula){
   if (typeof this._activeFormula === 'undefined')
     return {};
-  // Get the RSquared formula of the current formula
-  return this._rSquared[this._activeFormula.toString()];
+
+  if (typeof comparisonFormula === 'undefined')
+    // Get the RSquared formula of the current formula
+    return this._rSquared[this._activeFormula.toString()];
+
+  var activeRSquared = this._rSquared[this._activeFormula.toString()];
+  //var referenceRSquared = this._rSquared[comparisonFormula.toString()];
+  var referenceRSquared = this._rSquared[comparisonFormula];
+  var resultRSquared = {};
+  var self = this;
+  Object.keys(referenceRSquared).forEach(function(zDimension, zIndex) {
+    resultRSquared[zDimension] = {};
+    var currentZDimension = referenceRSquared[zDimension];
+    Object.keys(currentZDimension).forEach(function(yDimension, yIndex) {
+      resultRSquared[zDimension][yDimension] = {};
+      var currentYDimension = referenceRSquared[zDimension][yDimension];
+      Object.keys(currentYDimension).forEach(function(xDimension, xIndex) {
+        // Subtract
+        if (typeof activeRSquared[zDimension] !== 'undefined' &&
+            typeof activeRSquared[zDimension][yDimension] !== 'undefined' &&
+            typeof activeRSquared[zDimension][yDimension][xDimension] !== 'undefined') {
+          var reference = parseFloat(referenceRSquared[zDimension][yDimension][xDimension]);
+          var active = parseFloat(activeRSquared[zDimension][yDimension][xDimension]);
+          // console.log(referenceRSquared[zDimension][yDimension][xDimension]);
+          // console.log(activeRSquared[zDimension][yDimension][xDimension]);
+          // console.log("z: " + zDimension + " y: " + yDimension + " x: " + xDimension);
+          // console.log("reference - active");
+          // console.log(reference + " - " + active);
+          if (isNaN(active) || isNaN(reference))
+            resultRSquared[zDimension][yDimension][xDimension] = 0;
+          else
+          resultRSquared[zDimension][yDimension][xDimension] = Math.abs(reference-active);
+        }
+        else
+          resultRSquared[zDimension][yDimension][xDimension] = 0;
+      });
+    });
+  });
+  return resultRSquared;
 };
 
 // This also sets the dimensionsnames array

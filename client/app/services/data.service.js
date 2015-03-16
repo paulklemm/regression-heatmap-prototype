@@ -8,6 +8,8 @@ angular.module('cube')
     // This flag is set per formula
     dataService.stopCalculation = {};
 
+    debug_data = dataService.dataset;
+
     dataService.formulaUpdate = function(formula) {
       // Stop all current operations for the current formula
       dataService.stopCalculation[dataService.regressionFormula.toString()] = true;
