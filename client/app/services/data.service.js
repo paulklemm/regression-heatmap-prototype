@@ -82,18 +82,26 @@ angular.module('cube')
         cacheFormulaResult(formula);
         return;
       }
-      var dimensionName = dimensions[dimensions.length - 1];
+      currentZDimension = dimensions[dimensions.length - 1];
+      var dimensionName = null;
+      if (formula.getDependentVariable() == 'z')
+        dimensionName = currentZDimension;
+      else
+        dimensionName = formula.getDependentVariable();
+      // HACK: Get the correct dependent Variable
+      console.log("Dependent Variable: " + formula.getDependentVariable());
+
       ocpuBridge.getCorrelationBasedFeatureSelection(dimensionName, dataService.dataset._name).then(function(best_dimensions){
         // The returned features are sorted alphabetically, but this screws up our
         // visualizations when we consider the original sorting provided by the csv
         // file, so we have to sort it again using this exact sorting
         best_dimensions = sortArrayByReference(dataService.dataset._dimensionNames.slice(), best_dimensions);
 
-        console.log("CFS Dimensions for " + dimensionName);
+        console.log("CFS Dimensions for " + currentZDimension);
 
-        dataService.dataset._cfsDimensionNames[dimensionName] = best_dimensions;
+        dataService.dataset._cfsDimensionNames[currentZDimension] = best_dimensions;
         console.log(best_dimensions);
-        formulas = formula.calculateFormulasDependent(dimensionName, best_dimensions);
+        formulas = formula.calculateFormulasDependent(currentZDimension, best_dimensions);
         // Load the R Squared values through the R backend
         ocpuBridge.calculateRSquared(formulas, dataService.dataset._name).then(function(rSquared){
           dataService.dataset.setRSquared(rSquared, formula);

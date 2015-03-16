@@ -1,5 +1,6 @@
 (function() {
 RCUBE.RegressionFormula = function(formula, validVariables) {
+  this._dependentVariable = null;
   if (typeof(formula) == 'undefined')
     this._formula = '';
   else
@@ -19,7 +20,6 @@ RCUBE.RegressionFormula = function(formula, validVariables) {
 // constructFormula(['z','x','y'], ['~', '+', '-'], 'age', 'gender', 'bmi')
 RCUBE.RegressionFormula.prototype.constructFormula = function(variables, operators, x, y, z) {
   var result_formula = '';
-  var dependent_variable;
   // Iterate over all variables
   variables.forEach(function(current_variable, i){
     // Replace placeholders with current x, y and z values
@@ -36,6 +36,10 @@ RCUBE.RegressionFormula.prototype.constructFormula = function(variables, operato
       dependent_variable = current_variable;
   });
   return({formula:result_formula, dependentVariable:dependent_variable});
+};
+
+RCUBE.RegressionFormula.prototype.getDependentVariable = function() {
+  return this._dependentVariable;
 };
 
 RCUBE.RegressionFormula.prototype.calculateFormulasDependent = function(variable_dependent, variables){
@@ -135,6 +139,9 @@ RCUBE.RegressionFormula.prototype.update = function() {
   }
   if (this._valid) {
     this._variables.forEach(function(variable, index) {
+      // Store as dependent Variable if it is the first one
+      if (index === 0)
+        self._dependentVariable = variable;
       // check if the current variable is valid using the
       // valid variables as well as x, y and z
       if (self._validVariables.indexOf(variable) == -1 && ['x', 'y', 'z'].indexOf(variable) == -1) {
