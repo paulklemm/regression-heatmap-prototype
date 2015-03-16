@@ -62,6 +62,7 @@ RCUBE.Dataset.prototype.setRSquared = function(formulaResults, formula) {
 };
 
 RCUBE.Dataset.prototype.getRSquared = function(comparisonFormula){
+  console.log("Get R Squared comparison formula: " + comparisonFormula);
   if (typeof this._activeFormula === 'undefined')
     return {};
 

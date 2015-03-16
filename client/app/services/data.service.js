@@ -5,10 +5,20 @@ angular.module('cube')
     dataService.defaultRegressionFormula = new RCUBE.RegressionFormula('z ~ x + y');
     dataService.regressionFormula = new RCUBE.RegressionFormula();
     dataService.calculationInProgress = false;
+    dataService.currentReferenceFormula = 'none';
     // This flag is set per formula
     dataService.stopCalculation = {};
 
     debug_data = dataService.dataset;
+
+    dataService.getCurrentReferenceFormula = function(){
+      console.log("getCurrentReferenceFormula");
+      console.log(dataService.currentReferenceFormula);
+      if (dataService.currentReferenceFormula == 'none')
+        return undefined;
+      else
+        return dataService.currentReferenceFormula;
+    };
 
     dataService.formulaUpdate = function(formula) {
       // Stop all current operations for the current formula
@@ -82,6 +92,7 @@ angular.module('cube')
         dataService.calculationInProgress = false;
         // Cache the complete result of the calculation!
         cacheFormulaResult(formula);
+        $rootScope.$broadcast('data::formulaComplete');
         return;
       }
 
@@ -224,6 +235,7 @@ angular.module('cube')
           $('.fa.fa-cog.fa-spin').addClass('hidden');
           dataService.calculationInProgress = false;
           dataService.dataset.setRSquaredGlobal(rSquared, dataService.regressionFormula);
+          $rootScope.$broadcast('data::formulaComplete');
           $rootScope.$broadcast('data::updateRSquared');
         }
       });
