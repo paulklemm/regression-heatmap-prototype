@@ -1,0 +1,5 @@
+<div ng-show="selectorCtrl.visible">
+  <label class='control-label' for='formula-select'>Formula</label>
+  <select id='formula-select' class='form-control' ng-change='selectorCtrl.selectChange()' ng-model="formulaSelect" ng-options="opt as opt.label for opt in selectorCtrl.formulaOptions">
+  </select>
+</div>
