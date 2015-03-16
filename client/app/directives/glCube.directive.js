@@ -53,6 +53,13 @@ angular.module('cube')
           glCubeCtrl.threeCube.update(data, dimensions);
         }
       };
+      // Update when a new Reference formula is added
+      $scope.$on('formulaSelector::setNewReference', function(event, referenceData){
+        if (glCubeCtrl.threeCube !== null) {
+          var rSquared = data.dataset.getRSquared(data.getCurrentReferenceFormula());
+          glCubeCtrl.threeCube.update(rSquared);
+        }
+      });
 
       $scope.$on('heatmap::visibleSliceChanged', function(event, data){
         if (glCubeCtrl.threeCube !== null)
