@@ -12,8 +12,6 @@ angular.module('cube')
     // debug_data = dataService.dataset;
 
     dataService.getCurrentReferenceFormula = function(){
-      console.log("getCurrentReferenceFormula");
-      console.log(dataService.currentReferenceFormula);
       if (dataService.currentReferenceFormula == 'none')
         return undefined;
       else
