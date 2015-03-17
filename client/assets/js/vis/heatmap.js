@@ -43,7 +43,8 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
         nodes.push(createNode(independent, nodes.length));
         nodesIndex[independent] = nodes.length - 1;
       }
-      var value = rSquared[dependent][independent];
+      var value = rSquared[dependent][independent].rSquared;
+      var confidenceIntervals = rSquared[dependent][independent].confidenceIntervals;
 
       if (self._lowerMatrix) {
         // Create a lower matrix diagonal
@@ -53,6 +54,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
           link.source = nodesIndex[dependent];
           link.target = nodesIndex[independent];
           link.value = value;
+          link.confidenceIntervals = confidenceIntervals;
           links.push(link);
         }
         else {
@@ -62,6 +64,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
           link_mirror.source = nodesIndex[independent];
           link_mirror.target = nodesIndex[dependent];
           link_mirror.value = value;
+          link_mirror.confidenceIntervals = confidenceIntervals;
           links.push(link_mirror);
         }
       }
@@ -133,6 +136,7 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
   // Convert links to matrix; count character occurrences.
   heatmapData.links.forEach(function(link) {
     matrix[link.source][link.target].z += parseFloat(link.value);
+    matrix[link.source][link.target].confidenceIntervals = link.confidenceIntervals[0];
     nodes[link.source].count += parseFloat(link.value);
   });
 
@@ -300,7 +304,10 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
     .style("top", (d3.event.layerY - 10) + "px")
     .select("#value")
     // .text("X: " + self._names[p.x] + "Y: " + self._names[p.y] + "\nValue: " + p.z);
-    .html("X: " + rows[0][p.x].textContent + "<br />Y: " + rows[0][p.y].textContent + "<br />R²: " + (Math.round(p.z * 1000) / 1000));
+    .html("X: " + rows[0][p.x].textContent +
+      "<br />Y: " + rows[0][p.y].textContent +
+      "<br />R²: " + (Math.round(p.z * 1000) / 1000) +
+      "<br />" + p.confidenceIntervals);
     //Show the tooltip
     d3.select("#tooltip-heatmap").classed("hidden", false);
   }

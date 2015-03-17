@@ -140,8 +140,8 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
             // Two times because we also add the mirror element
             geometryPlane.colors.push(colorPlane);
             geometryPlaneSelection.colors.push(colorPlaneSelection);
-            attributesPlane.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
-            attributesPlaneSelection.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
+            attributesPlane.alpha.value.push(data[dimension_z][dimension_y][dimension_x].rSquared);
+            attributesPlaneSelection.alpha.value.push(data[dimension_z][dimension_y][dimension_x].rSquared);
           }
         });
       });

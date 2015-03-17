@@ -57,7 +57,12 @@ RCUBE.Dataset.prototype.setRSquared = function(formulaResults, formula) {
       self._rSquared[formula.toString()][currentResult.z][currentResult.x] = {};
 
     // Attach RSquared value to the corresponding position
-    self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y] = currentResult.rSquared;
+    // self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y] = currentResult.rSquared;
+
+    // New format contains an object per result
+    self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y] = {};
+    self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y].rSquared = currentResult.rSquared;
+    self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y].confidenceIntervals = currentResult.confidenceIntervals;
   });
 };
 
