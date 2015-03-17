@@ -43,3 +43,6 @@ data/
 # Temp folders
 tmp/
 uploads/
+
+# Config file to keep the one for heroku untouched
+config.json
