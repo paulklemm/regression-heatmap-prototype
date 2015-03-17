@@ -136,7 +136,8 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
   // Convert links to matrix; count character occurrences.
   heatmapData.links.forEach(function(link) {
     matrix[link.source][link.target].z += parseFloat(link.value);
-    matrix[link.source][link.target].confidenceIntervals = link.confidenceIntervals[0];
+    // matrix[link.source][link.target].confidenceIntervals = link.confidenceIntervals[0];
+    matrix[link.source][link.target].confidenceIntervals = link.confidenceIntervals;
     nodes[link.source].count += parseFloat(link.value);
   });
 
@@ -298,16 +299,20 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
     // we can not simply write `nameX = self._names[p.x]`. Therefore we have to
     // extract the correct sorting from the dom. There is a proper solution though
     var rows = d3.selectAll(".row text");
+    var tooltipHtmlContent = "X: " + rows[0][p.x].textContent +
+      "<br />Y: " + rows[0][p.y].textContent +
+      "<br />R²: " + (Math.round(p.z * 1000) / 1000) +
+      "<br />Confidence Intervals" +
+      "<br />" + p.confidenceIntervals;
     // Update the tooltip position and value
+    console.log(tooltipHtmlContent);
+    console.log(p.confidenceIntervals);
     d3.select("#tooltip-heatmap")
     .style("left", (d3.event.layerX + 10) + "px")
     .style("top", (d3.event.layerY - 10) + "px")
     .select("#value")
     // .text("X: " + self._names[p.x] + "Y: " + self._names[p.y] + "\nValue: " + p.z);
-    .html("X: " + rows[0][p.x].textContent +
-      "<br />Y: " + rows[0][p.y].textContent +
-      "<br />R²: " + (Math.round(p.z * 1000) / 1000) +
-      "<br />" + p.confidenceIntervals);
+    .html(tooltipHtmlContent);
     //Show the tooltip
     d3.select("#tooltip-heatmap").classed("hidden", false);
   }
