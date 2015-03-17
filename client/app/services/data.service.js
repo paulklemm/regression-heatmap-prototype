@@ -9,7 +9,7 @@ angular.module('cube')
     // This flag is set per formula
     dataService.stopCalculation = {};
 
-    debug_data = dataService.dataset;
+    // debug_data = dataService.dataset;
 
     dataService.getCurrentReferenceFormula = function(){
       console.log("getCurrentReferenceFormula");

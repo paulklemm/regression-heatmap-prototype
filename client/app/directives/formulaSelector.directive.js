@@ -12,7 +12,15 @@ angular.module('cube')
 
       $scope.$on('data::formulaComplete', function(){
         var currentFormulaAsString = data.regressionFormula.toString();
-        selectorCtrl.formulaOptions.push({label: currentFormulaAsString, value: currentFormulaAsString});
+        // Check of the formula was not already added before
+        var alreadyAdded = false;
+        selectorCtrl.formulaOptions.forEach(function(option) {
+          if (option.label == currentFormulaAsString)
+            alreadyAdded = true;
+        });
+        // If not added before, push it
+        if (!alreadyAdded)
+          selectorCtrl.formulaOptions.push({label: currentFormulaAsString, value: currentFormulaAsString});
       });
 
       selectorCtrl.selectChange = function() {
