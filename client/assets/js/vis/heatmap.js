@@ -45,6 +45,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
       }
       var value = rSquared[dependent][independent].rSquared;
       var confidenceIntervals = rSquared[dependent][independent].confidenceIntervals;
+      var coefficients = rSquared[dependent][independent].coefficients;
 
       if (self._lowerMatrix) {
         // Create a lower matrix diagonal
@@ -55,6 +56,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
           link.target = nodesIndex[independent];
           link.value = value;
           link.confidenceIntervals = confidenceIntervals;
+          link.coefficients = coefficients;
           links.push(link);
         }
         else {
@@ -65,6 +67,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
           link_mirror.target = nodesIndex[dependent];
           link_mirror.value = value;
           link_mirror.confidenceIntervals = confidenceIntervals;
+          link_mirror.coefficients = coefficients;
           links.push(link_mirror);
         }
       }
@@ -138,6 +141,7 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
     matrix[link.source][link.target].z += parseFloat(link.value);
     // matrix[link.source][link.target].confidenceIntervals = link.confidenceIntervals[0];
     matrix[link.source][link.target].confidenceIntervals = link.confidenceIntervals;
+    matrix[link.source][link.target].coefficients = link.coefficients;
     nodes[link.source].count += parseFloat(link.value);
   });
 
@@ -303,7 +307,9 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
       "<br />Y: " + rows[0][p.y].textContent +
       "<br />R²: " + (Math.round(p.z * 1000) / 1000) +
       "<br />Confidence Intervals" +
-      "<br />" + p.confidenceIntervals;
+      "<br />" + p.confidenceIntervals +
+      "<br />Coefficients" +
+      "<br />" + p.coefficients;
     // Update the tooltip position and value
     console.log(tooltipHtmlContent);
     console.log(p.confidenceIntervals);
