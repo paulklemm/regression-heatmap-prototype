@@ -311,8 +311,8 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
       "<br />Coefficients" +
       "<br />" + p.coefficients;
     // Update the tooltip position and value
-    console.log(tooltipHtmlContent);
-    console.log(p.confidenceIntervals);
+    // console.log(tooltipHtmlContent);
+    // console.log(p.confidenceIntervals);
     d3.select("#tooltip-heatmap")
     .style("left", (d3.event.layerX + 10) + "px")
     .style("top", (d3.event.layerY - 10) + "px")
