@@ -18,7 +18,9 @@ RCUBE.RegressionFormula = function(formula, validVariables) {
 };
 
 // constructFormula(['z','x','y'], ['~', '+', '-'], 'age', 'gender', 'bmi')
-RCUBE.RegressionFormula.prototype.constructFormula = function(variables, operators, x, y, z) {
+// This method does not respect symmetry for cases when only x or y are in the formula,
+// but it is much simpler to understand
+RCUBE.RegressionFormula.prototype.constructFormulaNotSymmetric = function(variables, operators, x, y, z) {
   var result_formula = '';
   // Iterate over all variables
   variables.forEach(function(current_variable, i){
@@ -26,6 +28,65 @@ RCUBE.RegressionFormula.prototype.constructFormula = function(variables, operato
     if (current_variable == 'x') current_variable = x;
     if (current_variable == 'y') current_variable = y;
     if (current_variable == 'z') current_variable = z;
+    // If it is not the last variable, append it together with next operator
+    if (i != variables.length - 1)
+      result_formula = result_formula + current_variable + operators[i];
+    else
+      result_formula = result_formula + current_variable;
+
+    if (i === 0)
+      dependent_variable = current_variable;
+  });
+  return({formula:result_formula, dependentVariable:dependent_variable});
+};
+
+// constructFormula(['z','x','y'], ['~', '+', '-'], 'age', 'gender', 'bmi')
+RCUBE.RegressionFormula.prototype.constructFormula = function(variables, operators, x, y, z) {
+  // Check if there is only x or y specified. If so, we need to manually allow
+  // for symmetry (e.g. the case `z~x` yields different results for switched x and y)
+  // Note that due to the symmetry, the first element of y or x are not visible,
+  // since the regression cube is not symmetric in this situation
+  var onlyX = false;
+  var onlyY = false;
+  if (variables.indexOf('y') == -1 && variables.indexOf('x') == 1)
+    onlyX = true;
+    if (variables.indexOf('x') == -1 && variables.indexOf('y') == 1)
+    onlyY = true;
+
+  var result_formula = '';
+  // Iterate over all variables
+  variables.forEach(function(current_variable, i){
+
+    // Depending on whether we only have x or y in the formula, we respect the
+    // sorting of the regression cube by including alphabetic comparison
+    if (onlyX) {
+      if (current_variable == 'x') {
+        // String comparison
+        if (y.localeCompare(x) > 0)
+          // y comes alphabetically after x
+          current_variable = x;
+        else
+        current_variable = y;
+      }
+      if (current_variable == 'z') current_variable = z;
+    }
+    else if (onlyY) {
+      if (current_variable == 'y') {
+        if (y.localeCompare(x) > 0)
+          // y comes alphabetically after x
+          current_variable = y;
+        else
+        current_variable = x;
+      }
+      if (current_variable == 'z') current_variable = z;
+    }
+    else {
+      // Replace placeholders with current x, y and z values
+      if (current_variable == 'x') current_variable = x;
+      if (current_variable == 'y') current_variable = y;
+      if (current_variable == 'z') current_variable = z;
+    }
+
     // If it is not the last variable, append it together with next operator
     if (i != variables.length - 1)
       result_formula = result_formula + current_variable + operators[i];

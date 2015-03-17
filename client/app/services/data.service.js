@@ -109,6 +109,9 @@ angular.module('cube')
       // every step (`z ~ x + y`) or the CFS have not been calculated before for
       // the static dependent variable (first dimension, e.g. gender ~ x + y + z)
       if (calculateBestDimensions || typeof dataService.best_dimensions === 'undefined') {
+        // TODO: CFS will currently not work when the dependent variable is `x` or `y`
+        // because this variable will then be passed straight to the CFS R algorihtm
+        // which obviously cant find an element called `x` or `y`
         ocpuBridge.getCorrelationBasedFeatureSelection(dimensionName, dataService.dataset._name).then(function(best_dimensions){
           // Only continue of there is at least one dimension, empty dimensions
           // can be caused by faulty data sets
@@ -136,7 +139,7 @@ angular.module('cube')
               });
           }
           else {
-            console.log("CFS fails for" + currentZDimension);
+            console.log("CFS fails for " + currentZDimension);
             dimensions.splice(dimensions.length - 1, 1);
             // If you are not supposed to stop for this formula, continue
             if (!dataService.stopCalculation[formula.toString()]) {
