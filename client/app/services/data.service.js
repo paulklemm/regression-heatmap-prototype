@@ -9,7 +9,7 @@ angular.module('cube')
     // This flag is set per formula
     dataService.stopCalculation = {};
 
-    // debug_data = dataService.dataset;
+    debug_data = dataService.dataset;
 
     dataService.getCurrentReferenceFormula = function(){
       if (dataService.currentReferenceFormula == 'none')
@@ -129,6 +129,7 @@ angular.module('cube')
             formulas = formula.calculateFormulasDependent(currentZDimension, best_dimensions);
               // Load the R Squared values through the R backend
               ocpuBridge.calculateRSquared(formulas, dataService.dataset._name).then(function(rSquared){
+                console.log(rSquared);
                 dataService.dataset.setRSquared(rSquared, formula);
                 dimensions.splice(dimensions.length - 1, 1);
                 // If you are not supposed to stop for this formula, continue
