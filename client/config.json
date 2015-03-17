@@ -2,8 +2,8 @@
   "servers": [
     {
       "name": "Localhost",
-      "url__": "http://141.44.23.5:5003/ocpu",
-      "url": "http://141.44.23.5:5001/ocpu",
+      "url": "http://141.44.23.5:5003/ocpu",
+      "url__": "http://141.44.23.5:5001/ocpu",
       "url_": "http://localhost:5001/ocpu"
     }
   ],
