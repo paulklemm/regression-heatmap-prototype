@@ -92,20 +92,24 @@ RCUBE.Dataset.prototype.getRSquared = function(comparisonFormula){
         if (typeof activeRSquared[zDimension] !== 'undefined' &&
             typeof activeRSquared[zDimension][yDimension] !== 'undefined' &&
             typeof activeRSquared[zDimension][yDimension][xDimension] !== 'undefined') {
-          var reference = parseFloat(referenceRSquared[zDimension][yDimension][xDimension]);
-          var active = parseFloat(activeRSquared[zDimension][yDimension][xDimension]);
+          var reference = parseFloat(referenceRSquared[zDimension][yDimension][xDimension].rSquared);
+          var active = parseFloat(activeRSquared[zDimension][yDimension][xDimension].rSquared);
           // console.log(referenceRSquared[zDimension][yDimension][xDimension]);
           // console.log(activeRSquared[zDimension][yDimension][xDimension]);
           // console.log("z: " + zDimension + " y: " + yDimension + " x: " + xDimension);
           // console.log("reference - active");
           // console.log(reference + " - " + active);
-          if (isNaN(active) || isNaN(reference))
-            resultRSquared[zDimension][yDimension][xDimension] = 0;
+
+          // Create (possibly messy) result object
+          resultRSquared[zDimension][yDimension][xDimension] = JSON.parse(JSON.stringify(activeRSquared[zDimension][yDimension][xDimension]));
+          if (isNaN(active) || isNaN(reference)) {
+            resultRSquared[zDimension][yDimension][xDimension].rSquared = 0;
+          }
           else
-          resultRSquared[zDimension][yDimension][xDimension] = Math.abs(reference-active);
+            resultRSquared[zDimension][yDimension][xDimension].rSquared = Math.abs(reference-active);
         }
-        else
-          resultRSquared[zDimension][yDimension][xDimension] = 0;
+        // else
+        //   resultRSquared[zDimension][yDimension][xDimension].rSquared = 0;
       });
     });
   });
