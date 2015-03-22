@@ -16,7 +16,25 @@ RCUBE.Cube = function(canvasID, data, dimensions) {
   this._glCubeGeometry = null;
   this._glCubeParticles = null;
   this._dimensionsAlreadyAdded = {};
+  this.createRegressionMaps();
   this.main(canvasID, data, dimensions);
+};
+
+// At the moment, this is the exact copy of the function found in heatmap.js
+RCUBE.Cube.prototype.createRegressionMaps = function() {
+  // Regression types are converted using IDs. These IDs are mapped onto
+  // a ColorBrewer array later on in the visualization to determine the color
+  this._regressionTypeToId = {
+    'logistic': 0,
+    'linear': 1,
+    'median': 2
+  };
+  // Create array to also project this back
+  this._regressionIdToType = [];
+  for (var regressionType in this._regressionTypeToId) {
+    var id = this._regressionTypeToId[regressionType];
+    this._regressionIdToType[id] = regressionType;
+  }
 };
 
 RCUBE.Cube.prototype.update = function(data, dimensions) {
@@ -74,6 +92,7 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
   self._glSliceGeometry = sliceGeometry;
 
   var colorPlane = new THREE.Color("#1f77b4");
+  var regressionIdToColor = d3.scale.category10().domain(d3.range(10));
   var colorPlaneSelection = new THREE.Color("#ff7f0e");
 
   // Iterate over all dimensions and check for values
@@ -137,9 +156,15 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
             geometryPlaneSelection.vertices.push( vertexPlaneSelection );
 
             // var colorPlane = new THREE.Color(transferfunction(data[dimension_z][dimension_y][dimension_x]));
-            // Two times because we also add the mirror element
-            geometryPlane.colors.push(colorPlane);
-            geometryPlaneSelection.colors.push(colorPlaneSelection);
+            // Calculate the color for the current element from the regression type
+            var regressionType = data[dimension_z][dimension_y][dimension_x].regressionType;
+            var regressionId = self._regressionTypeToId[regressionType];
+            var regressionColor = regressionIdToColor(regressionId);
+            regressionColor = new THREE.Color(regressionColor);
+
+            geometryPlane.colors.push(regressionColor);
+            // geometryPlaneSelection.colors.push(colorPlaneSelection);
+            geometryPlaneSelection.colors.push(regressionColor);
             attributesPlane.alpha.value.push(data[dimension_z][dimension_y][dimension_x].rSquared);
             attributesPlaneSelection.alpha.value.push(data[dimension_z][dimension_y][dimension_x].rSquared);
           }

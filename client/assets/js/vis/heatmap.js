@@ -6,6 +6,7 @@ RCUBE.Heatmap = function(canvasID, rSquared, names) {
   this.main(canvasID, this._data);
 };
 
+// At the moment, this is the exact copy of the function found in Cube.js
 RCUBE.Heatmap.prototype.createRegressionMaps = function() {
   // Regression types are converted using IDs. These IDs are mapped onto
   // a ColorBrewer array later on in the visualization to determine the color
@@ -129,8 +130,8 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
 
   var x = d3.scale.ordinal().rangeBands([0, width]),
   // z = d3.scale.linear().domain([0, 4]).clamp(true),
-  z = d3.scale.linear().domain([0, 1]).clamp(true),
-  category = d3.scale.category10().domain(d3.range(10));
+    z = d3.scale.linear().domain([0, 1]).clamp(true),
+    category = d3.scale.category10().domain(d3.range(10));
 
   var svg = d3.select(canvasID).append("svg")
   .attr("width", width + margin.left + margin.right)
