@@ -1,8 +1,25 @@
 RCUBE.Heatmap = function(canvasID, rSquared, names) {
   this._canvasID = canvasID;
   this._lowerMatrix = true;
+  this.createRegressionMaps();
   this._data = this.createHeatmapInput(rSquared, names);
   this.main(canvasID, this._data);
+};
+
+RCUBE.Heatmap.prototype.createRegressionMaps = function() {
+  // Regression types are converted using IDs. These IDs are mapped onto
+  // a ColorBrewer array later on in the visualization to determine the color
+  this._regressionTypeToId = {
+    'logistic': 0,
+    'linear': 1,
+    'median': 2
+  };
+  // Create array to also project this back
+  this._regressionIdToType = [];
+  for (var regressionType in this._regressionTypeToId) {
+    var id = this._regressionTypeToId[regressionType];
+    this._regressionIdToType[id] = regressionType;
+  }
 };
 
 // Create hashmap of sorted names for faster access
@@ -45,6 +62,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
       }
       var value = rSquared[dependent][independent].rSquared;
       var confidenceIntervals = rSquared[dependent][independent].confidenceIntervals;
+      var regressionType = rSquared[dependent][independent].regressionType;
       var coefficients = rSquared[dependent][independent].coefficients;
 
       if (self._lowerMatrix) {
@@ -56,6 +74,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
           link.target = nodesIndex[independent];
           link.value = value;
           link.confidenceIntervals = confidenceIntervals;
+          link.regressionType = self._regressionTypeToId[regressionType];
           link.coefficients = coefficients;
           links.push(link);
         }
@@ -67,6 +86,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
           link_mirror.target = nodesIndex[dependent];
           link_mirror.value = value;
           link_mirror.confidenceIntervals = confidenceIntervals;
+          link_mirror.regressionType = self._regressionTypeToId[regressionType];
           link_mirror.coefficients = coefficients;
           links.push(link_mirror);
         }
@@ -139,8 +159,8 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
   // Convert links to matrix; count character occurrences.
   heatmapData.links.forEach(function(link) {
     matrix[link.source][link.target].z += parseFloat(link.value);
-    // matrix[link.source][link.target].confidenceIntervals = link.confidenceIntervals[0];
     matrix[link.source][link.target].confidenceIntervals = link.confidenceIntervals;
+    matrix[link.source][link.target].regressionType = link.regressionType;
     matrix[link.source][link.target].coefficients = link.coefficients;
     nodes[link.source].count += parseFloat(link.value);
   });
@@ -285,7 +305,7 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
       return z(d.z);
     })
     .style("fill", function(d) {
-      return category(0);
+      return category(d.regressionType);
     })
     .on("mouseover", mouseover)
     .on("mouseout", mouseout);
@@ -305,6 +325,7 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
     var rows = d3.selectAll(".row text");
     var tooltipHtmlContent = "X: " + rows[0][p.x].textContent +
       "<br />Y: " + rows[0][p.y].textContent +
+      "<br />Type: " + self._regressionIdToType[p.regressionType] +
       "<br />R²: " + (Math.round(p.z * 1000) / 1000) +
       "<br />Confidence Intervals" +
       "<br />" + p.confidenceIntervals +
