@@ -50,7 +50,7 @@ angular.module('cube')
         $scope.dependentSelect = heatmapCtrl.dependentOptions[dependentOptionsIndex];
         $scope.$apply();
         // Update the heatmap
-        heatmapCtrl.changeZ(dimension);
+        heatmapCtrl.update(dimension);
       });
 
       $scope.$on('data::updateRSquared', function(){
@@ -72,13 +72,25 @@ angular.module('cube')
         }
       });
 
-      heatmapCtrl.changeZ = function(dimension) {
-        heatmapCtrl.currentDimension = dimension;
-        createHeatmap(dimension);
+      // React to new reference cube
+      $scope.$on('formulaSelector::setNewReference', function(event, referenceData){
+        heatmapCtrl.update();
+      });
+
+      // Update the heatmap either by a redraw or by changing the current dimension
+      heatmapCtrl.update = function(dimension) {
+        // If no dimension is provided, simply do a redraw, otherwise
+        // change the active dimension and then do a redraw
+        if (typeof dimension == 'undefined')
+          createHeatmap(heatmapCtrl.currentDimension);
+        else {
+          heatmapCtrl.currentDimension = dimension;
+          createHeatmap(dimension);
+        }
       };
 
       heatmapCtrl.selectChange = function(){
-        heatmapCtrl.changeZ($scope.dependentSelect.label);
+        heatmapCtrl.update($scope.dependentSelect.label);
         $rootScope.$broadcast('heatmap::visibleSliceChanged', { 'dimension':this.currentDimension });
       };
     },
