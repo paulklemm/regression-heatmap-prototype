@@ -185,17 +185,42 @@
 
   </script>
 
-  <script type="x-shader/x-fragment" id="fragmentshader">
-
+  <!--<script type="x-shader/x-fragment" id="fragmentshader">
+    // attribute float near;
+    // attribute float far;
+    float near = 1.0;
+    float far = 100000.0;
     varying float vAlpha;
     varying vec3 vColor;
+    varying float vDepth;
+    float zNear = near;
+    float zFar = far;
 
     void main() {
-      gl_FragColor = vec4(vColor.rgb, 1);
+    float z_b = vDepth;
+    float z_norm = (z_b - zNear) / (zFar - zNear);
+    float attenB = 0.45;
+    vec3 depthA=vec3(0);
+    if (z_norm > attenB)
+    {
+    float dA = (z_norm - attenB)*5.0f;
+    depthA = vec3(dA);
+    }
+      gl_FragColor = vec4(vColor.rgb+depthA, 1);
       gl_FragColor.a *= vAlpha;
     }
+  </script>-->
 
-</script>
+  <script type="x-shader/x-fragment" id="fragmentshader">
+
+     varying float vAlpha;
+     varying vec3 vColor;
+
+     void main() {
+       gl_FragColor = vec4(vColor.rgb, 1);
+       gl_FragColor.a *= vAlpha;
+     }
+  </script>
 
   <div id='cog' class=''>
     <div class='inner'>
