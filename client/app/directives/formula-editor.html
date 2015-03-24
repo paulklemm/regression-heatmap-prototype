@@ -11,7 +11,7 @@
   <formula-selector></formula-selector>
 </div>
 <div class="input-group">
-  <input id='formula-input' ng-class="{'invalid': !editor.regressionFormula.isValid()}" ng-disabled="!editor.enabled" class="form-control" type="text" ng-model='formulaInput' ng-change='editor.formulaChange()' ng-blur='editor.popup.show = false' ng-focus='editor.popup.show = true'
+  <input id='formula-input' size=50 ng-class="{'invalid': !editor.regressionFormula.isValid()}" ng-disabled="!editor.enabled" class="form-control" type="text" ng-model='formulaInput' ng-change='editor.formulaChange()' ng-blur='editor.popup.show = false' ng-focus='editor.popup.show = true'
   placeholder='z ~ x + y' />
   <!-- <input id='formula-input' class="form-control" type="text" ng-change='editor.formulaChange()' ng-blur='editor.popup.show = false' ng-focus='editor.popup.show = true' placeholder='x + y'/> -->
   <div class="input-group-btn">
