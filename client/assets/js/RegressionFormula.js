@@ -112,7 +112,8 @@ RCUBE.RegressionFormula.prototype.calculateFormulasDependent = function(variable
   variables.forEach(function(variable_x, x){
     variables.forEach(function(variable_y, y){
       // Only calculate the upper part of the matrix
-      if (x != y && y > x && variable_x != variable_dependent && variable_y != variable_dependent) {
+      // if (x != y && y > x && variable_x != variable_dependent && variable_y != variable_dependent) {
+      if (y >= x && variable_x != variable_dependent && variable_y != variable_dependent) {
         // Attach all information necessary to the current formula to project their results back
         formulaResult = self.constructFormula(self._variables, self._operators, variable_x, variable_y, variable_dependent);
         formulaResult.x = variable_x;
