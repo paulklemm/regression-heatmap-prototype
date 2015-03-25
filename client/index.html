@@ -152,6 +152,7 @@
     varying float vAlpha;
     // Coloring: https://stackoverflow.com/questions/25740054/three-js-passing-vertex-colors-to-fragment-shader
     varying vec3 vColor;
+    varying float vDepth;
 
     void main() {
       vColor = color;
@@ -163,6 +164,7 @@
       // gl_PointSize = 1200.0 / length( mvPosition.xyz );
       gl_PointSize = 3000.0 / length( mvPosition.xyz );
       gl_Position = newProjectionMatrix * mvPosition;
+      vDepth = gl_Position.z;
     }
 
   </script>
@@ -212,13 +214,46 @@
     }
   </script>-->
 
-  <script type="x-shader/x-fragment" id="fragmentshader">
+  <script type="x-shader/x-fragment" id="fragmentshaderCurrentSlice">
 
      varying float vAlpha;
      varying vec3 vColor;
 
      void main() {
        gl_FragColor = vec4(vColor.rgb, 1);
+       gl_FragColor.a *= vAlpha;
+     }
+  </script>
+
+  <script type="x-shader/x-fragment" id="fragmentshader">
+
+     varying float vAlpha;
+     varying vec3 vColor;
+
+     varying float vDepth;
+     // need camerapos.z: it is set in the init() function: camera.position.z = 300;
+     // need cubes's extent: var geometry2 = new THREE.BoxGeometry( 0.8 * radius, ...
+     float cameraPositionZ=300.0;
+     float cubeExtent=80.0;
+
+     void main() {
+
+       // hier gehts los
+       float z_b = vDepth;
+       float zNear=cameraPositionZ-sqrt(3.0)*cubeExtent/2.0;
+       float zFar =cameraPositionZ+sqrt(3.0)*cubeExtent/2.0;
+       //  float z_norm = (z_b - zNear) / (zFar - zNear);
+       float z_norm = (1.0/z_b - 1.0/zNear) / (1.0/zFar - 1.0/zNear);
+       // hier setzt du die grenze ab wann du die attenuation setzen möchtest
+       float attenB = 0.3;
+       vec3 depthA=vec3(0.0);
+
+       if (z_norm > attenB) {
+         float dA = (z_norm - attenB)*2.0;
+         depthA = vec3(dA);
+       }
+
+       gl_FragColor = vec4(vColor.rgb + depthA, 1);
        gl_FragColor.a *= vAlpha;
      }
   </script>

@@ -122,7 +122,8 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
         vertexColors:   THREE.VertexColors,
         attributes:     attributesPlaneSelection,
         vertexShader:   document.getElementById( 'vertexshaderCurrentSlice' ).textContent,
-        fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+        // fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+        fragmentShader: document.getElementById( 'fragmentshaderCurrentSlice' ).textContent,
         // Depth Test: https://github.com/mrdoob/three.js/issues/1928
         depthTest:false,
         transparent: true
