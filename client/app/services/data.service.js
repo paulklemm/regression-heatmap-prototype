@@ -239,6 +239,7 @@ angular.module('cube')
           dataService.dataset.setRSquaredGlobal(rSquared, dataService.regressionFormula);
           $rootScope.$broadcast('data::formulaComplete');
           $rootScope.$broadcast('data::updateRSquared');
+          console.log(dataService.dataset);
         }
       });
 

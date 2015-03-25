@@ -65,6 +65,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
       var confidenceIntervals = rSquared[dependent][independent].confidenceIntervals;
       var regressionType = rSquared[dependent][independent].regressionType;
       var coefficients = rSquared[dependent][independent].coefficients;
+      var featureCount = rSquared[dependent][independent].featureCount;
 
       if (self._lowerMatrix) {
         // Create a lower matrix diagonal
@@ -77,6 +78,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
           link.confidenceIntervals = confidenceIntervals;
           link.regressionType = self._regressionTypeToId[regressionType];
           link.coefficients = coefficients;
+          link.featureCount = featureCount;
           links.push(link);
         }
         else {
@@ -89,6 +91,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
           link_mirror.confidenceIntervals = confidenceIntervals;
           link_mirror.regressionType = self._regressionTypeToId[regressionType];
           link_mirror.coefficients = coefficients;
+          link_mirror.featureCount = featureCount;
           links.push(link_mirror);
         }
       }
@@ -163,6 +166,7 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
     matrix[link.source][link.target].confidenceIntervals = link.confidenceIntervals;
     matrix[link.source][link.target].regressionType = link.regressionType;
     matrix[link.source][link.target].coefficients = link.coefficients;
+    matrix[link.source][link.target].featureCount = link.featureCount;
     nodes[link.source].count += parseFloat(link.value);
   });
 
@@ -328,6 +332,8 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
       "<br />Y: " + rows[0][p.y].textContent +
       "<br />Type: " + self._regressionIdToType[p.regressionType] +
       "<br />R²: " + (Math.round(p.z * 1000) / 1000) +
+      "<br />Feature Count" +
+      "<br />" + p.featureCount +
       "<br />Confidence Intervals" +
       "<br />" + p.confidenceIntervals +
       "<br />Coefficients" +
