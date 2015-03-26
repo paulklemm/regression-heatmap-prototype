@@ -14,6 +14,7 @@ RCUBE.RegressionFormula = function(formula, validVariables) {
   else
     this._validVariables = validVariables;
   this._errorText = '';
+  this._dependentVariableIsStatic = null;
   this.update(formula);
 };
 
@@ -38,6 +39,10 @@ RCUBE.RegressionFormula.prototype.constructFormulaNotSymmetric = function(variab
       dependent_variable = current_variable;
   });
   return({formula:result_formula, dependentVariable:dependent_variable});
+};
+
+RCUBE.RegressionFormula.prototype.dependentVariableIsStatic = function() {
+  return this._dependentVariableIsStatic;
 };
 
 // constructFormula(['z','x','y'], ['~', '+', '-'], 'age', 'gender', 'bmi')
@@ -205,8 +210,14 @@ RCUBE.RegressionFormula.prototype.update = function() {
   if (this._valid) {
     this._variables.forEach(function(variable, index) {
       // Store as dependent Variable if it is the first one
-      if (index === 0)
+      if (index === 0) {
         self._dependentVariable = variable;
+        // Test if the dependent variable is static or not
+        if (['x', 'y', 'z'].indexOf(self._dependentVariable) == -1)
+          self._dependentVariableIsStatic = true;
+        else
+          self._dependentVariableIsStatic = false;
+      }
       // check if the current variable is valid using the
       // valid variables as well as x, y and z
       if (self._validVariables.indexOf(variable) == -1 && ['x', 'y', 'z'].indexOf(variable) == -1) {

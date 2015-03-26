@@ -1,5 +1,5 @@
 (function() {
-RCUBE.Cube = function(canvasID, data, dimensions) {
+RCUBE.Cube = function(canvasID, data, dimensions, normalizeUsingRays) {
   // Since the Heatmap visualization is also sorted by name, we do the same thing here!
   this._canvasID = canvasID;
   // Displays the FPS Stats view if true
@@ -15,6 +15,11 @@ RCUBE.Cube = function(canvasID, data, dimensions) {
   this._glSliceGeometry = undefined;
   this._glCubeGeometry = null;
   this._glCubeParticles = null;
+  if (typeof normalizeUsingRays == 'undefined')
+    this._normalizeUsingRays = false;
+  else
+  this._normalizeUsingRays = normalizeUsingRays;
+  console.log("Normalize using rays is " + this._normalizeUsingRays);
   this._dimensionsAlreadyAdded = {};
   this.createRegressionMaps();
   this.main(canvasID, data, dimensions);
@@ -95,6 +100,32 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
   var regressionIdToColor = d3.scale.category10().domain(d3.range(10));
   var colorPlaneSelection = new THREE.Color("#ff7f0e");
 
+  var rSquaredMeanCount = {};
+  dimensions.forEach(function(dimension_z, z) {
+    dimensionsSorted.forEach(function(dimension_y, y) {
+      dimensionsSorted.forEach(function(dimension_x, x) {
+        if (typeof data[dimension_z] != 'undefined' &&
+          typeof data[dimension_z][dimension_y] != 'undefined' &&
+          typeof data[dimension_z][dimension_y][dimension_x] != 'undefined') {
+            if (typeof rSquaredMeanCount[dimension_y] == 'undefined')
+              rSquaredMeanCount[dimension_y] = {};
+            if (typeof rSquaredMeanCount[dimension_y][dimension_x] == 'undefined')
+              rSquaredMeanCount[dimension_y][dimension_x] = {};
+            if (typeof rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum == 'undefined') {
+              rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum = 0;
+              rSquaredMeanCount[dimension_y][dimension_x].rSquaredCount = 0;
+            }
+            var currentRSquared = parseFloat(data[dimension_z][dimension_y][dimension_x].rSquared);
+            if (!isNaN(currentRSquared)) {
+              rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum += currentRSquared;
+            // console.log(parseFloat(data[dimension_z][dimension_y][dimension_x].rSquared));
+              rSquaredMeanCount[dimension_y][dimension_x].rSquaredCount += 1;
+            }
+        }
+      });
+    });
+  });
+
   // Iterate over all dimensions and check for values
   // dimensions.forEach(function(dimension_z, z) {
   // console.log(self._dimensionsAlreadyAdded);
@@ -165,7 +196,23 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
             geometryPlane.colors.push(regressionColor);
             // geometryPlaneSelection.colors.push(colorPlaneSelection);
             geometryPlaneSelection.colors.push(regressionColor);
-            attributesPlane.alpha.value.push(data[dimension_z][dimension_y][dimension_x].rSquared);
+
+            var meanRSquaredForRay = rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum / rSquaredMeanCount[dimension_y][dimension_x].rSquaredCount;
+            // console.log("rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum " + rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum);
+            // console.log("rSquaredMeanCount[dimension_y][dimension_x].rSquaredCount " + rSquaredMeanCount[dimension_y][dimension_x].rSquaredCount);
+            // console.log("meanRSquaredForRay: " + meanRSquaredForRay);
+            var meanRSquared = Math.abs(data[dimension_z][dimension_y][dimension_x].rSquared - meanRSquaredForRay);
+            // console.log("rSquared: " + data[dimension_z][dimension_y][dimension_x].rSquared);
+            // console.log("meanRSquared: " + meanRSquared);
+
+            // Do not normalize using the rays, use plain rSquared features
+            if (self._normalizeUsingRays) {
+              attributesPlane.alpha.value.push(meanRSquared);
+              console.log("meanRSquared: " + meanRSquared + "; rSquared: " + data[dimension_z][dimension_y][dimension_x].rSquared);
+            }
+            else
+              attributesPlane.alpha.value.push(data[dimension_z][dimension_y][dimension_x].rSquared);
+
             attributesPlaneSelection.alpha.value.push(data[dimension_z][dimension_y][dimension_x].rSquared);
           }
         });

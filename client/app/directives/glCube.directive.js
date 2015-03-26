@@ -36,8 +36,9 @@ angular.module('cube')
           // HACK: For some reason, when initialized inside of a Angular controlled
           // Div, the THREE.js Trackball Controls dont work as expected
           // Launching the cube delayed works fine
+
           setTimeout(function(){
-            glCubeCtrl.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset.getDimensionNames().slice().reverse());
+            glCubeCtrl.threeCube = new RCUBE.Cube('cube', data.dataset.getRSquared(), data.dataset.getDimensionNames().slice().reverse(), data.regressionFormula.dependentVariableIsStatic());
           }, 10);
         }
         else {
