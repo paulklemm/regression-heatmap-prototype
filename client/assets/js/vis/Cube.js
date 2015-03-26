@@ -208,7 +208,7 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
             // Do not normalize using the rays, use plain rSquared features
             if (self._normalizeUsingRays) {
               attributesPlane.alpha.value.push(meanRSquared);
-              console.log("meanRSquared: " + meanRSquared + "; rSquared: " + data[dimension_z][dimension_y][dimension_x].rSquared);
+              // console.log("meanRSquared: " + meanRSquared + "; rSquared: " + data[dimension_z][dimension_y][dimension_x].rSquared);
             }
             else
               attributesPlane.alpha.value.push(data[dimension_z][dimension_y][dimension_x].rSquared);

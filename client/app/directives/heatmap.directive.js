@@ -42,7 +42,7 @@ angular.module('cube')
       $scope.$on('glCube::updatePlane', function(event, args) {
         // Get the selected dimension
         var dimension = args.dimension;
-        console.log("Update Plane to " + dimension);
+        // console.log("Update Plane to " + dimension);
         // Update the select UI element
         // Get the index of the currently selected dimension
         var dependentOptionsIndex = heatmapCtrl.dependentOptionsAdded[dimension];
