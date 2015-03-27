@@ -466,9 +466,10 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
 
 
     // [Geometry] Add Slicing Plane
-    // planeSize = (dimensions.length * self._sliceDistance) + 100;
-    planeSizeX = (dimensions.length * self._sliceDistanceX) + 100;
-    planeSizeY = (dimensions.length * self._sliceDistanceY) + 100;
+    // var planeSizeX = (dimensions.length * self._sliceDistanceX) + 100;
+    // var planeSizeY = (dimensions.length * self._sliceDistanceY) + 100;
+    planeSizeX = (dimensions.length * self._sliceDistanceX);
+    planeSizeY = (dimensions.length * self._sliceDistanceY);
     slicingPlane = new THREE.PlaneGeometry(planeSizeX, planeSizeY);
     var slicingPlaneMaterial = new THREE.MeshBasicMaterial( {color: 0xB0B0B0, opacity: 0.8, side: THREE.DoubleSide} );
     var plane = new THREE.Mesh( slicingPlane, slicingPlaneMaterial );
@@ -477,6 +478,30 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     plane.visible = false;
     // plane.rotateY(initRotation);
     scene.add( plane );
+
+    // Side Planes
+    var sidePlaneBackMaterial = new THREE.MeshBasicMaterial( {color: 0x000000, opacity: 0.03, side: THREE.DoubleSide} );
+    var planeBackGeo = new THREE.PlaneGeometry(dimensions.length * self._sliceDistanceX, dimensions.length * self._sliceDistanceY);
+    var planeBack = new THREE.Mesh( planeBackGeo, sidePlaneBackMaterial );
+    planeBack.position.setZ(-1 * ((dimensions.length * self._sliceDistanceZ) / 2));
+    scene.add( planeBack );
+
+    var sidePlaneSideMaterial = new THREE.MeshBasicMaterial( {color: 0x000000, opacity: 0.03, side: THREE.DoubleSide} );
+    var planeSideGeo = new THREE.PlaneGeometry(dimensions.length * self._sliceDistanceX, dimensions.length * self._sliceDistanceZ);
+    var planeSide = new THREE.Mesh( planeSideGeo, sidePlaneSideMaterial );
+    planeSide.rotateX(90 * (Math.PI / 180));
+    planeSide.position.setY((dimensions.length * self._sliceDistanceY) / 2);
+    scene.add( planeSide );
+
+    var sidePlaneBottomMaterial = new THREE.MeshBasicMaterial( {color: 0x000000, opacity: 0.06, side: THREE.DoubleSide} );
+    var planeBottomGeo = new THREE.PlaneGeometry(dimensions.length * self._sliceDistanceZ, dimensions.length * self._sliceDistanceX);
+    var planeBottom = new THREE.Mesh( planeBottomGeo, sidePlaneBottomMaterial );
+    planeBottom.rotateY(90 * (Math.PI / 180));
+    planeBottom.position.setX(-1*(dimensions.length * self._sliceDistanceX) / 2);
+    scene.add( planeBottom );
+    debug_plane = planeBottom;
+
+
 
     // Renderer
     renderer = new THREE.WebGLRenderer({ alpha:true });
