@@ -148,25 +148,24 @@
 <!--  TODO: Export the Shaders to an external file -->
   <script type="x-shader/x-vertex" id="vertexshader">
 
-    attribute float alpha;
-    varying float vAlpha;
-    // Coloring: https://stackoverflow.com/questions/25740054/three-js-passing-vertex-colors-to-fragment-shader
-    varying vec3 vColor;
-    varying float vDepth;
+  attribute float alpha;
+  varying float vAlpha;
+  // Coloring: https://stackoverflow.com/questions/25740054/three-js-passing-vertex-colors-to-fragment-shader
+  varying vec3 vColor;
+  varying float vDepth;
 
-    void main() {
-      vColor = color;
-      vAlpha = alpha;
-      mat4 newViewMatrix = modelViewMatrix;
-      mat4 newProjectionMatrix = projectionMatrix;
-      vec4 mvPosition = newViewMatrix * vec4( position, 1.0 );
-      // gl_PointSize = 3700.0 / length( mvPosition.xyz );
-      // gl_PointSize = 1200.0 / length( mvPosition.xyz );
-      gl_PointSize = 3000.0 / length( mvPosition.xyz );
-      gl_Position = newProjectionMatrix * mvPosition;
-      vDepth = gl_Position.z;
-    }
-
+  void main() {
+    vColor = color;
+    vAlpha = alpha;
+    mat4 newViewMatrix = modelViewMatrix;
+    mat4 newProjectionMatrix = projectionMatrix;
+    vec4 mvPosition = newViewMatrix * vec4( position, 1.0 );
+    // gl_PointSize = 3700.0 / length( mvPosition.xyz );
+    // gl_PointSize = 1200.0 / length( mvPosition.xyz );
+    gl_PointSize = 3000.0 / length( mvPosition.xyz );
+    gl_Position = newProjectionMatrix * mvPosition;
+    vDepth = gl_Position.z;
+  }
   </script>
 
   <script type="x-shader/x-vertex" id="vertexshaderCurrentSlice">
@@ -227,35 +226,37 @@
 
   <script type="x-shader/x-fragment" id="fragmentshader">
 
-     varying float vAlpha;
-     varying vec3 vColor;
+  // attribute float near;
+    // attribute float far;
+    float near = 1.0;
+    float far = 100000.0;
+    varying float vAlpha;
+    varying vec3 vColor;
+    varying float vDepth;
+    float zNear = near;
+    float zFar = far;
 
-     varying float vDepth;
-     // need camerapos.z: it is set in the init() function: camera.position.z = 300;
-     // need cubes's extent: var geometry2 = new THREE.BoxGeometry( 0.8 * radius, ...
-     float cameraPositionZ=300.0;
-     float cubeExtent=80.0;
+    void main() {
+    float z_b = vDepth;
+    float z_norm = (z_b - zNear) / (zFar - zNear);
+    float attenB = 0.5;
+    vec3 depthA=vec3(0.0);
+    if (z_norm > attenB)
+    {
+    float dA = (z_norm - attenB)*2.0;
+    depthA = vec3(dA);
+    }
 
-     void main() {
-
-       // hier gehts los
-       float z_b = vDepth;
-       float zNear=cameraPositionZ-sqrt(3.0)*cubeExtent/2.0;
-       float zFar =cameraPositionZ+sqrt(3.0)*cubeExtent/2.0;
-       //  float z_norm = (z_b - zNear) / (zFar - zNear);
-       float z_norm = (1.0/z_b - 1.0/zNear) / (1.0/zFar - 1.0/zNear);
-       // hier setzt du die grenze ab wann du die attenuation setzen möchtest
-       float attenB = 0.3;
-       vec3 depthA=vec3(0.0);
-
-       if (z_norm > attenB) {
-         float dA = (z_norm - attenB)*2.0;
-         depthA = vec3(dA);
-       }
-
-       gl_FragColor = vec4(vColor.rgb + depthA, 1);
-       gl_FragColor.a *= vAlpha;
-     }
+    vec2 coord=(gl_PointCoord);
+    float border=0.05*pow(1.0-depthA.x,1.0);
+    if(coord.x<border || coord.x>1.0 - border || coord.y<border || coord.y>1.0 - border)
+    gl_FragColor = vec4( vec3(0.0,0.0,0.0)+depthA,1.0 );
+    else
+    {
+    gl_FragColor = vec4(vColor.rgb+depthA, 1);
+    gl_FragColor.a *= vAlpha;
+    }
+  }
   </script>
 
   <div id='cog' class=''>
