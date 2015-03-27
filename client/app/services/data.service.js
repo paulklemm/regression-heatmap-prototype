@@ -158,6 +158,7 @@ angular.module('cube')
         console.log("Skipped dimension calculation");
         console.log("CFS Dimensions for " + currentZDimension);
         console.log(best_dimensions);
+        var start = new Date().getTime();
         dataService.dataset._cfsDimensionNames[currentZDimension] = best_dimensions;
         formulas = formula.calculateFormulasDependent(currentZDimension, best_dimensions);
         // Load the R Squared values through the R backend
@@ -167,6 +168,10 @@ angular.module('cube')
           // If you are not supposed to stop for this formula, continue
           if (!dataService.stopCalculation[formula.toString()]) {
             $rootScope.$broadcast('data::updateRSquared');
+            var stop = new Date().getTime();
+            var duration = ((stop - start) / 1000) / 60;
+            var estimated = duration * dimensions.length;
+            console.log("Took " + duration + " minutes. Estimated: " + estimated);
             calculateRSquaredSequential(dimensions, formula);
           }
         });

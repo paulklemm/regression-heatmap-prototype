@@ -126,6 +126,9 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
     });
   });
 
+  // HACK:
+  var firstcolor = null;
+
   // Iterate over all dimensions and check for values
   // dimensions.forEach(function(dimension_z, z) {
   // console.log(self._dimensionsAlreadyAdded);
@@ -192,10 +195,13 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
             var regressionId = self._regressionTypeToId[regressionType];
             var regressionColor = regressionIdToColor(regressionId);
             regressionColor = new THREE.Color(regressionColor);
+            if (firstcolor === null)
+              firstcolor = regressionColor;
 
-            geometryPlane.colors.push(regressionColor);
-            // geometryPlaneSelection.colors.push(colorPlaneSelection);
-            geometryPlaneSelection.colors.push(regressionColor);
+            // geometryPlane.colors.push(regressionColor);
+            // geometryPlaneSelection.colors.push(regressionColor);
+            geometryPlane.colors.push(firstcolor);
+            geometryPlaneSelection.colors.push(firstcolor);
 
             var meanRSquaredForRay = rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum / rSquaredMeanCount[dimension_y][dimension_x].rSquaredCount;
             // console.log("rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum " + rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum);
