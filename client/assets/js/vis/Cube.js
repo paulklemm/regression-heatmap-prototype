@@ -198,10 +198,10 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
             if (firstcolor === null)
               firstcolor = regressionColor;
 
-            // geometryPlane.colors.push(regressionColor);
-            // geometryPlaneSelection.colors.push(regressionColor);
-            geometryPlane.colors.push(firstcolor);
-            geometryPlaneSelection.colors.push(firstcolor);
+            geometryPlane.colors.push(regressionColor);
+            geometryPlaneSelection.colors.push(regressionColor);
+            // geometryPlane.colors.push(firstcolor);
+            // geometryPlaneSelection.colors.push(firstcolor);
 
             var meanRSquaredForRay = rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum / rSquaredMeanCount[dimension_y][dimension_x].rSquaredCount;
             // console.log("rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum " + rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum);
