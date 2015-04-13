@@ -151,7 +151,15 @@ if (!window.jQuery) {
       }
       handler(new Session(loc, key, txt));
     }).fail(function() {
-      console.log("OpenCPU error HTTP " + jqxhr.status + "\n" + jqxhr.responseText);
+      var error = "OpenCPU error HTTP " + jqxhr.status + "\n" + jqxhr.responseText;
+      console.log(error);
+      // HACK: This should be done through Angular!
+      if (error == "OpenCPU error HTTP 0\nundefined")
+        $('#opencpu-error-server-down').show();
+      else {
+        $('#opencpu-error-text').text(error);
+        $('#opencpu-error').show();
+      }
     });
 
     //function chaining

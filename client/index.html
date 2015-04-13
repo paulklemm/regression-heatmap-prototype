@@ -117,7 +117,7 @@
       text-decoration: inherit;
       position: absolute;
       font-size: 800px;
-      color: rgba(250, 250, 250, 1);
+      color: rgba(245, 245, 245, 1);
       ;
       top: 50%;
       left: 50%;
@@ -165,7 +165,7 @@
       vec4 mvPosition = newViewMatrix * vec4( position, 1.0 );
       // gl_PointSize = 3700.0 / length( mvPosition.xyz );
       // gl_PointSize = 1200.0 / length( mvPosition.xyz );
-      gl_PointSize = 3000.0 / length( mvPosition.xyz );
+      gl_PointSize = 3200.0 / length( mvPosition.xyz );
       gl_Position = newProjectionMatrix * mvPosition;
     }
 
@@ -184,7 +184,7 @@
       mat4 newViewMatrix = modelViewMatrix;
       mat4 newProjectionMatrix = projectionMatrix;
       vec4 mvPosition = newViewMatrix * vec4( position, 1.0 );
-      gl_PointSize = 7000.0 / length( mvPosition.xyz );
+      gl_PointSize = 4200.0 / length( mvPosition.xyz );
       gl_Position = newProjectionMatrix * mvPosition;
     }
 
@@ -227,13 +227,46 @@
      }
   </script>
 
+  <!-- Help Modal -->
+  <div class="modal fade" id='help-modal'>
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Regression Cube Help</h4>
+        </div>
+        <div class="modal-body">
+          <h4>3D-Cube Interaction</h4>
+            <ul>
+              <li>Mousewheel input: zoom in/out.</li>
+              <li>ALT key pressed + mouse up/down: move slice foward/backward.</li>
+              <li>Left mouse: rotate cube.</li>
+            </ul>
+          <h4>Example file</h4>
+          <p>
+            Please find a minimal CSV example file <a href="http://www.visualizing.org/datasets/mqic-patient-data-100k-sample">here at visualizing.org</a>. Please remove the comment on the first three lines. The first line should be "<i>gender,age,diab,hypertension,stroke,chd,smoking,bmi</i>".
+            <br>
+            Note that this example has very few features.
+          </p>
+          <p>
+            For legal issues we cannot publish the large epidemiological data set used in the paper.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
   <div id='cog' class=''>
     <div class='inner'>
       <nav class="navbar navbar-default">
         <div class="container-fluid">
           <div class="navbar-header">
-            <a class="navbar-brand" href="#">
-              <p>Regression Cube <i class="fa fa-cog fa-spin hidden"></i></p>
+            <a class="navbar-brand">
+              <p>Regression Cube <i class="fa fa-question-circle" data-toggle="modal" data-target="#help-modal"></i> <i class="fa fa-cog fa-spin hidden"></i></p>
             </a>
           </div>
           <div class="pull-right">
@@ -245,6 +278,23 @@
       </nav>
       <div class=container>
         <div class='row'>
+
+          <div id='opencpu-error' style='display:none' class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>Something went wrong!</strong> Regression Cube cannot proccess your data set, because R crashed using it:
+            <br /><br />
+            <i><p id='opencpu-error-text'></p></i>
+            <strong>Use proper formatting.</strong> Please check if the file is valid CSV. The first row should contain the feature names. Numerical features are denoted using solely numerical input (e.g., by "0" or 0). Strings either with or without enclosing quotation marks are automatically recognized as categorical features.
+            <br /><br />
+            <strong>The site currently does not work using HTTPS. </strong> Please use <a href="http://regressioncube.herokuapp.com/">http://regressioncube.herokuapp.com/</a> to access the site, since HTTPS is currently unsuported.
+            <br /><br />
+            If the problem persists, please <a href='mailto:paul@isg.cs.uni-magdeburg.de'>contact me</a>.
+          </div>
+          <div id='opencpu-error-server-down' style='display:none' class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>The backend server is down!</strong> Please send me a mail at <a href="mailto:paul@isg.cs.uni-magdeburg.de">paul@isg.cs.uni-magdeburg.de</a> and I will reboot the server!
+          </div>
+
           <div class='col-md-4 col-md-offset-4'>
             <file-upload></file-upload>
           </div>
