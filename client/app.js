@@ -1,5 +1,5 @@
 (function() {
-var app = angular.module('cube', ['flow', 'ngAnimate']);
+var app = angular.module('cube', ['flow', 'ngAnimate', 'ui-rangeSlider']);
 // Constructor Code
 app.run(['$rootScope', '$http', 'ocpuBridge', 'data', function($rootScope, $http, ocpuBridge, data) {
   // Load the file containing all servers
