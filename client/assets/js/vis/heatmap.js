@@ -1,8 +1,9 @@
-RCUBE.Heatmap = function(canvasID, rSquared, names) {
+RCUBE.Heatmap = function(canvasID, rSquared, names, metric) {
   this._canvasID = canvasID;
   this._lowerMatrix = true;
+  this._metric = metric;
   this.createRegressionMaps();
-  this._data = this.createHeatmapInput(rSquared, names);
+  this._data = this.createHeatmapInput(rSquared, names, metric);
   this.main(canvasID, this._data);
 };
 
@@ -33,7 +34,7 @@ RCUBE.Heatmap.prototype.getSortedNames = function(names){
   return sortedNames;
 };
 
-RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
+RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names, metric) {
   self = this;
   var createNode = function(name, index) {
     var node = {};
@@ -61,9 +62,15 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
         nodes.push(createNode(independent, nodes.length));
         nodesIndex[independent] = nodes.length - 1;
       }
-      var value = rSquared[dependent][independent].rSquared;
-      var confidenceIntervals = rSquared[dependent][independent].confidenceIntervals;
+      // Set the dependent value dependent on the metric variable
+      var value;
       var regressionType = rSquared[dependent][independent].regressionType;
+      if (metric == 'rSquared' || regressionType != 'linear')
+        value = rSquared[dependent][independent].rSquared;
+      else if (metric == 'adjrSquared')
+        value = rSquared[dependent][independent].adjrSquared;
+
+      var confidenceIntervals = rSquared[dependent][independent].confidenceIntervals;
       var coefficients = rSquared[dependent][independent].coefficients;
       var featureCount = rSquared[dependent][independent].featureCount;
       var adjrSquared = rSquared[dependent][independent].adjrSquared;
@@ -132,7 +139,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
   return {"nodes": nodes, "links": links};
 };
 
-RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
+RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData, metric) {
   var self = this;
   var nodes = heatmapData.nodes;
   var margin = {
@@ -359,7 +366,7 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
       "<br />Coefficients" +
       "<br />" + p.coefficients +
       "<br />adjrSquared" +
-      "<br />" + p.adjrSquared + 
+      "<br />" + p.adjrSquared +
       "<br />aic" +
       "<br />" + p.aic +
       "<br />fstatisticTable" +

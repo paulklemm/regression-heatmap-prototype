@@ -7,6 +7,7 @@ angular.module('cube')
       var heatmapCtrl = this;
       heatmapCtrl.orderVisible = false;
       heatmapCtrl.dependent = undefined;
+      //heatmapCtrl.metric = {};
       // Attach Pulse
       var pulse = new RCUBE.Pulse('#heatmap-pulse-container');
 
@@ -21,7 +22,7 @@ angular.module('cube')
         var names = data.dataset.getDimensionNames().slice();
         // var rSquared = data.dataset.getRSquared()[dependentVariable];
         var rSquared = data.dataset.getRSquared(data.getCurrentReferenceFormula())[dependentVariable];
-        var myHeatmap = new RCUBE.Heatmap(".my-heatmap", rSquared, names);
+        var myHeatmap = new RCUBE.Heatmap(".my-heatmap", rSquared, names, $scope.metric);
         heatmapCtrl.visible = true;
       };
 
@@ -76,6 +77,10 @@ angular.module('cube')
       $scope.$on('formulaSelector::setNewReference', function(event, referenceData){
         heatmapCtrl.update();
       });
+
+      heatmapCtrl.metricChange = function(){
+        heatmapCtrl.update();
+      };
 
       // Update the heatmap either by a redraw or by changing the current dimension
       heatmapCtrl.update = function(dimension) {

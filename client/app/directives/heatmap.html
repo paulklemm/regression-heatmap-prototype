@@ -7,6 +7,11 @@
         <select id='depentent-heatmap' class='form-control' ng-change='heatmapCtrl.selectChange()' ng-model="dependentSelect" ng-options="opt as opt.label for opt in heatmapCtrl.dependentOptions">
         </select>
         <span id='heatmap-pulse-container'></span>
+        <label class='control-label' for='dependent-metric'>Regression Metric</label>
+        <select id="dependent-metric" class='form-control', ng-init="metric = 'rSquared'", ng-model='metric', ng-change='heatmapCtrl.metricChange()'>
+          <option value="rSquared">R²</option>
+          <option value="adjrSquared">Adjusted R²</option>
+        </select>
         <label ng-show="heatmapCtrl.orderVisible" for='order-heatmap'>Order Heatmap</label>
         <select ng-show="heatmapCtrl.orderVisible" id="order-heatmap" class='form-control'>
           <option value="name">by Name</option>
