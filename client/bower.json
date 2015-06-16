@@ -25,6 +25,7 @@
     "jquery-textcomplete": "~0.3.7",
     "font-awesome": "~4.3.0",
     "threejs": "r69",
-    "threejs-examples": "r69"
+    "threejs-examples": "r69",
+    "angular-rangeslider": "~0.0.14"
   }
 }
