@@ -65,6 +65,12 @@ RCUBE.Dataset.prototype.setRSquared = function(formulaResults, formula) {
     self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y].confidenceIntervals = currentResult.confidenceIntervals;
     self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y].coefficients = currentResult.coefficients;
     self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y].regressionType = currentResult.regressionType;
+    self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y].adjrSquared = currentResult.adjrSquared;
+    self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y].aic = currentResult.aic;
+    self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y].fstatisticTable = currentResult.fstatisticTable;
+    self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y].fstatistic = currentResult.fstatistic;
+    self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y].residuals = currentResult.residuals;
+    self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y].residuals = currentResult.residuals.split(",").map(Number);
     self._rSquared[formula.toString()][currentResult.z][currentResult.x][currentResult.y].featureCount = currentResult.featureCount;
   });
 };

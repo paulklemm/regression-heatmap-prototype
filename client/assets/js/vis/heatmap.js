@@ -66,6 +66,11 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
       var regressionType = rSquared[dependent][independent].regressionType;
       var coefficients = rSquared[dependent][independent].coefficients;
       var featureCount = rSquared[dependent][independent].featureCount;
+      var adjrSquared = rSquared[dependent][independent].adjrSquared;
+      var aic = rSquared[dependent][independent].aic;
+      var fstatisticTable = rSquared[dependent][independent].fstatisticTable;
+      var fstatistic = rSquared[dependent][independent].fstatistic;
+      var residuals = rSquared[dependent][independent].residuals;
 
       if (self._lowerMatrix) {
         // Create a lower matrix diagonal
@@ -79,6 +84,11 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
           link.regressionType = self._regressionTypeToId[regressionType];
           link.coefficients = coefficients;
           link.featureCount = featureCount;
+          link.adjrSquared = adjrSquared;
+          link.aic = aic;
+          link.fstatisticTable = fstatisticTable;
+          link.fstatistic = fstatistic;
+          link.residuals = residuals;
           links.push(link);
         }
         else {
@@ -92,6 +102,11 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names) {
           link_mirror.regressionType = self._regressionTypeToId[regressionType];
           link_mirror.coefficients = coefficients;
           link_mirror.featureCount = featureCount;
+          link_mirror.adjrSquared = adjrSquared;
+          link_mirror.aic = aic;
+          link_mirror.fstatisticTable = fstatisticTable;
+          link_mirror.fstatistic = fstatistic;
+          link_mirror.residuals = residuals;
           links.push(link_mirror);
         }
       }
@@ -167,6 +182,11 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
     matrix[link.source][link.target].regressionType = link.regressionType;
     matrix[link.source][link.target].coefficients = link.coefficients;
     matrix[link.source][link.target].featureCount = link.featureCount;
+    matrix[link.source][link.target].adjrSquared = link.adjrSquared;
+    matrix[link.source][link.target].aic = link.aic;
+    matrix[link.source][link.target].fstatisticTable = link.fstatisticTable;
+    matrix[link.source][link.target].fstatistic = link.fstatistic;
+    matrix[link.source][link.target].residuals = link.residuals;
     nodes[link.source].count += parseFloat(link.value);
   });
 
@@ -337,7 +357,17 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData) {
       "<br />Confidence Intervals" +
       "<br />" + p.confidenceIntervals +
       "<br />Coefficients" +
-      "<br />" + p.coefficients;
+      "<br />" + p.coefficients +
+      "<br />adjrSquared" +
+      "<br />" + p.adjrSquared + 
+      "<br />aic" +
+      "<br />" + p.aic +
+      "<br />fstatisticTable" +
+      "<br />" + p.fstatisticTable +
+      "<br />fstatistic" +
+      "<br />" + p.fstatistic +
+      "<br />residuals" +
+      "<br />" + p.residuals;
     // Update the tooltip position and value
     // console.log(tooltipHtmlContent);
     // console.log(p.confidenceIntervals);
