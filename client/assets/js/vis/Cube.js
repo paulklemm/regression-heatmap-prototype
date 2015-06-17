@@ -112,31 +112,34 @@ RCUBE.Cube.prototype.update = function(data, dimensions, min, max) {
   var regressionIdToColor = d3.scale.category10().domain(d3.range(10));
   var colorPlaneSelection = new THREE.Color("#ff7f0e");
 
-  var rSquaredMeanCount = {};
-  dimensions.forEach(function(dimension_z, z) {
-    dimensionsSorted.forEach(function(dimension_y, y) {
-      dimensionsSorted.forEach(function(dimension_x, x) {
-        if (typeof data[dimension_z] != 'undefined' &&
-          typeof data[dimension_z][dimension_y] != 'undefined' &&
-          typeof data[dimension_z][dimension_y][dimension_x] != 'undefined') {
-            if (typeof rSquaredMeanCount[dimension_y] == 'undefined')
-              rSquaredMeanCount[dimension_y] = {};
-            if (typeof rSquaredMeanCount[dimension_y][dimension_x] == 'undefined')
-              rSquaredMeanCount[dimension_y][dimension_x] = {};
-            if (typeof rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum == 'undefined') {
-              rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum = 0;
-              rSquaredMeanCount[dimension_y][dimension_x].rSquaredCount = 0;
-            }
-            var currentRSquared = parseFloat(data[dimension_z][dimension_y][dimension_x].rSquared);
-            if (!isNaN(currentRSquared)) {
-              rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum += currentRSquared;
-            // console.log(parseFloat(data[dimension_z][dimension_y][dimension_x].rSquared));
-              rSquaredMeanCount[dimension_y][dimension_x].rSquaredCount += 1;
-            }
-        }
+  // Only calculate the mean values, if the current formula has a fixed target feature
+  if (self._normalizeUsingRays) {
+    var targetStatisticMeanCount = {};
+    dimensions.forEach(function(dimension_z, z) {
+      dimensionsSorted.forEach(function(dimension_y, y) {
+        dimensionsSorted.forEach(function(dimension_x, x) {
+          if (typeof data[dimension_z] != 'undefined' &&
+            typeof data[dimension_z][dimension_y] != 'undefined' &&
+            typeof data[dimension_z][dimension_y][dimension_x] != 'undefined') {
+              if (typeof targetStatisticMeanCount[dimension_y] == 'undefined')
+                targetStatisticMeanCount[dimension_y] = {};
+              if (typeof targetStatisticMeanCount[dimension_y][dimension_x] == 'undefined')
+                targetStatisticMeanCount[dimension_y][dimension_x] = {};
+              if (typeof targetStatisticMeanCount[dimension_y][dimension_x].featureSum == 'undefined') {
+                targetStatisticMeanCount[dimension_y][dimension_x].featureSum = 0;
+                targetStatisticMeanCount[dimension_y][dimension_x].featureCount = 0;
+              }
+              var currentFeature = parseFloat(data[dimension_z][dimension_y][dimension_x].rSquared);
+              if (!isNaN(currentFeature)) {
+                targetStatisticMeanCount[dimension_y][dimension_x].featureSum += currentFeature;
+              // console.log(parseFloat(data[dimension_z][dimension_y][dimension_x].rSquared));
+                targetStatisticMeanCount[dimension_y][dimension_x].featureCount += 1;
+              }
+          }
+        });
       });
     });
-  });
+  }
 
   // HACK:
   var firstcolor = null;
@@ -215,16 +218,15 @@ RCUBE.Cube.prototype.update = function(data, dimensions, min, max) {
             // geometryPlane.colors.push(firstcolor);
             // geometryPlaneSelection.colors.push(firstcolor);
 
-            var meanRSquaredForRay = rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum / rSquaredMeanCount[dimension_y][dimension_x].rSquaredCount;
-            // console.log("rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum " + rSquaredMeanCount[dimension_y][dimension_x].rSquaredSum);
-            // console.log("rSquaredMeanCount[dimension_y][dimension_x].rSquaredCount " + rSquaredMeanCount[dimension_y][dimension_x].rSquaredCount);
-            // console.log("meanRSquaredForRay: " + meanRSquaredForRay);
-            var meanRSquared = Math.abs(data[dimension_z][dimension_y][dimension_x].rSquared - meanRSquaredForRay);
-            // console.log("rSquared: " + data[dimension_z][dimension_y][dimension_x].rSquared);
-            // console.log("meanRSquared: " + meanRSquared);
-
             // Do not normalize using the rays, use plain rSquared features
             if (self._normalizeUsingRays) {
+              var meanStatisticForRay = targetStatisticMeanCount[dimension_y][dimension_x].featureSum / targetStatisticMeanCount[dimension_y][dimension_x].featureCount;
+              // console.log("targetStatisticMeanCount[dimension_y][dimension_x].featureSum " + targetStatisticMeanCount[dimension_y][dimension_x].featureSum);
+              // console.log("targetStatisticMeanCount[dimension_y][dimension_x].featureCount " + targetStatisticMeanCount[dimension_y][dimension_x].featureCount);
+              // console.log("meanStatisticForRay: " + meanStatisticForRay);
+              var meanRSquared = Math.abs(data[dimension_z][dimension_y][dimension_x].rSquared - meanStatisticForRay);
+              // console.log("rSquared: " + data[dimension_z][dimension_y][dimension_x].rSquared);
+              // console.log("meanRSquared: " + meanRSquared);
               // TODO: The transfer function does not work as inteneded here, since the meanValue is derived from normalizing all
               // values along the ray. Maybe it should be disabled for normalized values?
               attributesPlane.alpha.value.push(transferfunctionOpacity(meanRSquared));
