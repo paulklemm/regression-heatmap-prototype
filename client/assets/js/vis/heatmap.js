@@ -393,11 +393,7 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData, min, max) {
       "<br />" + p.coefficients +
       "fstatisticTable" +
       "<br />" + p.fstatisticTable +
-      "Residuals: " +
-      "<br />" + p.residuals;
-    // Update the tooltip position and value
-    // console.log(tooltipHtmlContent);
-    // console.log(p.confidenceIntervals);
+      "Residuals: ";
 
     // Create Scatterplot of residuals
     $('svg.scatterplot').remove();
