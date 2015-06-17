@@ -15,6 +15,7 @@ RCUBE.Cube = function(canvasID, data, dimensions, normalizeUsingRays) {
   this._glSliceGeometry = undefined;
   this._glCubeGeometry = null;
   this._glCubeParticles = null;
+  this._data = data;
   if (typeof normalizeUsingRays == 'undefined')
     this._normalizeUsingRays = false;
   else
@@ -42,10 +43,18 @@ RCUBE.Cube.prototype.createRegressionMaps = function() {
   }
 };
 
-RCUBE.Cube.prototype.update = function(data, dimensions) {
+RCUBE.Cube.prototype.update = function(data, dimensions, min, max) {
   var self = this;
+
+  // Check if dimensions are defined
   if (typeof dimensions == 'undefined')
     dimensions = self._dimensions.slice();
+
+  // Check if data are defined
+  if (typeof data == 'undefined')
+    data = self._data;
+  else
+    self._data = data;
 
   var dimensionsSorted = dimensions.slice().sort();
 
@@ -92,6 +101,9 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
   var transferfunction = d3.scale.linear()
     .domain([0, 1])
     .range(['#fff7fb', '#023858']);
+
+  transferfunctionOpacity = d3.scale.linear()
+    .domain([min, max]);
 
   var sliceGeometry = {};
   self._glSliceGeometry = sliceGeometry;
@@ -213,13 +225,14 @@ RCUBE.Cube.prototype.update = function(data, dimensions) {
 
             // Do not normalize using the rays, use plain rSquared features
             if (self._normalizeUsingRays) {
-              attributesPlane.alpha.value.push(meanRSquared);
-              // console.log("meanRSquared: " + meanRSquared + "; rSquared: " + data[dimension_z][dimension_y][dimension_x].rSquared);
+              // TODO: The transfer function does not work as inteneded here, since the meanValue is derived from normalizing all
+              // values along the ray. Maybe it should be disabled for normalized values?
+              attributesPlane.alpha.value.push(transferfunctionOpacity(meanRSquared));
             }
             else
-              attributesPlane.alpha.value.push(data[dimension_z][dimension_y][dimension_x].rSquared);
+              attributesPlane.alpha.value.push(transferfunctionOpacity(data[dimension_z][dimension_y][dimension_x].rSquared));
 
-            attributesPlaneSelection.alpha.value.push(data[dimension_z][dimension_y][dimension_x].rSquared);
+            attributesPlaneSelection.alpha.value.push(transferfunctionOpacity(data[dimension_z][dimension_y][dimension_x].rSquared));
           }
         });
       });
@@ -347,122 +360,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     camera.up = new THREE.Vector3(0,0,1);
     camera.lookAt( scene.position );
 
-    // // attributesPlane
-    // attributesPlane = {
-    //   alpha: { type: 'f', value: [] },
-    // };
-    //
-    // // uniforms
-    // uniforms = {
-    //   color: { type: "c", value: new THREE.Color( 0xff0000 ) },
-    // };
-    //
-    // shaderMaterial = new THREE.ShaderMaterial( {
-    //
-    //   uniforms:       uniforms,
-    //   vertexColors:   THREE.VertexColors,
-    //   attributes:     attributesPlane,
-    //   vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-    //   fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-    //   // Depth Test: https://github.com/mrdoob/three.js/issues/1928
-    //   depthTest:false,
-    //   transparent: true
-    //
-    // });
-    //
-    // // Geometry
-    // geometryPlane = new THREE.Geometry();
-    //
-    // var transferfunction = d3.scale.linear()
-    //   .domain([0, 1])
-    //   .range(['#fff7fb', '#023858']);
-    //
-    // var sliceGeometry = {};
-    // self._glSliceGeometry = sliceGeometry;
-    //
-    // debug_data = data;
-    //
-    // var colorPlane = new THREE.Color("#1f77b4");
-    // var colorPlaneSelection = new THREE.Color("#ff7f0e");
-    //
-    // // Iterate over all dimensions and check for values
-    // // dimensions.forEach(function(dimension_z, z) {
-    // dimensions.forEach(function(dimension_z, z) {
-    // // ["smoking", "age"].forEach(function(dimension_z, z) {
-    // // ['Mammography_Left_BI_RADS'].forEach(function(dimension_z, z) {
-    //   geometryPlaneSelection = new THREE.Geometry();
-    //   attributesPlaneSelection = {
-    //     alpha: { type: 'f', value: [] },
-    //   };
-    //   // uniforms
-    //   uniformsSlice = {
-    //     color: { type: "c", value: new THREE.Color( 0xff0000 ) },
-    //   };
-    //
-    //   sliceShaderMaterial = new THREE.ShaderMaterial( {
-    //
-    //     uniforms:       uniformsSlice,
-    //     vertexColors:   THREE.VertexColors,
-    //     attributes:     attributesPlaneSelection,
-    //     vertexShader:   document.getElementById( 'vertexshaderCurrentSlice' ).textContent,
-    //     fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-    //     // Depth Test: https://github.com/mrdoob/three.js/issues/1928
-    //     depthTest:false,
-    //     transparent: true
-    //   });
-    //   dimensionsSorted.forEach(function(dimension_y, y) {
-    //     dimensionsSorted.forEach(function(dimension_x, x) {
-    //       if (typeof data[dimension_z] != 'undefined' &&
-    //         typeof data[dimension_z][dimension_y] != 'undefined' &&
-    //         typeof data[dimension_z][dimension_y][dimension_x] != 'undefined') {
-    //
-    //         // console.log("Add " + dimension_x + "," + dimension_y + "," + dimension_z + ": " + data[dimension_z][dimension_y][dimension_x]);
-    //         // console.log(x + ", " + y + ", " + z);
-    //
-    //         var vertexPlane = new THREE.Vector3();
-    //         var vertexPlaneSelection = new THREE.Vector3();
-    //         vertexPlane.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-    //         vertexPlaneSelection.z = z * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-    //         if (x < y) {
-    //           vertexPlane.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-    //           vertexPlane.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-    //           vertexPlaneSelection.x = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-    //           vertexPlaneSelection.y = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-    //         }
-    //         else {
-    //           vertexPlane.x = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-    //           vertexPlane.y = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-    //           vertexPlaneSelection.x = x * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-    //           vertexPlaneSelection.y = y * self._sliceDistance - ((dimensions.length * self._sliceDistance) / 2);
-    //         }
-    //         geometryPlane.vertices.push( vertexPlane );
-    //         geometryPlaneSelection.vertices.push( vertexPlaneSelection );
-    //
-    //         // var colorPlane = new THREE.Color(transferfunction(data[dimension_z][dimension_y][dimension_x]));
-    //         // Two times because we also add the mirror element
-    //         geometryPlane.colors.push(colorPlane);
-    //         geometryPlaneSelection.colors.push(colorPlaneSelection);
-    //         attributesPlane.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
-    //         attributesPlaneSelection.alpha.value.push(data[dimension_z][dimension_y][dimension_x]);
-    //       }
-    //     });
-    //   });
-    //   var sliceParticles = new THREE.PointCloud( geometryPlaneSelection, sliceShaderMaterial );
-    //   sliceGeometry[dimension_z] = sliceParticles;
-    // });
-    //
-    // size  = 6;
-    //
-    // materials = new THREE.PointCloudMaterial( {
-    //   size: size,
-    //   vertexColors: THREE.VertexColors
-    // });
-    //
-    // particles = new THREE.PointCloud( geometryPlane, shaderMaterial );
-    // debug_particles = particles;
-    // // var cubeParticles = self.update(data, dimensions);
-    // scene.add(particles);
-    var cubeParticles = self.update(data, dimensions);
+    var cubeParticles = self.update(data, dimensions, 0, 1);
 
 
     // [Geometry] Add Slicing Plane

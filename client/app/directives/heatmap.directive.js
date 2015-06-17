@@ -92,6 +92,8 @@ angular.module('cube')
       };
 
       heatmapCtrl.rangeSliderChange = function(){
+        // Broadcast the event to trigger redraw of the cube
+        $rootScope.$broadcast('heatmap::rangeSliderChanged', { 'min':$scope.range.min, 'max':$scope.range.max });
         if (heatmapCtrl.heatmapRendered)
           heatmapCtrl.update();
       };
