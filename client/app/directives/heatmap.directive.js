@@ -27,7 +27,7 @@ angular.module('cube')
         var names = data.dataset.getDimensionNames().slice();
         // var rSquared = data.dataset.getRSquared()[dependentVariable];
         var rSquared = data.dataset.getRSquared(data.getCurrentReferenceFormula())[dependentVariable];
-        var myHeatmap = new RCUBE.Heatmap(".my-heatmap", rSquared, names, $scope.metric);
+        var myHeatmap = new RCUBE.Heatmap(".my-heatmap", rSquared, names, $scope.metric, $scope.range.min, $scope.range.max);
         heatmapCtrl.visible = true;
       };
 
@@ -84,6 +84,10 @@ angular.module('cube')
       });
 
       heatmapCtrl.metricChange = function(){
+        heatmapCtrl.update();
+      };
+
+      heatmapCtrl.rangeSliderChange = function(){
         heatmapCtrl.update();
       };
 

@@ -1,10 +1,10 @@
-RCUBE.Heatmap = function(canvasID, rSquared, names, metric) {
+RCUBE.Heatmap = function(canvasID, rSquared, names, metric, min, max) {
   this._canvasID = canvasID;
   this._lowerMatrix = true;
   this._metric = metric;
   this.createRegressionMaps();
   this._data = this.createHeatmapInput(rSquared, names, metric);
-  this.main(canvasID, this._data);
+  this.main(canvasID, this._data, min, max);
 };
 
 // At the moment, this is the exact copy of the function found in Cube.js
@@ -139,7 +139,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names, metric) {
   return {"nodes": nodes, "links": links};
 };
 
-RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData, metric) {
+RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData, min, max) {
   var self = this;
   var nodes = heatmapData.nodes;
   var margin = {
@@ -155,7 +155,7 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData, metric) {
 
   var x = d3.scale.ordinal().rangeBands([0, width]),
   // z = d3.scale.linear().domain([0, 4]).clamp(true),
-    z = d3.scale.linear().domain([0, 1]).clamp(true),
+    z = d3.scale.linear().domain([min, max]).clamp(true),
     category = d3.scale.category10().domain(d3.range(10));
 
   var svg = d3.select(canvasID).append("svg")

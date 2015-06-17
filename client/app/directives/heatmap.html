@@ -17,7 +17,7 @@
           <option value="name">by Name</option>
           <option value="count">by Frequency</option>
         </select>
-        <div range-slider min="0" max="1" model-min="range.min" show-values="true" model-max="range.max" step="0.1" decimal-places="1"></div>
+        <div range-slider min="0" max="1" model-min="range.min" show-values="true" model-max="range.max" step="0.1" decimal-places="1" on-handle-up='heatmapCtrl.rangeSliderChange()'></div>
         <!-- Add Threejs Cube here -->
         <gl-cube></gl-cube>
       </div>
