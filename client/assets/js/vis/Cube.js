@@ -43,8 +43,10 @@ RCUBE.Cube.prototype.createRegressionMaps = function() {
   }
 };
 
-RCUBE.Cube.prototype.update = function(data, dimensions, min, max) {
+RCUBE.Cube.prototype.update = function(data, dimensions, metric, min, max) {
   var self = this;
+
+  console.log("updated cube with metric " + metric);
 
   // Check if dimensions are defined
   if (typeof dimensions == 'undefined')
@@ -102,18 +104,17 @@ RCUBE.Cube.prototype.update = function(data, dimensions, min, max) {
     .domain([0, 1])
     .range(['#fff7fb', '#023858']);
 
-  transferfunctionOpacity = d3.scale.linear()
-    .domain([min, max]);
-
   var sliceGeometry = {};
   self._glSliceGeometry = sliceGeometry;
 
   var colorPlane = new THREE.Color("#1f77b4");
   var regressionIdToColor = d3.scale.category10().domain(d3.range(10));
   var colorPlaneSelection = new THREE.Color("#ff7f0e");
+  // Used to normalize the overall F statistics
+  var maxFStatistic = 0;
 
   // Only calculate the mean values, if the current formula has a fixed target feature
-  if (self._normalizeUsingRays) {
+  // if (self._normalizeUsingRays) {
     var targetStatisticMeanCount = {};
     dimensions.forEach(function(dimension_z, z) {
       dimensionsSorted.forEach(function(dimension_y, y) {
@@ -129,7 +130,20 @@ RCUBE.Cube.prototype.update = function(data, dimensions, min, max) {
                 targetStatisticMeanCount[dimension_y][dimension_x].featureSum = 0;
                 targetStatisticMeanCount[dimension_y][dimension_x].featureCount = 0;
               }
-              var currentFeature = parseFloat(data[dimension_z][dimension_y][dimension_x].rSquared);
+              var currentFeature;
+              var regressionType = data[dimension_z][dimension_y][dimension_x].regressionType;
+              // Typecheck metric
+              if (metric == 'rSquared' || regressionType != 'linear')
+                currentFeature = parseFloat(data[dimension_z][dimension_y][dimension_x].rSquared);
+              else if (metric == 'adjrSquared')
+                currentFeature = parseFloat(data[dimension_z][dimension_y][dimension_x].adjrSquared);
+              else if (metric == 'fstatistic') {
+                currentFeature = parseFloat(data[dimension_z][dimension_y][dimension_x].fstatistic);
+                // Increase the maximum F Statistic to adjust the transfer function
+                if (currentFeature > maxFStatistic)
+                  maxFStatistic = currentFeature;
+              }
+
               if (!isNaN(currentFeature)) {
                 targetStatisticMeanCount[dimension_y][dimension_x].featureSum += currentFeature;
               // console.log(parseFloat(data[dimension_z][dimension_y][dimension_x].rSquared));
@@ -139,7 +153,13 @@ RCUBE.Cube.prototype.update = function(data, dimensions, min, max) {
         });
       });
     });
-  }
+  // }
+
+  // Set the transfer functions for the opacity as well as for the f statistic
+  var transferfunctionOpacity = d3.scale.linear()
+    .domain([min, max]);
+  var fScoreRange = d3.scale.linear().domain([0, maxFStatistic]);
+
 
   // HACK:
   var firstcolor = null;
@@ -176,6 +196,7 @@ RCUBE.Cube.prototype.update = function(data, dimensions, min, max) {
         depthTest:false,
         transparent: true
       });
+
       dimensionsSorted.forEach(function(dimension_y, y) {
         dimensionsSorted.forEach(function(dimension_x, x) {
           if (typeof data[dimension_z] != 'undefined' &&
@@ -218,23 +239,40 @@ RCUBE.Cube.prototype.update = function(data, dimensions, min, max) {
             // geometryPlane.colors.push(firstcolor);
             // geometryPlaneSelection.colors.push(firstcolor);
 
+            // Determine the proper target metric
+            var currentStatistic;
+            if (metric == 'rSquared' || regressionType != 'linear')
+              currentStatistic = "rSquared";
+            else if (metric == 'adjrSquared')
+              currentStatistic = "adjrSquared";
+            else if (metric == 'fstatistic')
+              currentStatistic = "fstatistic";
+
             // Do not normalize using the rays, use plain rSquared features
             if (self._normalizeUsingRays) {
               var meanStatisticForRay = targetStatisticMeanCount[dimension_y][dimension_x].featureSum / targetStatisticMeanCount[dimension_y][dimension_x].featureCount;
               // console.log("targetStatisticMeanCount[dimension_y][dimension_x].featureSum " + targetStatisticMeanCount[dimension_y][dimension_x].featureSum);
               // console.log("targetStatisticMeanCount[dimension_y][dimension_x].featureCount " + targetStatisticMeanCount[dimension_y][dimension_x].featureCount);
               // console.log("meanStatisticForRay: " + meanStatisticForRay);
-              var meanRSquared = Math.abs(data[dimension_z][dimension_y][dimension_x].rSquared - meanStatisticForRay);
+              var meanStatistic = Math.abs(data[dimension_z][dimension_y][dimension_x][currentStatistic] - meanStatisticForRay);
               // console.log("rSquared: " + data[dimension_z][dimension_y][dimension_x].rSquared);
-              // console.log("meanRSquared: " + meanRSquared);
+              // console.log("meanStatistic: " + meanStatistic);
               // TODO: The transfer function does not work as inteneded here, since the meanValue is derived from normalizing all
               // values along the ray. Maybe it should be disabled for normalized values?
-              attributesPlane.alpha.value.push(transferfunctionOpacity(meanRSquared));
+              if (metric == 'fstatistic')
+                attributesPlane.alpha.value.push(transferfunctionOpacity(fScoreRange(meanStatistic)));
+              else
+                attributesPlane.alpha.value.push(transferfunctionOpacity(meanStatistic));
             }
+            else if (metric == 'fstatistic' && regressionType == 'linear')
+              attributesPlane.alpha.value.push(transferfunctionOpacity(fScoreRange(data[dimension_z][dimension_y][dimension_x][currentStatistic])));
             else
-              attributesPlane.alpha.value.push(transferfunctionOpacity(data[dimension_z][dimension_y][dimension_x].rSquared));
+              attributesPlane.alpha.value.push(transferfunctionOpacity(data[dimension_z][dimension_y][dimension_x][currentStatistic]));
 
-            attributesPlaneSelection.alpha.value.push(transferfunctionOpacity(data[dimension_z][dimension_y][dimension_x].rSquared));
+            if (metric == 'fstatistic' && regressionType == 'linear')
+              attributesPlaneSelection.alpha.value.push(transferfunctionOpacity(fScoreRange(data[dimension_z][dimension_y][dimension_x][currentStatistic])));
+            else
+              attributesPlaneSelection.alpha.value.push(transferfunctionOpacity(data[dimension_z][dimension_y][dimension_x][currentStatistic]));
           }
         });
       });
@@ -362,7 +400,7 @@ RCUBE.Cube.prototype.main = function (canvasID, data, dimensions){
     camera.up = new THREE.Vector3(0,0,1);
     camera.lookAt( scene.position );
 
-    var cubeParticles = self.update(data, dimensions, 0, 1);
+    var cubeParticles = self.update(data, dimensions, 'rSquared', 0, 1);
 
 
     // [Geometry] Add Slicing Plane

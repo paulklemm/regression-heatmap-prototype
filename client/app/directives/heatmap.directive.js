@@ -87,6 +87,8 @@ angular.module('cube')
       });
 
       heatmapCtrl.metricChange = function(){
+        // Broadcast the event to trigger redraw of the cube
+        $rootScope.$broadcast('heatmap::metricChanged', { 'metric':$scope.metric });
         if (heatmapCtrl.heatmapRendered)
           heatmapCtrl.update();
       };

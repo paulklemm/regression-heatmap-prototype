@@ -9,6 +9,7 @@ angular.module('cube')
       this.threeCube = null;
       glCubeCtrl.sliderMin = 0;
       glCubeCtrl.sliderMax = 1;
+      glCubeCtrl.metric = 'rSquared';
 
       $scope.$on('glCube::movePlaneDown', function(){
         if (glCubeCtrl.threeCube !== null) {
@@ -39,6 +40,11 @@ angular.module('cube')
         glCubeCtrl.updateCube();
       });
 
+      $scope.$on('heatmap::metricChanged', function(event, metricSettings){
+        glCubeCtrl.metric = metricSettings.metric;
+        glCubeCtrl.updateCube();
+      });
+
       $scope.$on('data::updateRSquared', function(){
         if(glCubeCtrl.threeCube === null) {
           // HACK: For some reason, when initialized inside of a Angular controlled
@@ -59,7 +65,7 @@ angular.module('cube')
 
       glCubeCtrl.updateCube = function(data, dimensions) {
         if (glCubeCtrl.threeCube !== null) {
-          glCubeCtrl.threeCube.update(data, dimensions, glCubeCtrl.sliderMin, glCubeCtrl.sliderMax);
+          glCubeCtrl.threeCube.update(data, dimensions, glCubeCtrl.metric, glCubeCtrl.sliderMin, glCubeCtrl.sliderMax);
         }
       };
       // Update when a new Reference formula is added
