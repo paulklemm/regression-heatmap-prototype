@@ -84,6 +84,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names, metric) {
       else if (metric == 'fstatistic')
         value = fScoreRange(rSquared[dependent][independent].fstatistic);
 
+      var rSqu = rSquared[dependent][independent].rSquared;
       var confidenceIntervals = rSquared[dependent][independent].confidenceIntervals;
       var coefficients = rSquared[dependent][independent].coefficients;
       var featureCount = rSquared[dependent][independent].featureCount;
@@ -101,6 +102,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names, metric) {
           link.source = nodesIndex[dependent];
           link.target = nodesIndex[independent];
           link.value = value;
+          link.rSquared = rSqu;
           link.confidenceIntervals = confidenceIntervals;
           link.regressionType = self._regressionTypeToId[regressionType];
           link.coefficients = coefficients;
@@ -119,6 +121,7 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names, metric) {
           link_mirror.source = nodesIndex[independent];
           link_mirror.target = nodesIndex[dependent];
           link_mirror.value = value;
+          link_mirror.rSquared = rSqu;
           link_mirror.confidenceIntervals = confidenceIntervals;
           link_mirror.regressionType = self._regressionTypeToId[regressionType];
           link_mirror.coefficients = coefficients;
@@ -199,6 +202,7 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData, min, max) {
   // Convert links to matrix; count character occurrences.
   heatmapData.links.forEach(function(link) {
     matrix[link.source][link.target].z += parseFloat(link.value);
+    matrix[link.source][link.target].rSquared = link.rSquared;
     matrix[link.source][link.target].confidenceIntervals = link.confidenceIntervals;
     matrix[link.source][link.target].regressionType = link.regressionType;
     matrix[link.source][link.target].coefficients = link.coefficients;
@@ -357,6 +361,10 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData, min, max) {
     .on("mouseout", mouseout);
   }
 
+  function roundOutput(number) {
+    return Math.round(number * 1000) / 1000;
+  }
+
   function mouseover(p) {
     d3.select(this).classed("cell-hover", true);
     d3.selectAll(".row text").classed("active", function(d, i) {
@@ -370,24 +378,22 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData, min, max) {
     // extract the correct sorting from the dom. There is a proper solution though
     var rows = d3.selectAll(".row text");
     var tooltipHtmlContent = "X: " + rows[0][p.x].textContent +
-      "<br />Y: " + rows[0][p.y].textContent +
-      "<br />Type: " + self._regressionIdToType[p.regressionType] +
-      "<br />R²: " + (Math.round(p.z * 1000) / 1000) +
+      "; Y: " + rows[0][p.y].textContent +
+      "<b> (" + self._regressionIdToType[p.regressionType] + " regression)</b>" +
+      // "<br />R²: " + (Math.round(p.z * 1000) / 1000) +
+      "<br />R²: " + roundOutput(p.rSquared) +
+      " (adjusted R²: " + roundOutput(p.adjrSquared) + ")" +
+      "<br />Akaike Information Criterion: " + roundOutput(p.aic) +
+      "<br />F Statistic: " + roundOutput(p.fstatistic) +
       "<br />Feature Count" +
       "<br />" + p.featureCount +
-      "<br />Confidence Intervals" +
+      "Confidence Intervals" +
       "<br />" + p.confidenceIntervals +
-      "<br />Coefficients" +
+      "Coefficients" +
       "<br />" + p.coefficients +
-      "<br />adjrSquared" +
-      "<br />" + p.adjrSquared +
-      "<br />aic" +
-      "<br />" + p.aic +
-      "<br />fstatisticTable" +
+      "fstatisticTable" +
       "<br />" + p.fstatisticTable +
-      "<br />fstatistic" +
-      "<br />" + p.fstatistic +
-      "<br />residuals" +
+      "Residuals: " +
       "<br />" + p.residuals;
     // Update the tooltip position and value
     // console.log(tooltipHtmlContent);
