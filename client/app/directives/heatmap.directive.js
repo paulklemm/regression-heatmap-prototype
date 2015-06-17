@@ -7,6 +7,7 @@ angular.module('cube')
       var heatmapCtrl = this;
       heatmapCtrl.orderVisible = false;
       heatmapCtrl.dependent = undefined;
+      heatmapCtrl.heatmapRendered = false;
       //heatmapCtrl.metric = {};
       // Attach Pulse
       var pulse = new RCUBE.Pulse('#heatmap-pulse-container');
@@ -14,14 +15,16 @@ angular.module('cube')
       heatmapCtrl.visible = false;
 
       $scope.range = {
-        min: 0.2,
-        max: 0.8
+        min: 0,
+        max: 1
       };
       // http://jimhoskins.com/2012/12/17/angularjs-and-apply.html
       // https://variadic.me/posts/2013-10-15-share-state-between-controllers-in-angularjs.html
       // https://stackoverflow.com/questions/15380140/service-variable-not-updating-in-controller
 
       var createHeatmap = function(dependentVariable){
+        // Update heatmap rendered flag to activate ui controls
+        heatmapCtrl.heatmapRendered = true;
         // Remove old Heatmap container
         $('svg.heatmap').remove();
         var names = data.dataset.getDimensionNames().slice();
@@ -84,11 +87,13 @@ angular.module('cube')
       });
 
       heatmapCtrl.metricChange = function(){
-        heatmapCtrl.update();
+        if (heatmapCtrl.heatmapRendered)
+          heatmapCtrl.update();
       };
 
       heatmapCtrl.rangeSliderChange = function(){
-        heatmapCtrl.update();
+        if (heatmapCtrl.heatmapRendered)
+          heatmapCtrl.update();
       };
 
       // Update the heatmap either by a redraw or by changing the current dimension

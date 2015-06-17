@@ -49,6 +49,18 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names, metric) {
 
   var sortedNames = this.getSortedNames(names);
 
+  // Store all fscores in one array to calculate min and max from it
+  var fscores = [];
+  var dependentVariables = Object.keys(rSquared);
+  dependentVariables.forEach(function(dependent, dependent_index){
+    var independentVariables = Object.keys(rSquared[dependent]);
+    independentVariables.forEach(function(independent, independent_index){
+      fscores.push(parseFloat(rSquared[dependent][independent].fstatistic));
+    });
+  });
+  // Calculate range for fscore, which is normalized between 0 and 1
+  var fScoreRange = d3.scale.linear().domain([0, d3.max(fscores)]);
+
   var dependentVariables = Object.keys(rSquared);
   dependentVariables.forEach(function(dependent, dependent_index){
     var independentVariables = Object.keys(rSquared[dependent]);
@@ -69,6 +81,8 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names, metric) {
         value = rSquared[dependent][independent].rSquared;
       else if (metric == 'adjrSquared')
         value = rSquared[dependent][independent].adjrSquared;
+      else if (metric == 'fstatistic')
+        value = fScoreRange(rSquared[dependent][independent].fstatistic);
 
       var confidenceIntervals = rSquared[dependent][independent].confidenceIntervals;
       var coefficients = rSquared[dependent][independent].coefficients;
