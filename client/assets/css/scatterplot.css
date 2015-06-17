@@ -1,0 +1,17 @@
+.scatterplot {
+
+}
+
+.scatterplot .main text {
+    font: 10px sans-serif;
+}
+
+.scatterplot .axis line, .axis path {
+    shape-rendering: crispEdges;
+    stroke: black;
+    fill: none;
+}
+
+.scatterplot circle {
+    fill: steelblue;
+}

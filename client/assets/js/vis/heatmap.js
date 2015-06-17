@@ -398,6 +398,11 @@ RCUBE.Heatmap.prototype.main = function (canvasID, heatmapData, min, max) {
     // Update the tooltip position and value
     // console.log(tooltipHtmlContent);
     // console.log(p.confidenceIntervals);
+
+    // Create Scatterplot of residuals
+    $('svg.scatterplot').remove();
+    var newScatterplot = new RCUBE.Scatterplot('#scatterplot', p.residuals);
+    // var newScatterplot = new RCUBE.Scatterplot('#scatterplot', [3,42,-33,44,33,67]);
     d3.select("#tooltip-heatmap")
     .style("left", (d3.event.layerX + 10) + "px")
     .style("top", (d3.event.layerY - 10) + "px")
