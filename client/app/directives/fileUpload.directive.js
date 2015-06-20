@@ -14,6 +14,7 @@ angular.module('cube')
         "visible": false,
         "percent": 0
       };
+      thisController.checkboxReduceDimensions = true;
       // Has to be defined on the Scope, because `input`s don't have an angular change event
       // See https://stackoverflow.com/questions/17922557/angularjs-how-to-check-for-changes-in-file-input-fields
       $scope.fileNameChanged = function(){
@@ -41,7 +42,7 @@ angular.module('cube')
         var response = JSON.parse($message);
         console.log("Response filename is " + response.filename);
         //data.loadData(document.URL + $file.name);
-        data.loadData(document.URL + response.filename);
+        data.loadData(document.URL + response.filename, thisController.checkboxReduceDimensions);
       };
     },
     controllerAs: 'myUploader'

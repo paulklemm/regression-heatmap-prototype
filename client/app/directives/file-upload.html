@@ -11,7 +11,7 @@
     <div class="form-group">
         <input type="file" accept=".csv" flow-btn onchange="angular.element(this).scope().fileNameChanged()"/>
         <p class="help-block" ng-repeat="file in uploader.flow.files"><button type="button" ng-click="file.cancel()" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button> {{file.name}}</p>
-        <br>
+        <br />
         <div class="progress" ng-show="myUploader.progressbar.visible">
           <div class="progress-bar" role="progressbar"
           aria-valuenow="{{myUploader.progressbar.percent}}"
@@ -20,6 +20,8 @@
             {{myUploader.progressbar.percent}}%
           </div>
         </div>
+        <input type="checkbox" ng-model="myUploader.checkboxReduceDimensions"> Reduce dimensions (recommended).
+        <br />
         <button class="btn btn-primary" ng-show='!myUploader.hideUploadButton' ng-click="myUploader.upload()"
         ng-disabled="!myUploader.uploadEnabled">Upload</button>
     </div>

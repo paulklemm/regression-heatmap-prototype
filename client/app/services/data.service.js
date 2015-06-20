@@ -105,28 +105,46 @@ angular.module('cube')
         calculateBestDimensions = false;
       }
 
-      // Calculate the CFS dimensions only if the dependent variable changes in
-      // every step (`z ~ x + y`) or the CFS have not been calculated before for
-      // the static dependent variable (first dimension, e.g. gender ~ x + y + z)
-      if (calculateBestDimensions || typeof dataService.best_dimensions === 'undefined') {
-        // TODO: CFS will currently not work when the dependent variable is `x` or `y`
-        // because this variable will then be passed straight to the CFS R algorihtm
-        // which obviously cant find an element called `x` or `y`
-        ocpuBridge.getCorrelationBasedFeatureSelection(dimensionName, dataService.dataset._name).then(function(best_dimensions){
-          // Only continue of there is at least one dimension, empty dimensions
-          // can be caused by faulty data sets
-          if (best_dimensions.length > 0) {
-            // The returned features are sorted alphabetically, but this screws up our
-            // visualizations when we consider the original sorting provided by the csv
-            // file, so we have to sort it again using this exact sorting
-            best_dimensions = sortArrayByReference(dataService.dataset._dimensionNames.slice(), best_dimensions);
-            // Save the best dimensions locally if we have a fixed dependent dimension
-            dataService.best_dimensions = best_dimensions;
-            console.log("CFS Dimensions for " + currentZDimension);
-            console.log(best_dimensions);
+      console.log("CFS Algorithm Settings: " + dataService.applyCFS);
+      // Check if CFS needs to be calculated
+      if (!dataService.applyCFS) {
+        console.log("CFS is skipped using the settings.");
+        formulas = formula.calculateFormulasDependent(currentZDimension, dataService.dataset.getDimensionNames());
+        // Load the R Squared values through the R backend
+        ocpuBridge.calculateRSquared(formulas, dataService.dataset._name).then(function(rSquared){
+          // console.log(rSquared);
+          dataService.dataset.setRSquared(rSquared, formula);
+          dimensions.splice(dimensions.length - 1, 1);
+          // If you are not supposed to stop for this formula, continue
+          if (!dataService.stopCalculation[formula.toString()]) {
+            $rootScope.$broadcast('data::updateRSquared');
+            calculateRSquaredSequential(dimensions, formula);
+          }
+        });
+      }
+      else {
+        // Calculate the CFS dimensions only if the dependent variable changes in
+        // every step (`z ~ x + y`) or the CFS have not been calculated before for
+        // the static dependent variable (first dimension, e.g. gender ~ x + y + z)
+        if (calculateBestDimensions || typeof dataService.best_dimensions === 'undefined') {
+          // TODO: CFS will currently not work when the dependent variable is `x` or `y`
+          // because this variable will then be passed straight to the CFS R algorihtm
+          // which obviously cant find an element called `x` or `y`
+          ocpuBridge.getCorrelationBasedFeatureSelection(dimensionName, dataService.dataset._name).then(function(best_dimensions){
+            // Only continue of there is at least one dimension, empty dimensions
+            // can be caused by faulty data sets
+            if (best_dimensions.length > 0) {
+              // The returned features are sorted alphabetically, but this screws up our
+              // visualizations when we consider the original sorting provided by the csv
+              // file, so we have to sort it again using this exact sorting
+              best_dimensions = sortArrayByReference(dataService.dataset._dimensionNames.slice(), best_dimensions);
+              // Save the best dimensions locally if we have a fixed dependent dimension
+              dataService.best_dimensions = best_dimensions;
+              console.log("CFS Dimensions for " + currentZDimension);
+              console.log(best_dimensions);
 
-            dataService.dataset._cfsDimensionNames[currentZDimension] = best_dimensions;
-            formulas = formula.calculateFormulasDependent(currentZDimension, best_dimensions);
+              dataService.dataset._cfsDimensionNames[currentZDimension] = best_dimensions;
+              formulas = formula.calculateFormulasDependent(currentZDimension, best_dimensions);
               // Load the R Squared values through the R backend
               ocpuBridge.calculateRSquared(formulas, dataService.dataset._name).then(function(rSquared){
                 // console.log(rSquared);
@@ -138,67 +156,44 @@ angular.module('cube')
                   calculateRSquaredSequential(dimensions, formula);
                 }
               });
-          }
-          else {
-            console.log("CFS fails for " + currentZDimension);
+            }
+            else {
+              console.log("CFS fails for " + currentZDimension);
+              dimensions.splice(dimensions.length - 1, 1);
+              // If you are not supposed to stop for this formula, continue
+              if (!dataService.stopCalculation[formula.toString()]) {
+                $rootScope.$broadcast('data::updateRSquared');
+                calculateRSquaredSequential(dimensions, formula);
+              }
+            }
+          });
+        }
+        // We can skip the calculation of the best dimensions, because the Dependent
+        // Variable stays the same and we already calculated the dimensions for it
+        // TODO: remove redundancy
+        else {
+          var best_dimensions = dataService.best_dimensions;
+          console.log("Skipped dimension calculation");
+          console.log("CFS Dimensions for " + currentZDimension);
+          console.log(best_dimensions);
+          var start = new Date().getTime();
+          dataService.dataset._cfsDimensionNames[currentZDimension] = best_dimensions;
+          formulas = formula.calculateFormulasDependent(currentZDimension, best_dimensions);
+          // Load the R Squared values through the R backend
+          ocpuBridge.calculateRSquared(formulas, dataService.dataset._name).then(function(rSquared){
+            dataService.dataset.setRSquared(rSquared, formula);
             dimensions.splice(dimensions.length - 1, 1);
             // If you are not supposed to stop for this formula, continue
             if (!dataService.stopCalculation[formula.toString()]) {
               $rootScope.$broadcast('data::updateRSquared');
+              var stop = new Date().getTime();
+              var duration = ((stop - start) / 1000) / 60;
+              var estimated = duration * dimensions.length;
+              console.log("Took " + duration + " minutes. Estimated: " + estimated);
               calculateRSquaredSequential(dimensions, formula);
             }
-          }
-        });
-      }
-      // We can skip the calculation of the best dimensions, because the Dependent
-      // Variable stays the same and we already calculated the dimensions for it
-      // TODO: remove redundancy
-      else {
-        var best_dimensions = dataService.best_dimensions;
-        console.log("Skipped dimension calculation");
-        console.log("CFS Dimensions for " + currentZDimension);
-        console.log(best_dimensions);
-        var start = new Date().getTime();
-        dataService.dataset._cfsDimensionNames[currentZDimension] = best_dimensions;
-        formulas = formula.calculateFormulasDependent(currentZDimension, best_dimensions);
-        // Load the R Squared values through the R backend
-        ocpuBridge.calculateRSquared(formulas, dataService.dataset._name).then(function(rSquared){
-          dataService.dataset.setRSquared(rSquared, formula);
-          dimensions.splice(dimensions.length - 1, 1);
-          // If you are not supposed to stop for this formula, continue
-          if (!dataService.stopCalculation[formula.toString()]) {
-            $rootScope.$broadcast('data::updateRSquared');
-            var stop = new Date().getTime();
-            var duration = ((stop - start) / 1000) / 60;
-            var estimated = duration * dimensions.length;
-            console.log("Took " + duration + " minutes. Estimated: " + estimated);
-            calculateRSquaredSequential(dimensions, formula);
-          }
-        });
-        // Skip the unnecessary dimensions
-        // if (best_dimensions.indexOf(currentZDimension) != -1) {
-        //   dataService.dataset._cfsDimensionNames[currentZDimension] = best_dimensions;
-        //   formulas = formula.calculateFormulasDependent(currentZDimension, best_dimensions);
-        //   // Load the R Squared values through the R backend
-        //   ocpuBridge.calculateRSquared(formulas, dataService.dataset._name).then(function(rSquared){
-        //     dataService.dataset.setRSquared(rSquared, formula);
-        //     dimensions.splice(dimensions.length - 1, 1);
-        //     // If you are not supposed to stop for this formula, continue
-        //     if (!dataService.stopCalculation[formula.toString()]) {
-        //       $rootScope.$broadcast('data::updateRSquared');
-        //       calculateRSquaredSequential(dimensions, formula);
-        //     }
-        //   });
-        // }
-        // else {
-        //   console.log("Skipped " + currentZDimension);
-        //   dimensions.splice(dimensions.length - 1, 1);
-        //   // If you are not supposed to stop for this formula, continue
-        //   if (!dataService.stopCalculation[formula.toString()]) {
-        //     $rootScope.$broadcast('data::updateRSquared');
-        //     calculateRSquaredSequential(dimensions, formula);
-        //   }
-        // }
+          });
+        }
       }
     };
 
@@ -250,9 +245,8 @@ angular.module('cube')
 
     };
 
-    dataService.loadData = function(url) {
-      var GetFileName = function(url)
-      {
+    dataService.loadData = function(url, applyCFS) {
+      var GetFileName = function(url) {
         if (url) {
           var m = url.toString().match(/.*\/(.+?)\./);
           if (m && m.length > 1)
@@ -262,6 +256,8 @@ angular.module('cube')
         }
         return "";
       };
+      // Set up variable indicating to apply correlation-based feature selection
+      dataService.applyCFS = applyCFS;
       dataService.dataset._url = url;
       dataService.dataset._name = GetFileName(url);
       loadCSV(url, function(csvData){
