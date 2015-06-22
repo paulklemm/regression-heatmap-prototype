@@ -112,6 +112,7 @@ RCUBE.Cube.prototype.update = function(data, dimensions, metric, min, max) {
   var colorPlaneSelection = new THREE.Color("#ff7f0e");
   // Used to normalize the overall F statistics
   var maxFStatistic = 0;
+  var maxAIC = 0;
 
   // Only calculate the mean values, if the current formula has a fixed target feature
   // if (self._normalizeUsingRays) {
@@ -133,7 +134,13 @@ RCUBE.Cube.prototype.update = function(data, dimensions, metric, min, max) {
               var currentFeature;
               var regressionType = data[dimension_z][dimension_y][dimension_x].regressionType;
               // Typecheck metric
-              if (metric == 'rSquared' || regressionType != 'linear')
+              if (metric == 'aic') {
+                currentFeature = parseFloat(data[dimension_z][dimension_y][dimension_x].aic);
+                // Increase the maximum AIC to adjust the transfer function
+                if (currentFeature > maxAIC)
+                  maxAIC = currentFeature;
+              }
+              else if (metric == 'rSquared' || regressionType != 'linear')
                 currentFeature = parseFloat(data[dimension_z][dimension_y][dimension_x].rSquared);
               else if (metric == 'adjrSquared')
                 currentFeature = parseFloat(data[dimension_z][dimension_y][dimension_x].adjrSquared);
@@ -159,6 +166,7 @@ RCUBE.Cube.prototype.update = function(data, dimensions, metric, min, max) {
   var transferfunctionOpacity = d3.scale.linear()
     .domain([min, max]);
   var fScoreRange = d3.scale.linear().domain([0, maxFStatistic]);
+  var aicRange = d3.scale.linear().domain([maxAIC, 0]);
 
 
   // HACK:
@@ -241,7 +249,9 @@ RCUBE.Cube.prototype.update = function(data, dimensions, metric, min, max) {
 
             // Determine the proper target metric
             var currentStatistic;
-            if (metric == 'rSquared' || regressionType != 'linear')
+            if (metric == 'aic')
+              currentStatistic = 'aic';
+            else if (metric == 'rSquared' || regressionType != 'linear')
               currentStatistic = "rSquared";
             else if (metric == 'adjrSquared')
               currentStatistic = "adjrSquared";
@@ -261,9 +271,13 @@ RCUBE.Cube.prototype.update = function(data, dimensions, metric, min, max) {
               // values along the ray. Maybe it should be disabled for normalized values?
               if (metric == 'fstatistic')
                 attributesPlane.alpha.value.push(transferfunctionOpacity(fScoreRange(meanStatistic)));
+              else if (metric == 'aic')
+                attributesPlane.alpha.value.push(transferfunctionOpacity(aicRange(meanStatistic)));
               else
                 attributesPlane.alpha.value.push(transferfunctionOpacity(meanStatistic));
             }
+            else if (metric == 'aic')
+              attributesPlane.alpha.value.push(transferfunctionOpacity(aicRange(data[dimension_z][dimension_y][dimension_x][currentStatistic])));
             else if (metric == 'fstatistic' && regressionType == 'linear')
               attributesPlane.alpha.value.push(transferfunctionOpacity(fScoreRange(data[dimension_z][dimension_y][dimension_x][currentStatistic])));
             else
@@ -271,6 +285,8 @@ RCUBE.Cube.prototype.update = function(data, dimensions, metric, min, max) {
 
             if (metric == 'fstatistic' && regressionType == 'linear')
               attributesPlaneSelection.alpha.value.push(transferfunctionOpacity(fScoreRange(data[dimension_z][dimension_y][dimension_x][currentStatistic])));
+            else if (metric == 'aic')
+              attributesPlaneSelection.alpha.value.push(transferfunctionOpacity(aicRange(data[dimension_z][dimension_y][dimension_x][currentStatistic])));
             else
               attributesPlaneSelection.alpha.value.push(transferfunctionOpacity(data[dimension_z][dimension_y][dimension_x][currentStatistic]));
           }

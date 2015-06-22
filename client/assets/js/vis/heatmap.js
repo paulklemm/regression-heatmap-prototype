@@ -49,19 +49,23 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names, metric) {
 
   var sortedNames = this.getSortedNames(names);
 
-  // Store all fscores in one array to calculate min and max from it
+  // Store all fscores and aic values in one array to calculate min and max from it
   var fscores = [];
+  var aicValues = [];
   var dependentVariables = Object.keys(rSquared);
   dependentVariables.forEach(function(dependent, dependent_index){
     var independentVariables = Object.keys(rSquared[dependent]);
     independentVariables.forEach(function(independent, independent_index){
       fscores.push(parseFloat(rSquared[dependent][independent].fstatistic));
+      aicValues.push(parseFloat(rSquared[dependent][independent].aic));
     });
   });
   // Calculate range for fscore, which is normalized between 0 and 1
   var fScoreRange = d3.scale.linear().domain([0, d3.max(fscores)]);
+  // Invert AIC range, since low AIC values denote a good model
+  var aicRange = d3.scale.linear().domain([d3.max(aicValues), 0]);
 
-  var dependentVariables = Object.keys(rSquared);
+  dependentVariables = Object.keys(rSquared);
   dependentVariables.forEach(function(dependent, dependent_index){
     var independentVariables = Object.keys(rSquared[dependent]);
     independentVariables.forEach(function(independent, independent_index){
@@ -77,7 +81,9 @@ RCUBE.Heatmap.prototype.createHeatmapInput = function(rSquared, names, metric) {
       // Set the dependent value dependent on the metric variable
       var value;
       var regressionType = rSquared[dependent][independent].regressionType;
-      if (metric == 'rSquared' || regressionType != 'linear')
+      if (metric == 'aic')
+        value = aicRange(rSquared[dependent][independent].aic);
+      else if (metric == 'rSquared' || regressionType != 'linear')
         value = rSquared[dependent][independent].rSquared;
       else if (metric == 'adjrSquared')
         value = rSquared[dependent][independent].adjrSquared;

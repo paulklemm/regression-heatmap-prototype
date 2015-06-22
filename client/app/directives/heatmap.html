@@ -10,8 +10,9 @@
         <label class='control-label' for='dependent-metric'>Regression Metric</label>
         <select id="dependent-metric" class='form-control', ng-init="metric = 'rSquared'", ng-model='metric', ng-change='heatmapCtrl.metricChange()'>
           <option value="rSquared">R²</option>
+          <option value="aic">AIC</option>
           <option value="adjrSquared">Adjusted R² (linear regression only)</option>
-          <option value="fstatistic">F statistic (linear regression only)</option>
+          <option value="fstatistic">F statistic (experimental)</option>
         </select>
         <label ng-show="heatmapCtrl.orderVisible" for='order-heatmap'>Order Heatmap</label>
         <select ng-show="heatmapCtrl.orderVisible" id="order-heatmap" class='form-control'>
