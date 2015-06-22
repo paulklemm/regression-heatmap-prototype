@@ -15,6 +15,8 @@ The statistical backend can be found in [this repository](https://github.com/pau
 2. run `git push heroku master`
 3. scale heroku dynos: `heroku ps:scale web=1`
 
+## Data Format
+
 **This repository is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/)** (see LICENCE.md)
 
-I will change the licence to [http://choosealicense.com/licenses/mit/](MIT) as soon as the associated paper gets accepted.
+I will change the license to [http://choosealicense.com/licenses/mit/](MIT) as soon as the associated paper gets accepted.

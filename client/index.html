@@ -246,6 +246,16 @@
               <li>ALT key pressed + mouse up/down: move slice foward/backward.</li>
               <li>Left mouse: rotate cube.</li>
             </ul>
+          <h4>CSV Standards</h4>
+          <p>
+            We need to ensure the correct variable type classification and have to enforce some basic standards.
+            <ul>
+              <li><code>"category_1"</code> - All categorical values have to be enclosed by quotation marks.</li>
+              <li><code>1</code> - Continuous variables are denoted as digits without enclosing quotation marks.</li>
+              <li>Variables with only two manifestations are classified as dichotomous, leading to three possible data types: numerical, categorical and categorical/dichotomous.</li>
+              <li>Missing values are denoted by using no character at all, a whitespace, or an empty quotation mark encapsulated string.</li>
+            </ul>
+          </p>
           <h4>Example file</h4>
           <p>
             Please find a minimal CSV example file <a href="http://www.visualizing.org/datasets/mqic-patient-data-100k-sample">here at visualizing.org</a>. Please remove the comment on the first three lines. The first line should be "<i>gender,age,diab,hypertension,stroke,chd,smoking,bmi</i>".
