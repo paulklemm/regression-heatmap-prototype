@@ -1,8 +1,8 @@
-# Regression Cube Front-end
+# 3D Regression Heat Map Front-end
 
-This repository contains all code for the front end necessary to run a `Regresion Cube` instance. The local debugging server can be deployed using `foreman`, which is a `Ruby` gem. The deployment version can be uploaded as a `Heroku` app.
+This repository contains all code for the front end necessary to run a `3D Regression Heat Map` instance. The local debugging server can be deployed using `foreman`, which is a `Ruby` gem. The deployment version can be uploaded as a `Heroku` app.
 
-The statistical backend can be found in [this repository](https://github.com/paulklemm/regression-cube-r-package).
+The statistical backend can be found in [this repository](https://github.com/paulklemm/regression-heatmap-r-package).
 
 ## How to Start a Local Debugging Server
 
