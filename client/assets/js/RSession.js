@@ -9,7 +9,7 @@ RCUBE.RSession = function(URLToOpenCPUServer, name) {
 RCUBE.RSession.prototype.loadDataset = function(csvFilePath, callback) {
   self = this;
   this._openCPUConnection.execute(
-    "/library/regressionCube/R",
+    "/library/regressionHeatmap/R",
     'load_dataset',
   {"csv_file": csvFilePath},
   function(session){
@@ -25,7 +25,7 @@ RCUBE.RSession.prototype.loadDataset = function(csvFilePath, callback) {
 RCUBE.RSession.prototype.getCorrelationBasedFeatureSelection = function(dependent, dataId, callback) {
   self = this;
   this._openCPUConnection.execute(
-    "/library/regressionCube/R",
+    "/library/regressionHeatmap/R",
     'correlation_based_feature_selection_cached',
   {"data": self._datasetSession, "dependent": dependent, "data_id": dataId},
   function(_session){
@@ -41,7 +41,7 @@ RCUBE.RSession.prototype.getCorrelationBasedFeatureSelection = function(dependen
 RCUBE.RSession.prototype.cacheRSquared = function(formula, dataId, rSquared, callback) {
   self = this;
   this._openCPUConnection.execute(
-    "/library/regressionCube/R",
+    "/library/regressionHeatmap/R",
     'cache_r_squared_matrix',
   {"r_squared": rSquared, "formula": formula, "data_id": dataId},
   function(_session){
@@ -60,7 +60,7 @@ RCUBE.RSession.prototype.cacheRSquared = function(formula, dataId, rSquared, cal
 RCUBE.RSession.prototype.calculateRSquaredValues = function(formulas, dataId, callback) {
   self = this;
   this._openCPUConnection.execute(
-    "/library/regressionCube/R",
+    "/library/regressionHeatmap/R",
     'r_squared_matrix_formula',
   {"data": self._datasetSession, "formulas": formulas, "data_id": dataId},
   function(_session){

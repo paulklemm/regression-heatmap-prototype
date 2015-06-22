@@ -17,7 +17,7 @@ RCUBE.Helper.OpenCPUConnection = function(URLToOpenCPUServer) {
  * the results available through callback functions
  *
  * @method execute
- * @param {String} namespace Namespace of the R function (e.g. "/library/regressionCube/R")
+ * @param {String} namespace Namespace of the R function (e.g. "/library/regressionHeatmap/R")
  * @param {String} command Name of the R function
  * @param {Object} parameters JSON config object of the R command
  * @param {String} config.name The name on the config object
